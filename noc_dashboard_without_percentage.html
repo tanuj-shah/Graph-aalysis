@@ -30,8 +30,28 @@
     border-radius: 8px; padding: 8px 14px; text-align: right; font-size: 0.78rem;
   }
   .header .exchange-box .rate { font-size: 1.1rem; font-weight: 700; color: var(--yellow); }
+  .present-btn {
+    background: transparent;
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .present-btn:hover {
+    background: var(--yellow);
+    color: #111827;
+  }
 
   .layout { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 80px); }
+  .layout.presentation { grid-template-columns: 1fr; }
+  .layout.presentation .sidebar { display: none; }
+  .layout.presentation .main {
+    max-height: none;
+    padding-top: 16px;
+  }
 
   .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; max-height: calc(100vh - 80px); }
   .sidebar h2 { font-size: 0.9rem; color: var(--red); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
@@ -56,6 +76,17 @@
     width: 100%; padding: 7px 10px; background: var(--bg); color: var(--text);
     border: 1px solid var(--border); border-radius: 6px; font-size: 0.83rem; margin-bottom: 10px;
   }
+
+  input[type="number"] {
+    width: 100%; padding: 7px 10px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; font-size: 0.83rem; margin-bottom: 10px;
+  }
+
+  .hint { font-size: 0.75rem; color: var(--muted); margin-bottom: 10px; line-height: 1.35; }
+
+  .scenario-row { display: grid; grid-template-columns: 1fr 105px; gap: 10px; align-items: center; }
+  .scenario-row label { margin-bottom: 0; }
+  .scenario-row input[type="number"] { margin-bottom: 0; }
 
   details.advanced {
     border: 1px solid var(--border);
@@ -133,6 +164,7 @@
     <div>1 IRs = <span class="rate">1.6024 NPR</span></div>
     <div>1 USD = <span class="rate">151.49 NPR</span></div>
   </div>
+  <button id="presentationBtn" class="present-btn" onclick="togglePresentationMode()">Presentation Mode</button>
 </div>
 
 <div class="layout">
@@ -153,15 +185,24 @@
     </div>
 
     <div class="control-group">
-      <h3>Quick Scenario (%)</h3>
-      <label>Tax Level <span class="val" id="v_quickTax">100%</span></label>
-      <input type="range" id="quickTax" min="50" max="150" value="100" step="5">
-      <label>Cost Level <span class="val" id="v_quickCost">100%</span></label>
-      <input type="range" id="quickCost" min="70" max="140" value="100" step="5">
-      <label>Retail Price Level <span class="val" id="v_quickRetail">100%</span></label>
-      <input type="range" id="quickRetail" min="70" max="140" value="100" step="5">
-      <label>Demand Multiplier <span class="val" id="v_demand">100%</span></label>
-      <input type="range" id="demand" min="50" max="200" value="100" step="5">
+      <h3>Quick Scenario (Type Values)</h3>
+      <p class="hint">Use multiplier values: 1.00 = base, 1.10 = +10%, 0.90 = -10%</p>
+      <div class="scenario-row">
+        <label for="quickTax">Tax Level (x)</label>
+        <input type="number" id="quickTax" min="0.50" max="1.50" value="1.00" step="0.05">
+      </div>
+      <div class="scenario-row">
+        <label for="quickCost">Cost Level (x)</label>
+        <input type="number" id="quickCost" min="0.70" max="1.40" value="1.00" step="0.05">
+      </div>
+      <div class="scenario-row">
+        <label for="quickRetail">Retail Price Level (x)</label>
+        <input type="number" id="quickRetail" min="0.70" max="1.40" value="1.00" step="0.05">
+      </div>
+      <div class="scenario-row">
+        <label for="demand">Demand Level (x)</label>
+        <input type="number" id="demand" min="0.50" max="2.00" value="1.00" step="0.05">
+      </div>
     </div>
 
     <div class="control-group">
@@ -406,9 +447,9 @@ const FUEL_KEYS = ['Petrol', 'Diesel', 'Kerosene', 'ATF_DP', 'ATF_DF', 'LP_Gas']
 const sliders = ['quickTax','quickCost','quickRetail','pricePetrol','priceDiesel','priceKerosene','priceATFDP','priceATFDF','priceGas','demand','irsRate','usdRate'];
 
 const defaults = {
-  quickTax:100, quickCost:100, quickRetail:100,
+  quickTax:1, quickCost:1, quickRetail:1,
   pricePetrol:202, priceDiesel:182, priceKerosene:182, priceATFDP:251, priceATFDF:270.32, priceGas:1910,
-  demand:100, irsRate: 1.6024, usdRate: 151.49
+  demand:1, irsRate: 1.6024, usdRate: 151.49
 };
 
 sliders.forEach(id => {
@@ -434,7 +475,7 @@ function computeFuel(key) {
   const b = BASE[key];
   const f = b.unitFactor;
 
-  const taxLevel = getVal('quickTax') / 100;
+  const taxLevel = getVal('quickTax');
   const tax = { ...b.tax };
   Object.keys(tax).forEach(k => {
     tax[k] = b.tax[k] * taxLevel;
@@ -442,7 +483,7 @@ function computeFuel(key) {
 
   const taxWithoutVat = Object.entries(tax).filter(([k]) => k !== 'vat_13pct').reduce((s,[,v]) => s + v, 0);
 
-  const costLevel = getVal('quickCost') / 100;
+  const costLevel = getVal('quickCost');
 
   const exDepotNrs = b.exDepotNrs * costLevel;
   const nocExpenses = b.nocExpenses * costLevel;
@@ -468,7 +509,7 @@ function computeFuel(key) {
 
   // Retail price — all in NPR
   let retailPrice;
-  const retailLevel = getVal('quickRetail') / 100;
+  const retailLevel = getVal('quickRetail');
   if (key === 'Petrol') retailPrice = getVal('pricePetrol') * retailLevel;
   else if (key === 'Diesel') retailPrice = getVal('priceDiesel') * retailLevel;
   else if (key === 'Kerosene') retailPrice = getVal('priceKerosene') * retailLevel;
@@ -476,7 +517,7 @@ function computeFuel(key) {
   else if (key === 'ATF_DF') retailPrice = getVal('priceATFDF') * retailLevel;
   else retailPrice = getVal('priceGas') * retailLevel;
 
-  const demandMult = getVal('demand') / 100;
+  const demandMult = getVal('demand');
   const demand = b.demand * demandMult;
 
   const profitPerUnit = retailPrice - costPerUnit;
@@ -547,6 +588,15 @@ function updateAll() {
   updateKPIs(data, fuels);
   updateCharts(data, fuels);
   updateTable(data, fuels);
+}
+
+let isPresentationMode = false;
+function togglePresentationMode() {
+  isPresentationMode = !isPresentationMode;
+  const layout = document.querySelector('.layout');
+  const btn = document.getElementById('presentationBtn');
+  layout.classList.toggle('presentation', isPresentationMode);
+  btn.textContent = isPresentationMode ? 'Exit Presentation Mode' : 'Presentation Mode';
 }
 
 function updateKPIs(data, fuels) {
