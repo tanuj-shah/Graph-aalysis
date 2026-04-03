@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nepal Oil Corporation - Simple Pricing Dashboard (Nepal)</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0c1222; --surface: #162032; --border: #1e3a5f;
+    --text: #e2e8f0; --muted: #94a3b8; --accent: #dc2626;
+    --blue: #1d4ed8; --green: #16a34a; --red: #dc2626;
+    --yellow: #eab308; --purple: #7c3aed; --orange: #ea580c;
+    --pink: #db2777; --cyan: #0891b2; --teal: #0d9488;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, #1e3a5f 0%, #162032 100%);
+    border-bottom: 3px solid var(--red); padding: 16px 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .header .flag { font-size: 2rem; }
+  .header .title-block h1 { font-size: 1.3rem; font-weight: 700; }
+  .header .title-block h1 .nep { color: var(--red); }
+  .header .title-block p { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .header .exchange-box {
+    margin-left: auto; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; text-align: right; font-size: 0.78rem;
+  }
+  .header .exchange-box .rate { font-size: 1.1rem; font-weight: 700; color: var(--yellow); }
+
+  .layout { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 80px); }
+
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; max-height: calc(100vh - 80px); }
+  .sidebar h2 { font-size: 0.9rem; color: var(--red); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+
+  .control-group { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .control-group:last-child { border-bottom: none; }
+  .control-group h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  label { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; margin-bottom: 3px; color: var(--text); }
+  label span.val { color: var(--yellow); font-weight: 600; min-width: 70px; text-align: right; }
+
+  input[type="range"] {
+    width: 100%; height: 5px; -webkit-appearance: none; appearance: none;
+    background: var(--border); border-radius: 3px; outline: none; margin-bottom: 10px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--red); cursor: pointer; border: 2px solid white;
+  }
+
+  select {
+    width: 100%; padding: 7px 10px; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 6px; font-size: 0.83rem; margin-bottom: 10px;
+  }
+
+  details.advanced {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.02);
+  }
+  details.advanced summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  details.advanced .inner { margin-top: 10px; }
+
+  .main { padding: 20px; overflow-y: auto; max-height: calc(100vh - 80px); }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-bottom: 18px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .kpi .label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi .value { font-size: 1.35rem; font-weight: 700; margin-top: 3px; }
+  .kpi .value.positive { color: var(--green); }
+  .kpi .value.negative { color: var(--red); }
+  .kpi .sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .chart-card h3 { font-size: 0.85rem; margin-bottom: 10px; color: var(--text); }
+  .chart-card canvas { width: 100% !important; }
+  .full-width { grid-column: 1 / -1; }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .data-table th, .data-table td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); }
+  .data-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.72rem; position: sticky; top: 0; background: var(--surface); }
+  .data-table td:first-child, .data-table th:first-child { text-align: left; }
+  .data-table tr:hover td { background: rgba(220,38,38,0.04); }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.68rem; font-weight: 600; }
+  .badge.ok { background: rgba(22,163,74,0.15); color: var(--green); }
+  .badge.warn { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .badge.err { background: rgba(220,38,38,0.15); color: var(--red); }
+  .badge.info { background: rgba(29,78,216,0.15); color: #60a5fa; }
+
+  .quality-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .quality-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+  .quality-card h4 { font-size: 0.83rem; margin-bottom: 8px; }
+  .quality-card ul { list-style: none; font-size: 0.78rem; }
+  .quality-card li { padding: 3px 0; color: var(--muted); }
+
+  .reset-btn {
+    width: 100%; padding: 9px; background: transparent; border: 1px solid var(--red);
+    color: var(--red); border-radius: 6px; cursor: pointer; font-size: 0.83rem;
+    margin-top: 8px; transition: all 0.2s;
+  }
+  .reset-btn:hover { background: var(--red); color: white; }
+
+  .nrs { font-size: 0.75em; color: var(--muted); }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { border-right: none; border-bottom: 1px solid var(--border); max-height: none; }
+    .main { max-height: none; }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="title-block">
+    <h1><span class="nep">Nepal Oil Corporation</span> - Simple Petroleum Pricing Dashboard</h1>
+    <p>IOC Price 2082/12/18 (2026-04-01) | NOC Revision 2082/12/20 (2026-04-03) | All values in Nepal Rupees (NPR)</p>
+  </div>
+  <div class="exchange-box">
+    <div>1 IRs = <span class="rate">1.6024 NPR</span></div>
+    <div>1 USD = <span class="rate">151.49 NPR</span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <h2>Simple Nepal Controls</h2>
+
+    <div class="control-group">
+      <h3>Fuel Type</h3>
+      <select id="fuelSelect">
+        <option value="all">All Fuels (Comparison)</option>
+        <option value="Petrol">Petrol (Barauni)</option>
+        <option value="Diesel">Diesel (Amj/Barauni)</option>
+        <option value="Kerosene">Kerosene (Barauni)</option>
+        <option value="ATF_DP">ATF Domestic (Barauni)</option>
+        <option value="ATF_DF">ATF Dollar Fuel (Barauni)</option>
+        <option value="LP_Gas">LP Gas (Barauni)</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <h3>Quick Scenario (%)</h3>
+      <label>Tax Level <span class="val" id="v_quickTax">100%</span></label>
+      <input type="range" id="quickTax" min="50" max="150" value="100" step="5">
+      <label>Cost Level <span class="val" id="v_quickCost">100%</span></label>
+      <input type="range" id="quickCost" min="70" max="140" value="100" step="5">
+      <label>Retail Price Level <span class="val" id="v_quickRetail">100%</span></label>
+      <input type="range" id="quickRetail" min="70" max="140" value="100" step="5">
+      <label>Demand Multiplier <span class="val" id="v_demand">100%</span></label>
+      <input type="range" id="demand" min="50" max="200" value="100" step="5">
+    </div>
+
+    <div class="control-group">
+      <h3>Exchange Rates</h3>
+      <label>IRs/NPR Rate <span class="val" id="v_irsRate">1.6024</span></label>
+      <input type="range" id="irsRate" min="1.50" max="1.70" value="1.6024" step="0.0001">
+      <label>USD/NPR Rate <span class="val" id="v_usdRate">151.49</span></label>
+      <input type="range" id="usdRate" min="130" max="170" value="151.49" step="0.01">
+    </div>
+
+    <div class="control-group">
+      <details class="advanced">
+        <summary>Advanced: Fuel-wise Base Retail Prices (NPR)</summary>
+        <div class="inner">
+          <label>Petrol <span class="val" id="v_pricePetrol">NPR 202</span></label>
+          <input type="range" id="pricePetrol" min="150" max="300" value="202" step="1">
+          <label>Diesel <span class="val" id="v_priceDiesel">NPR 182</span></label>
+          <input type="range" id="priceDiesel" min="130" max="350" value="182" step="1">
+          <label>Kerosene <span class="val" id="v_priceKerosene">NPR 182</span></label>
+          <input type="range" id="priceKerosene" min="130" max="300" value="182" step="1">
+          <label>ATF (DP) <span class="val" id="v_priceATFDP">NPR 251</span></label>
+          <input type="range" id="priceATFDP" min="180" max="350" value="251" step="1">
+          <label>ATF (DF) <span class="val" id="v_priceATFDF">NPR 270.32</span></label>
+          <input type="range" id="priceATFDF" min="180" max="400" value="270.32" step="0.01">
+          <label>LP Gas/cyl <span class="val" id="v_priceGas">NPR 1910</span></label>
+          <input type="range" id="priceGas" min="1400" max="2800" value="1910" step="10">
+        </div>
+      </details>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">Reset All Parameters</button>
+  </div>
+
+  <div class="main">
+    <div class="kpi-row" id="kpiRow"></div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Total Cost vs Selling Price <span class="nrs">(NPR per liter/cylinder)</span></h3>
+        <canvas id="chartCostVsSell"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Profit/Loss per Unit <span class="nrs">(NPR)</span></h3>
+        <canvas id="chartProfitLoss"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Fortnightly Profit/Loss <span class="nrs">(Crore NPR)</span></h3>
+        <canvas id="chartTotalPL"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Government Revenue <span class="nrs">(Crore NPR fortnightly)</span></h3>
+        <canvas id="chartGovtRev"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>Detailed Cost and Revenue (All values in NPR)</h3>
+      <div style="overflow-x:auto; max-height:70vh;">
+        <table class="data-table" id="detailTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ EXCHANGE RATES (derived from NOC data) ============
+const DEFAULT_IRS_RATE = 1.6024;  // 1 IRs = 1.6024 NPR
+const DEFAULT_USD_RATE = 151.49;  // 1 USD = 151.49 NPR (derived: ATF_DF selling 1.785 USD = 270.32 NPR)
+
+// ============ BASE DATA — ALL IN NPR (converted from CSV + Excel) ============
+const BASE = {
+  Petrol: {
+    label: 'Petrol', unit: 'NPR/liter', unitLabel: 'liter', unitFactor: 1000,
+    source: 'Barauni', currency: 'NPR',
+    tax: {
+      custom_duty: 25200, cargo_vehicle_charge: 0, custom_service_charge: 25,
+      road_maintenance_charge: 4000, pollution_charge: 1500, green_tax: 1000,
+      psf_transfer: 2020, infrastructure_development_tax: 10000,
+      vat_13pct: 23238.94, fuel_throughput_charge: 0
+    },
+    totalTax: 66983.94,
+    exDepotNrs: 153783.09,
+    nocExpenses: 2422.73,
+    transportation: 6673.49,
+    dealerExpenses: 6496.91,
+    landedCost: 206624.30,
+    totalCostWithoutVat: 213121.21,
+    totalCostWithVat: 236360.15,
+    costPerUnit: 236.36,
+    retailPrice: 202,
+    demand: 33108, demandUnit: 'KL',
+    profitPerUnit: -34.36,
+    totalProfitCrore: -113.76,
+    govtRevPerUnit: 66.98,
+    totalGovtRevCrore: 221.77,
+    borderIndia: 171.26, borderNepal: 199.50, borderDiff: 28.24
+  },
+  Diesel: {
+    label: 'Diesel', unit: 'NPR/liter', unitLabel: 'liter', unitFactor: 1000,
+    source: 'Amj/Barauni', currency: 'NPR',
+    tax: {
+      custom_duty: 12000, cargo_vehicle_charge: 0, custom_service_charge: 25,
+      road_maintenance_charge: 2000, pollution_charge: 1500, green_tax: 1000,
+      psf_transfer: 1820, infrastructure_development_tax: 10000,
+      vat_13pct: 20938.05, fuel_throughput_charge: 0
+    },
+    totalTax: 49283.05,
+    exDepotNrs: 242486.76,
+    nocExpenses: 2374.73,
+    transportation: 3221.64,
+    dealerExpenses: 5174.13,
+    landedCost: 276428.13,
+    totalCostWithoutVat: 281602.26,
+    totalCostWithVat: 302540.31,
+    costPerUnit: 302.54,
+    retailPrice: 182,
+    demand: 82277, demandUnit: 'KL',
+    profitPerUnit: -120.54,
+    totalProfitCrore: -991.78,
+    govtRevPerUnit: 49.28,
+    totalGovtRevCrore: 405.49,
+    borderIndia: 149.26, borderNepal: 179.50, borderDiff: 30.24
+  },
+  Kerosene: {
+    label: 'Kerosene', unit: 'NPR/liter', unitLabel: 'liter', unitFactor: 1000,
+    source: 'Barauni', currency: 'NPR',
+    tax: {
+      custom_duty: 12000, cargo_vehicle_charge: 0, custom_service_charge: 25,
+      road_maintenance_charge: 0, pollution_charge: 0, green_tax: 0,
+      psf_transfer: 1820, infrastructure_development_tax: 0,
+      vat_13pct: 20938.05, fuel_throughput_charge: 0
+    },
+    totalTax: 34783.05,
+    exDepotNrs: 197903.21,
+    nocExpenses: 2074.20,
+    transportation: 6673.49,
+    dealerExpenses: 4628.78,
+    landedCost: 220495.89,
+    totalCostWithoutVat: 225124.67,
+    totalCostWithVat: 246062.72,
+    costPerUnit: 246.06,
+    retailPrice: 182,
+    demand: 865, demandUnit: 'KL',
+    profitPerUnit: -64.06,
+    totalProfitCrore: -5.54,
+    govtRevPerUnit: 34.78,
+    totalGovtRevCrore: 3.01,
+    borderIndia: 0, borderNepal: 0, borderDiff: 0
+  },
+  ATF_DP: {
+    label: 'ATF (DP)', unit: 'NPR/liter', unitLabel: 'liter', unitFactor: 1000,
+    source: 'Barauni', currency: 'NPR',
+    tax: {
+      custom_duty: 2100, cargo_vehicle_charge: 0, custom_service_charge: 25,
+      road_maintenance_charge: 0, pollution_charge: 0, green_tax: 0,
+      psf_transfer: 2510, infrastructure_development_tax: 0,
+      vat_13pct: 28876.11, fuel_throughput_charge: 888.50
+    },
+    totalTax: 34399.60,
+    exDepotNrs: 213498.50,
+    nocExpenses: 2119.27,
+    transportation: 6728.64,
+    dealerExpenses: 0,
+    landedCost: 227869.90,
+    totalCostWithoutVat: 227869.90,
+    totalCostWithVat: 256746.01,
+    costPerUnit: 256.75,
+    retailPrice: 251,
+    demand: 2616, demandUnit: 'KL',
+    profitPerUnit: -5.75,
+    totalProfitCrore: -1.50,
+    govtRevPerUnit: 34.40,
+    totalGovtRevCrore: 9.00,
+    borderIndia: 159.49, borderNepal: 251, borderDiff: 91.51
+  },
+  ATF_DF: {
+    label: 'ATF (DF)', unit: 'NPR/liter', unitLabel: 'liter', unitFactor: 1000,
+    source: 'Barauni', currency: 'USD',
+    // Note: ATF_DF original selling price = 1.785 USD/liter = 270.32 NPR/liter
+    // Converted using derived rate: 1 USD = 151.49 NPR
+    tax: {
+      custom_duty: 2100, cargo_vehicle_charge: 0, custom_service_charge: 25,
+      road_maintenance_charge: 0, pollution_charge: 0, green_tax: 0,
+      psf_transfer: 2703.20, infrastructure_development_tax: 0,
+      vat_13pct: 35141.65, fuel_throughput_charge: 1081.28
+    },
+    totalTax: 41051.14,
+    exDepotNrs: 213498.50,
+    nocExpenses: 2119.27,
+    transportation: 6728.64,
+    dealerExpenses: 0,
+    landedCost: 263397.54,
+    totalCostWithoutVat: 263397.54,
+    totalCostWithVat: 263397.54, // ATF_DF: VAT included differently
+    costPerUnit: 263.40,
+    retailPrice: 270.32, // 1.785 USD * 151.49 NPR/USD
+    retailPriceUSD: 1.785,
+    demand: 5892, demandUnit: 'KL',
+    profitPerUnit: 6.92,
+    totalProfitCrore: 4.08,
+    govtRevPerUnit: 41.05,
+    totalGovtRevCrore: 24.19,
+    borderIndia: 129.59, // 855.25 USD/MT converted approx
+    borderNepal: 270.32, // 1785 USD/KL = 1.785 USD/L * 151.49
+    borderDiff: 140.73
+  },
+  LP_Gas: {
+    label: 'LP Gas', unit: 'NPR/cyl', unitLabel: 'cylinder', unitFactor: 1,
+    source: 'Barauni', currency: 'NPR',
+    tax: {
+      custom_duty: 90.42, cargo_vehicle_charge: 1.18, custom_service_charge: 0.39,
+      road_maintenance_charge: 0, pollution_charge: 0, green_tax: 0,
+      psf_transfer: 19.10, infrastructure_development_tax: 0,
+      vat_13pct: 213.85, fuel_throughput_charge: 0
+    },
+    totalTax: 324.95,
+    exDepotNrs: 1690.01,
+    nocExpenses: 10.41,
+    transportation: 0,
+    dealerExpenses: 301.01,
+    landedCost: 1811.51,
+    totalCostWithoutVat: 2112.52,
+    totalCostWithVat: 2326.37,
+    costPerUnit: 2326.37,
+    retailPrice: 1910,
+    demand: 1522444, demandUnit: 'cylinders',
+    profitPerUnit: -416.37,
+    totalProfitCrore: -63.39,
+    govtRevPerUnit: 324.95,
+    totalGovtRevCrore: 49.47,
+    borderIndia: 1526.23, borderNepal: 1910, borderDiff: 383.77
+  }
+};
+
+const COLORS = {
+  Petrol: '#3b82f6', Diesel: '#f97316', Kerosene: '#8b5cf6',
+  ATF_DP: '#10b981', ATF_DF: '#06b6d4', LP_Gas: '#ec4899'
+};
+const FUEL_KEYS = ['Petrol', 'Diesel', 'Kerosene', 'ATF_DP', 'ATF_DF', 'LP_Gas'];
+
+// ============ SLIDERS ============
+const sliders = ['quickTax','quickCost','quickRetail','pricePetrol','priceDiesel','priceKerosene','priceATFDP','priceATFDF','priceGas','demand','irsRate','usdRate'];
+
+const defaults = {
+  quickTax:100, quickCost:100, quickRetail:100,
+  pricePetrol:202, priceDiesel:182, priceKerosene:182, priceATFDP:251, priceATFDF:270.32, priceGas:1910,
+  demand:100, irsRate: 1.6024, usdRate: 151.49
+};
+
+sliders.forEach(id => {
+  document.getElementById(id).addEventListener('input', () => updateAll());
+});
+
+function getVal(id) { return parseFloat(document.getElementById(id).value); }
+
+function resetAll() {
+  Object.entries(defaults).forEach(([id, val]) => { document.getElementById(id).value = val; });
+  updateAll();
+}
+
+const numFmt = new Intl.NumberFormat('en-NP', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function fmt(n) { return numFmt.format(Number(n)); }
+function fmtMoney(n) { return 'NPR ' + fmt(n); }
+
+// ============ COMPUTE ============
+function computeFuel(key) {
+  const b = BASE[key];
+  const f = b.unitFactor;
+
+  const taxLevel = getVal('quickTax') / 100;
+  const tax = { ...b.tax };
+  Object.keys(tax).forEach(k => {
+    tax[k] = b.tax[k] * taxLevel;
+  });
+
+  const taxWithoutVat = Object.entries(tax).filter(([k]) => k !== 'vat_13pct').reduce((s,[,v]) => s + v, 0);
+
+  const costLevel = getVal('quickCost') / 100;
+
+  const exDepotNrs = b.exDepotNrs * costLevel;
+  const nocExpenses = b.nocExpenses * costLevel;
+  const transportation = b.transportation * costLevel;
+  const dealerExpenses = b.dealerExpenses * costLevel;
+
+  let landedCost;
+  let totalCostWithoutVat;
+  let totalCostWithVat;
+
+  if (key === 'ATF_DF') {
+    landedCost = exDepotNrs + taxWithoutVat + tax.vat_13pct + nocExpenses + transportation;
+    totalCostWithoutVat = landedCost + dealerExpenses;
+    totalCostWithVat = totalCostWithoutVat;
+  } else {
+    landedCost = exDepotNrs + taxWithoutVat + nocExpenses + transportation;
+    totalCostWithoutVat = landedCost + dealerExpenses;
+    totalCostWithVat = totalCostWithoutVat + tax.vat_13pct;
+  }
+
+  const totalTax = taxWithoutVat + tax.vat_13pct;
+  const costPerUnit = totalCostWithVat / f;
+
+  // Retail price — all in NPR
+  let retailPrice;
+  const retailLevel = getVal('quickRetail') / 100;
+  if (key === 'Petrol') retailPrice = getVal('pricePetrol') * retailLevel;
+  else if (key === 'Diesel') retailPrice = getVal('priceDiesel') * retailLevel;
+  else if (key === 'Kerosene') retailPrice = getVal('priceKerosene') * retailLevel;
+  else if (key === 'ATF_DP') retailPrice = getVal('priceATFDP') * retailLevel;
+  else if (key === 'ATF_DF') retailPrice = getVal('priceATFDF') * retailLevel;
+  else retailPrice = getVal('priceGas') * retailLevel;
+
+  const demandMult = getVal('demand') / 100;
+  const demand = b.demand * demandMult;
+
+  const profitPerUnit = retailPrice - costPerUnit;
+  let totalProfitCrore;
+  if (key === 'LP_Gas') {
+    totalProfitCrore = (profitPerUnit * demand) / 1e7;
+  } else {
+    totalProfitCrore = (profitPerUnit * demand * 1000) / 1e7;
+  }
+
+  const govtRevPerUnit = totalTax / f;
+  let totalGovtRevCrore;
+  if (key === 'LP_Gas') {
+    totalGovtRevCrore = (govtRevPerUnit * demand) / 1e7;
+  } else {
+    totalGovtRevCrore = (govtRevPerUnit * demand * 1000) / 1e7;
+  }
+
+  return {
+    label: b.label, unit: b.unit, unitLabel: b.unitLabel, unitFactor: f,
+    source: b.source, currency: b.currency,
+    tax, totalTax, exDepotNrs, nocExpenses, transportation, dealerExpenses,
+    landedCost, totalCostWithoutVat, totalCostWithVat, costPerUnit, retailPrice,
+    demand, demandUnit: b.demandUnit, profitPerUnit, totalProfitCrore,
+    govtRevPerUnit, totalGovtRevCrore,
+    borderIndia: b.borderIndia, borderNepal: b.borderNepal, borderDiff: b.borderDiff
+  };
+}
+
+// ============ CHARTS ============
+let charts = {};
+function createChart(id, config) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(canvas.getContext('2d'), config);
+}
+
+const chartDefaults = {
+  plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+  scales: {
+    x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+  }
+};
+
+function updateAll() {
+  // Update labels
+  sliders.forEach(id => {
+    const el = document.getElementById(id);
+    const lbl = document.getElementById('v_' + id);
+    if (!lbl) return;
+    if (id.startsWith('price')) lbl.textContent = 'NPR ' + el.value;
+    else if (id === 'irsRate' || id === 'usdRate') lbl.textContent = el.value;
+    else lbl.textContent = el.value + '%';
+  });
+
+  // Update exchange rate display
+  document.querySelector('.exchange-box').innerHTML =
+    `<div>1 IRs = <span class="rate">${getVal('irsRate').toFixed(4)} NPR</span></div>
+     <div>1 USD = <span class="rate">${getVal('usdRate').toFixed(2)} NPR</span></div>`;
+
+  const selected = document.getElementById('fuelSelect').value;
+  const fuels = selected === 'all' ? FUEL_KEYS : [selected];
+  const data = {};
+  fuels.forEach(k => { data[k] = computeFuel(k); });
+
+  updateKPIs(data, fuels);
+  updateCharts(data, fuels);
+  updateTable(data, fuels);
+}
+
+function updateKPIs(data, fuels) {
+  const row = document.getElementById('kpiRow');
+  if (fuels.length === 1) {
+    const d = data[fuels[0]]; const b = BASE[fuels[0]];
+    row.innerHTML = `
+      <div class="kpi"><div class="label">Cost / ${d.unitLabel}</div>
+        <div class="value">${fmtMoney(d.costPerUnit)}</div>
+        <div class="sub">Base: ${fmtMoney(b.costPerUnit)}</div></div>
+      <div class="kpi"><div class="label">Retail Price</div>
+        <div class="value">${fmtMoney(d.retailPrice)}</div>
+        <div class="sub">Base: ${fmtMoney(b.retailPrice)}</div></div>
+      <div class="kpi"><div class="label">Profit/Loss per ${d.unitLabel}</div>
+        <div class="value ${d.profitPerUnit>=0?'positive':'negative'}">${fmtMoney(d.profitPerUnit)}</div>
+        <div class="sub">Base: ${fmtMoney(b.profitPerUnit)}</div></div>
+      <div class="kpi"><div class="label">Fortnightly P/L</div>
+        <div class="value ${d.totalProfitCrore>=0?'positive':'negative'}">${fmt(d.totalProfitCrore)} Cr NPR</div>
+        <div class="sub">Base: ${fmt(b.totalProfitCrore)} Cr</div></div>
+      <div class="kpi"><div class="label">Tax / ${d.unitLabel}</div>
+        <div class="value">${fmtMoney(d.govtRevPerUnit)}</div>
+        <div class="sub">Base: ${fmtMoney(b.govtRevPerUnit)}</div></div>
+      <div class="kpi"><div class="label">Govt Revenue</div>
+        <div class="value">${fmt(d.totalGovtRevCrore)} Cr NPR</div>
+        <div class="sub">Base: ${fmt(b.totalGovtRevCrore)} Cr</div></div>`;
+  } else {
+    const totalPL = fuels.reduce((s,k) => s + data[k].totalProfitCrore, 0);
+    const totalGR = fuels.reduce((s,k) => s + data[k].totalGovtRevCrore, 0);
+    const basePL = fuels.reduce((s,k) => s + BASE[k].totalProfitCrore, 0);
+    const baseGR = fuels.reduce((s,k) => s + BASE[k].totalGovtRevCrore, 0);
+    const worst = fuels.reduce((w,k) => data[k].totalProfitCrore < data[w].totalProfitCrore ? k : w, fuels[0]);
+    row.innerHTML = `
+      <div class="kpi"><div class="label">Total Fortnightly P/L</div>
+        <div class="value ${totalPL>=0?'positive':'negative'}">${fmt(totalPL)} Cr NPR</div>
+        <div class="sub">Base: ${fmt(basePL)} Cr</div></div>
+      <div class="kpi"><div class="label">Total Govt Revenue</div>
+        <div class="value">${fmt(totalGR)} Cr NPR</div>
+        <div class="sub">Base: ${fmt(baseGR)} Cr</div></div>
+      <div class="kpi"><div class="label">Biggest Loss</div>
+        <div class="value negative">${data[worst].label}</div>
+        <div class="sub">${fmt(data[worst].totalProfitCrore)} Cr NPR</div></div>
+      <div class="kpi"><div class="label">Net (Revenue + P/L)</div>
+        <div class="value ${(totalGR+totalPL)>=0?'positive':'negative'}">${fmt(totalGR+totalPL)} Cr NPR</div>
+        <div class="sub">Base: ${fmt(baseGR+basePL)} Cr</div></div>`;
+  }
+}
+
+function updateCharts(data, fuels) {
+  const labels = fuels.map(k => data[k].label);
+  const colors = fuels.map(k => COLORS[k]);
+
+  // Cost vs Sell
+  createChart('chartCostVsSell', {
+    type: 'bar', data: { labels, datasets: [
+      { label: 'Total Cost (NPR)', data: fuels.map(k => +data[k].costPerUnit.toFixed(2)), backgroundColor: 'rgba(220,38,38,0.7)', borderRadius: 4 },
+      { label: 'Retail Price (NPR)', data: fuels.map(k => +data[k].retailPrice.toFixed(2)), backgroundColor: 'rgba(22,163,74,0.7)', borderRadius: 4 }
+    ]}, options: { responsive: true, ...chartDefaults }
+  });
+
+  // Profit/Loss per unit
+  createChart('chartProfitLoss', {
+    type: 'bar', data: { labels, datasets: [{
+      label: 'NRs per unit', data: fuels.map(k => +data[k].profitPerUnit.toFixed(2)),
+      backgroundColor: fuels.map(k => data[k].profitPerUnit >= 0 ? 'rgba(22,163,74,0.8)' : 'rgba(220,38,38,0.8)'),
+      borderRadius: 4
+    }]}, options: { responsive: true, plugins: { legend: { display: false } }, scales: chartDefaults.scales }
+  });
+
+  // Total P/L
+  createChart('chartTotalPL', {
+    type: 'bar', data: { labels, datasets: [{
+      label: 'Crore NPR', data: fuels.map(k => +data[k].totalProfitCrore.toFixed(2)),
+      backgroundColor: fuels.map(k => data[k].totalProfitCrore >= 0 ? 'rgba(22,163,74,0.8)' : 'rgba(220,38,38,0.8)'),
+      borderRadius: 4
+    }]}, options: { responsive: true, plugins: { legend: { display: false } }, scales: chartDefaults.scales }
+  });
+
+  // Tax composition
+  const taxKeys = ['custom_duty','road_maintenance_charge','pollution_charge','green_tax','infrastructure_development_tax','psf_transfer','vat_13pct','fuel_throughput_charge'];
+  const taxLabels = ['Custom Duty','Road Maint.','Pollution','Green Tax','Infra Tax','PSF Transfer','VAT 13%','Throughput'];
+  const taxColors = ['#3b82f6','#f97316','#ef4444','#10b981','#8b5cf6','#eab308','#ec4899','#06b6d4'];
+  createChart('chartTax', {
+    type: 'bar', data: { labels,
+      datasets: taxKeys.map((tk,i) => ({
+        label: taxLabels[i], data: fuels.map(k => +(data[k].tax[tk]/data[k].unitFactor).toFixed(2)),
+        backgroundColor: taxColors[i]
+      }))
+    }, options: { responsive: true, ...chartDefaults, scales: {
+      x: { stacked: true, ...chartDefaults.scales.x }, y: { stacked: true, ...chartDefaults.scales.y }
+    }}
+  });
+
+  // Waterfall
+  const wfLabels = ['Ex-Depot','Tax (excl VAT)','NOC Exp.','Transport','Dealer','VAT 13%','= Total Cost','Retail Price'];
+  createChart('chartWaterfall', {
+    type: 'bar', data: { labels: wfLabels,
+      datasets: fuels.map(k => {
+        const d = data[k], f = d.unitFactor;
+        const taxNoVat = (d.totalTax - d.tax.vat_13pct) / f;
+        return {
+          label: d.label, data: [d.exDepotNrs/f, taxNoVat, d.nocExpenses/f, d.transportation/f, d.dealerExpenses/f, d.tax.vat_13pct/f, d.costPerUnit, d.retailPrice].map(v => +v.toFixed(2)),
+          backgroundColor: COLORS[k] + 'cc', borderRadius: 3
+        };
+      })
+    }, options: { responsive: true, ...chartDefaults }
+  });
+
+  // Govt Revenue
+  createChart('chartGovtRev', {
+    type: 'bar', data: { labels, datasets: [{
+      label: 'Crore NPR', data: fuels.map(k => +data[k].totalGovtRevCrore.toFixed(2)),
+      backgroundColor: colors.map(c => c + 'cc'), borderRadius: 4
+    }]}, options: { responsive: true, plugins: { legend: { display: false } }, scales: chartDefaults.scales }
+  });
+
+  // Demand
+  createChart('chartDemand', {
+    type: 'bar', data: { labels, datasets: [{
+      label: 'Demand', data: fuels.map(k => k === 'LP_Gas' ? +(data[k].demand/1000).toFixed(1) : +data[k].demand.toFixed(0)),
+      backgroundColor: colors.map(c => c + 'cc'), borderRadius: 4
+    }]}, options: { responsive: true, plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => { const k = fuels[ctx.dataIndex]; return k === 'LP_Gas' ? ctx.raw + 'K cylinders' : ctx.raw + ' KL'; }}}
+    }, scales: chartDefaults.scales }
+  });
+}
+
+function updateTable(data, fuels) {
+  const rows = [
+    ['Ex-Depot Price (NPR/KL or cyl)', k => data[k].exDepotNrs],
+    ['Total Government Tax', k => data[k].totalTax],
+    ['  Custom Duty', k => data[k].tax.custom_duty],
+    ['  Road Maintenance Charge', k => data[k].tax.road_maintenance_charge],
+    ['  Pollution Charge', k => data[k].tax.pollution_charge],
+    ['  Green Tax', k => data[k].tax.green_tax],
+    ['  Infrastructure Dev Tax', k => data[k].tax.infrastructure_development_tax],
+    ['  PSF Transfer', k => data[k].tax.psf_transfer],
+    ['  VAT 13%', k => data[k].tax.vat_13pct],
+    ['  Fuel Throughput Charge', k => data[k].tax.fuel_throughput_charge],
+    ['NOC Expenses', k => data[k].nocExpenses],
+    ['Transportation', k => data[k].transportation],
+    ['Dealer/Gas Company Expenses', k => data[k].dealerExpenses],
+    ['Landed Cost', k => data[k].landedCost],
+    ['Total Cost w/o VAT', k => data[k].totalCostWithoutVat],
+    ['Total Cost with VAT', k => data[k].totalCostWithVat],
+    ['---', null],
+    ['Cost per ' + (fuels.length===1 ? data[fuels[0]].unitLabel : 'unit') + ' (NPR)', k => data[k].costPerUnit],
+    ['Retail Price (NPR)', k => data[k].retailPrice],
+    ['Profit/Loss per unit (NPR)', k => data[k].profitPerUnit],
+    ['---', null],
+    ['Fortnightly Demand', k => data[k].demand],
+    ['Total P/L (Crore NPR)', k => data[k].totalProfitCrore],
+    ['Govt Revenue per unit (NPR)', k => data[k].govtRevPerUnit],
+    ['Govt Revenue (Crore NPR)', k => data[k].totalGovtRevCrore],
+  ];
+
+  let html = '<thead><tr><th>Component</th>' + fuels.map(k => `<th>${data[k].label}<br><small>${data[k].unit}</small></th>`).join('') + '</tr></thead><tbody>';
+  rows.forEach(([label, fn]) => {
+    if (label === '---') { html += '<tr><td colspan="' + (fuels.length+1) + '" style="border-top:2px solid var(--border);padding:2px"></td></tr>'; return; }
+    html += '<tr><td>' + label + '</td>';
+    fuels.forEach(k => {
+      const v = fn(k);
+      const isLoss = label.includes('Profit/Loss') && v < 0;
+      const isProfit = label.includes('Profit/Loss') && v > 0;
+      const style = isLoss ? 'color:var(--red);font-weight:600' : isProfit ? 'color:var(--green);font-weight:600' : '';
+      html += `<td style="${style}">${fmt(v)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  document.getElementById('detailTable').innerHTML = html;
+}
+
+// ============ INIT ============
+document.getElementById('fuelSelect').addEventListener('change', updateAll);
+updateAll();
+</script>
+</body>
+</html>
