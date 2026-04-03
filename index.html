@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph-aalysis - Choose Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1324;
+      --panel: #14213d;
+      --border: #284a78;
+      --text: #e5edf7;
+      --muted: #99adca;
+      --accent: #d62828;
+      --card: #1a2b4d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: radial-gradient(circle at top, #1b2f56 0%, var(--bg) 45%);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .wrap {
+      width: min(900px, 100%);
+      background: rgba(20, 33, 61, 0.78);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 2.6vw, 2rem);
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .card h2 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.92rem;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: transparent;
+      color: var(--accent);
+    }
+
+    .small {
+      margin-top: 18px;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Graph-aalysis Dashboard Selector</h1>
+    <p>Select the dashboard version you want to open for your presentation.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Percentage System</h2>
+        <p>Quick scenario uses percentage sliders (100% base, adjust up/down).</p>
+        <a class="btn" href="./noc_dashboard.html">Open Percentage Dashboard</a>
+      </article>
+
+      <article class="card">
+        <h2>Without Percentage System</h2>
+        <p>Quick scenario uses typed multipliers (1.00 base, 1.10, 0.90).</p>
+        <a class="btn" href="./noc_dashboard_without_percentage.html">Open Typed-Value Dashboard</a>
+      </article>
+    </section>
+
+    <p class="small">Tip: bookmark this page so you can switch quickly during presentation.</p>
+  </main>
+</body>
+</html>
