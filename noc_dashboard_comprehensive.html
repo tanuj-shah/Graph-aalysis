@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOC Petroleum Fiscal Analysis 2082/83</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #080f1e;
+  --surface: #0f1929;
+  --surface2: #132035;
+  --border: #1e3252;
+  --text: #e1e7f0;
+  --muted: #8892a4;
+  --accent: #dc2626;
+  --green: #16a34a;
+  --yellow: #eab308;
+  --blue: #3b82f6;
+  --orange: #f97316;
+  --purple: #a855f7;
+  --teal: #14b8a6;
+  --cyan: #06b6d4;
+  --pink: #ec4899;
+  --c-petrol: #3b82f6;
+  --c-diesel: #f97316;
+  --c-kerosene: #a855f7;
+  --c-atfdp: #14b8a6;
+  --c-atfdf: #06b6d4;
+  --c-lpgas: #ec4899;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a4a72; }
+
+/* ── HEADER ── */
+#header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: linear-gradient(135deg, #0d1e3a 0%, var(--surface) 100%);
+  border-bottom: 2px solid var(--accent);
+}
+.header-top {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 20px;
+}
+.header-flag { font-size: 1.8rem; line-height: 1; }
+.header-title { flex: 1; }
+.header-title h1 { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.header-title h1 .noc-red { color: var(--accent); }
+.header-title p { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.header-rates {
+  display: flex; gap: 12px; align-items: center;
+}
+.rate-item {
+  display: flex; flex-direction: column; align-items: flex-end;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px; cursor: pointer;
+}
+.rate-item label { font-size: 0.65rem; color: var(--muted); white-space: nowrap; cursor: pointer; }
+.rate-item input[type="number"] {
+  background: transparent; border: none; color: var(--yellow);
+  font-size: 0.88rem; font-weight: 700; text-align: right;
+  width: 70px; outline: none; cursor: text;
+}
+.rate-item input[type="number"]:focus {
+  border-bottom: 1px solid var(--accent);
+}
+.header-btns { display: flex; gap: 8px; }
+.btn {
+  padding: 6px 14px; border-radius: 6px; font-size: 0.78rem;
+  font-weight: 600; cursor: pointer; border: 1px solid transparent;
+  transition: all 0.18s; white-space: nowrap;
+}
+.btn-outline { background: transparent; border-color: var(--border); color: var(--muted); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: #b91c1c; }
+.btn-success { background: var(--green); border-color: var(--green); color: #fff; }
+.btn-success:hover { background: #15803d; }
+.btn-sm { padding: 4px 10px; font-size: 0.72rem; }
+
+/* ── KPI STRIP ── */
+.kpi-strip {
+  display: flex; gap: 8px; padding: 6px 20px 8px;
+  border-top: 1px solid var(--border);
+  overflow-x: auto;
+}
+.kpi-strip-item {
+  flex: 1; min-width: 110px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px;
+}
+.kpi-strip-item .k-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
+.kpi-strip-item .k-val { font-size: 0.95rem; font-weight: 700; margin-top: 1px; white-space: nowrap; }
+.k-pos { color: var(--green); }
+.k-neg { color: var(--accent); }
+.k-warn { color: var(--yellow); }
+.k-info { color: var(--cyan); }
+
+/* ── LAYOUT ── */
+#app-body {
+  display: flex;
+  margin-top: 110px; /* will be set by JS */
+  height: calc(100vh - 110px);
+  overflow: hidden;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 310px; min-width: 310px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  height: 100%; overflow: hidden;
+}
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+
+.fuel-tabs {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 4px;
+  padding: 10px 12px 0;
+}
+.fuel-tab {
+  padding: 5px 4px; text-align: center; font-size: 0.7rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 5px;
+  cursor: pointer; transition: all 0.15s; color: var(--muted);
+  background: transparent;
+}
+.fuel-tab.active { color: #fff; border-color: currentColor; }
+.fuel-tab[data-fuel="Petrol"].active { background: rgba(59,130,246,0.2); border-color: var(--c-petrol); color: var(--c-petrol); }
+.fuel-tab[data-fuel="Diesel"].active { background: rgba(249,115,22,0.2); border-color: var(--c-diesel); color: var(--c-diesel); }
+.fuel-tab[data-fuel="Kerosene"].active { background: rgba(168,85,247,0.2); border-color: var(--c-kerosene); color: var(--c-kerosene); }
+.fuel-tab[data-fuel="ATF_DP"].active { background: rgba(20,184,166,0.2); border-color: var(--c-atfdp); color: var(--c-atfdp); }
+.fuel-tab[data-fuel="ATF_DF"].active { background: rgba(6,182,212,0.2); border-color: var(--c-atfdf); color: var(--c-atfdf); }
+.fuel-tab[data-fuel="LP_Gas"].active { background: rgba(236,72,153,0.2); border-color: var(--c-lpgas); color: var(--c-lpgas); }
+
+/* Accordion */
+.accordion { margin-bottom: 6px; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
+.acc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 11px; cursor: pointer; font-size: 0.75rem; font-weight: 600;
+  color: var(--muted); background: rgba(255,255,255,0.02);
+  user-select: none; text-transform: uppercase; letter-spacing: 0.04em;
+  border: none; width: 100%;
+}
+.acc-header:hover { color: var(--text); }
+.acc-arrow { font-size: 0.65rem; transition: transform 0.2s; }
+.accordion.open .acc-arrow { transform: rotate(180deg); }
+.acc-body { padding: 10px 11px; display: none; }
+.accordion.open .acc-body { display: block; }
+
+/* Form controls */
+.field { margin-bottom: 7px; }
+.field label { display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
+.field label .unit-hint { font-size: 0.65rem; color: #566378; font-style: italic; }
+.field input[type="number"] {
+  width: 100%; padding: 5px 8px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text); font-size: 0.8rem; outline: none;
+  transition: border-color 0.15s;
+}
+.field input[type="number"]:focus { border-color: var(--accent); }
+.computed-val {
+  font-size: 0.72rem; color: var(--yellow); font-weight: 600; margin-top: 2px;
+  padding: 3px 7px; background: rgba(234,179,8,0.08); border-radius: 4px;
+  display: inline-block;
+}
+.subtotal-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.72rem; color: var(--muted); padding: 3px 0;
+  border-top: 1px solid rgba(255,255,255,0.05); margin-top: 5px;
+}
+.subtotal-row .st-val { color: var(--text); font-weight: 600; }
+.recalc-btn {
+  width: 100%; padding: 5px; margin-top: 5px;
+  background: transparent; border: 1px dashed var(--border);
+  color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 0.72rem;
+  transition: all 0.15s;
+}
+.recalc-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+/* Summary box */
+.summary-box {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+  padding: 10px; margin-top: 4px;
+}
+.summary-box .sb-title { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.sb-row { display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.75rem; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.sb-row:last-child { border-bottom: none; }
+.sb-row .sb-lbl { color: var(--muted); }
+.sb-row .sb-v { font-weight: 600; }
+
+/* Revenue target section */
+.rev-target-section { border-top: 1px solid var(--border); padding: 10px 12px; }
+.rev-target-section h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 8px 12px; border-top: 1px solid var(--border);
+  display: flex; gap: 6px;
+}
+.sidebar-footer .btn { flex: 1; text-align: center; }
+
+/* ── MAIN ── */
+#main {
+  flex: 1; display: flex; flex-direction: column;
+  overflow: hidden; height: 100%;
+}
+.main-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  background: var(--surface); padding: 0 16px;
+  flex-shrink: 0;
+}
+.main-tab {
+  padding: 10px 16px; font-size: 0.78rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; border: none; background: transparent;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.15s; white-space: nowrap;
+}
+.main-tab:hover { color: var(--text); }
+.main-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.main-content { flex: 1; overflow-y: auto; padding: 16px 20px; }
+
+/* ── CARDS & GRIDS ── */
+.section-title {
+  font-size: 0.72rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.06em; margin-bottom: 10px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+}
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px,1fr)); gap: 10px; margin-bottom: 16px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+  padding: 12px 14px;
+}
+.kpi-card .kc-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.kpi-card .kc-val { font-size: 1.3rem; font-weight: 700; margin-top: 3px; }
+.kpi-card .kc-sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+.kpi-card .kc-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; margin-top: 4px; }
+.badge-green { background: rgba(22,163,74,0.15); color: var(--green); }
+.badge-red { background: rgba(220,38,38,0.15); color: var(--accent); }
+.badge-yellow { background: rgba(234,179,8,0.15); color: var(--yellow); }
+.badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
+
+.charts-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.charts-2col.charts-3col { grid-template-columns: 1fr 1fr 1fr; }
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+  padding: 14px;
+}
+.chart-card.full-w { grid-column: 1 / -1; }
+.chart-card h3 { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+.chart-card h3 .sub { color: var(--muted); font-weight: 400; }
+.chart-card canvas { max-height: 260px; }
+.chart-card canvas.tall { max-height: 340px; }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; }
+table.dtbl { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+table.dtbl th {
+  padding: 7px 10px; text-align: right; background: var(--surface2);
+  border-bottom: 1px solid var(--border); color: var(--muted);
+  font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+  white-space: nowrap; position: sticky; top: 0;
+}
+table.dtbl th:first-child { text-align: left; }
+table.dtbl td { padding: 6px 10px; text-align: right; border-bottom: 1px solid rgba(30,50,82,0.5); }
+table.dtbl td:first-child { text-align: left; color: var(--text); }
+table.dtbl tr:hover td { background: rgba(220,38,38,0.04); }
+table.dtbl .total-row td { font-weight: 700; color: var(--text); border-top: 1px solid var(--border); background: var(--surface2); }
+table.dtbl .section-row td { color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(30,50,82,0.3); padding: 4px 10px; }
+
+.pos { color: var(--green); font-weight: 700; }
+.neg { color: var(--accent); font-weight: 700; }
+.muted { color: var(--muted); }
+
+/* Fuel color dots */
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+
+/* Doughnut legend */
+.doughnut-wrap { display: flex; gap: 16px; align-items: center; }
+.doughnut-wrap canvas { max-width: 200px; max-height: 200px; }
+.doughnut-legend { flex: 1; }
+.dl-item { display: flex; justify-content: space-between; align-items: center;
+  font-size: 0.75rem; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.dl-item .dl-name { display: flex; align-items: center; }
+.dl-item .dl-val { font-weight: 600; }
+
+/* Progress bar */
+.prog-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+.prog-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+/* Scenario compare table */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.compare-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+
+/* Presentation mode */
+body.presentation-mode #sidebar { width: 0; min-width: 0; overflow: hidden; }
+body.presentation-mode .fuel-tabs,
+body.presentation-mode .sidebar-scroll,
+body.presentation-mode .sidebar-footer { display: none; }
+
+/* Tag */
+.tag {
+  display: inline-block; padding: 1px 6px; border-radius: 3px;
+  font-size: 0.65rem; font-weight: 700; vertical-align: middle; margin-left: 4px;
+}
+.tag-atfdf { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+/* Notifications */
+#toast {
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 16px; font-size: 0.8rem;
+  color: var(--text); opacity: 0; pointer-events: none;
+  transition: opacity 0.3s; max-width: 320px;
+}
+#toast.show { opacity: 1; pointer-events: auto; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  #app-body { flex-direction: column; height: auto; overflow: visible; }
+  #sidebar { width: 100%; min-width: 0; height: auto; }
+  #main { height: auto; }
+  .charts-2col { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .doughnut-wrap { flex-direction: column; }
+}
+@media (max-width: 600px) {
+  .header-rates { flex-wrap: wrap; }
+  .kpi-strip { flex-wrap: wrap; }
+  .kpi-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+.info-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.68rem; padding: 2px 8px; border-radius: 10px;
+  background: rgba(255,255,255,0.05); color: var(--muted);
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="header-top">
+    <div class="header-flag">🇳🇵</div>
+    <div class="header-title">
+      <h1><span class="noc-red">Nepal Oil Corporation</span> — Petroleum Fiscal Analysis 2082/83</h1>
+      <p>IOC Price 2082/12/18 · NOC Revision 2082/12/20 (2026-04-03) · All computations in NPR</p>
+    </div>
+    <div class="header-rates">
+      <div class="rate-item" title="Click to edit">
+        <label>1 IRs =</label>
+        <input type="number" id="hdr-irs" value="1.6024" step="0.0001" min="1" max="3">
+        <span style="font-size:0.62rem;color:var(--muted);">NPR</span>
+      </div>
+      <div class="rate-item" title="Click to edit">
+        <label>1 USD =</label>
+        <input type="number" id="hdr-usd" value="151.49" step="0.01" min="100" max="250">
+        <span style="font-size:0.62rem;color:var(--muted);">NPR</span>
+      </div>
+      <div class="rate-item" title="Click to edit">
+        <label>VAT Rate</label>
+        <input type="number" id="hdr-vat" value="13" step="0.5" min="0" max="30">
+        <span style="font-size:0.62rem;color:var(--muted);">%</span>
+      </div>
+    </div>
+    <div class="header-btns">
+      <button class="btn btn-outline" onclick="saveScenario()">Save Scenario</button>
+      <button class="btn btn-outline" id="pres-btn" onclick="togglePresentation()">Presentation</button>
+    </div>
+  </div>
+  <div class="kpi-strip" id="kpi-strip">
+    <div class="kpi-strip-item"><div class="k-label">Total P/L (fortnight)</div><div class="k-val k-neg" id="ks-total-pl">—</div></div>
+    <div class="kpi-strip-item"><div class="k-label">Govt Revenue (fortnight)</div><div class="k-val k-info" id="ks-govt-rev">—</div></div>
+    <div class="kpi-strip-item"><div class="k-label">Biggest Loss Fuel</div><div class="k-val k-neg" id="ks-biggest-loss">—</div></div>
+    <div class="kpi-strip-item"><div class="k-label">Annual Projection</div><div class="k-val" id="ks-annual-proj">—</div></div>
+    <div class="kpi-strip-item"><div class="k-label">Revenue Gap</div><div class="k-val" id="ks-rev-gap">—</div></div>
+    <div class="kpi-strip-item"><div class="k-label">Net Flow (NOC)</div><div class="k-val" id="ks-net-flow">—</div></div>
+  </div>
+</div>
+
+<!-- APP BODY -->
+<div id="app-body">
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="fuel-tabs" id="fuel-tabs">
+      <button class="fuel-tab active" data-fuel="Petrol" onclick="setFuelTab('Petrol')">Petrol</button>
+      <button class="fuel-tab" data-fuel="Diesel" onclick="setFuelTab('Diesel')">Diesel</button>
+      <button class="fuel-tab" data-fuel="Kerosene" onclick="setFuelTab('Kerosene')">Kerosene</button>
+      <button class="fuel-tab" data-fuel="ATF_DP" onclick="setFuelTab('ATF_DP')">ATF-DP</button>
+      <button class="fuel-tab" data-fuel="ATF_DF" onclick="setFuelTab('ATF_DF')">ATF-DF</button>
+      <button class="fuel-tab" data-fuel="LP_Gas" onclick="setFuelTab('LP_Gas')">LP Gas</button>
+    </div>
+
+    <div class="sidebar-scroll" id="sidebar-scroll">
+      <!-- Per-fuel accordion panels — generated by JS -->
+      <div id="fuel-panels"></div>
+
+      <!-- Revenue Target -->
+      <div class="rev-target-section">
+        <h3>Revenue Target (Annual)</h3>
+        <div class="field">
+          <label>Annual Target <span class="unit-hint">Crore NPR</span></label>
+          <input type="number" id="rt-annual" value="18500" step="100" min="0">
+        </div>
+        <div class="field">
+          <label>Collected So Far <span class="unit-hint">Crore NPR</span></label>
+          <input type="number" id="rt-collected" value="13546" step="100" min="0">
+        </div>
+        <div class="field">
+          <label>Fortnights Remaining</label>
+          <input type="number" id="rt-remaining" value="7" step="1" min="1" max="26">
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-outline btn-sm" onclick="resetAll()">Reset All</button>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div class="main-tabs">
+      <button class="main-tab active" data-tab="overview" onclick="setMainTab('overview')">Overview</button>
+      <button class="main-tab" data-tab="pricebuild" onclick="setMainTab('pricebuild')">Price Build-Up</button>
+      <button class="main-tab" data-tab="taxanalysis" onclick="setMainTab('taxanalysis')">Tax Analysis</button>
+      <button class="main-tab" data-tab="revtarget" onclick="setMainTab('revtarget')">Revenue Target</button>
+      <button class="main-tab" data-tab="scenarios" onclick="setMainTab('scenarios')">Scenarios</button>
+    </div>
+    <div class="main-content" id="main-content">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════
+// 1. BASELINE DATA
+// ══════════════════════════════════════════════════════
+const DEFAULTS = {
+  irsRate: 1.6024,
+  usdRate: 151.49,
+  vatRate: 13,          // %
+  annualTarget: 18500,
+  collected: 13546,
+  remaining: 7
+};
+
+// Per-KL for liquids, per-cylinder for LP_Gas
+const BASE_DATA = {
+  Petrol: {
+    label: 'Petrol', color: '#3b82f6', unitFactor: 1000,
+    unitLabel: 'liter', unitHint: 'NPR/liter',
+    exDepotIrs: 96024.41,
+    custom_duty: 25200, cargo: 0, custom_svc: 25,
+    road_maint: 4000, pollution: 1500, green_tax: 1000,
+    psf: 2020, idt: 10000, throughput: 0,
+    vat: 23238.94,
+    admin: 608.02, insurance: 92.27, tech_loss: 1722.44,
+    transport: 6673.49, dealer: 6496.91,
+    retailPrice: 202, demand: 33108, demandUnit: 'KL',
+    vatFormula: 'inclusive'  // vat = retail*1000 * rate/(1+rate)
+  },
+  Diesel: {
+    label: 'Diesel', color: '#f97316', unitFactor: 1000,
+    unitLabel: 'liter', unitHint: 'NPR/liter',
+    exDepotIrs: 151412.27,
+    custom_duty: 12000, cargo: 0, custom_svc: 25,
+    road_maint: 2000, pollution: 1500, green_tax: 1000,
+    psf: 1820, idt: 10000, throughput: 0,
+    vat: 20938.05,
+    admin: 608.02, insurance: 145.50, tech_loss: 1621.22,
+    transport: 3221.64, dealer: 5174.13,
+    retailPrice: 182, demand: 82277, demandUnit: 'KL',
+    vatFormula: 'inclusive'
+  },
+  Kerosene: {
+    label: 'Kerosene', color: '#a855f7', unitFactor: 1000,
+    unitLabel: 'liter', unitHint: 'NPR/liter',
+    exDepotIrs: 123573.65,
+    custom_duty: 12000, cargo: 0, custom_svc: 25,
+    road_maint: 0, pollution: 0, green_tax: 0,
+    psf: 1820, idt: 0, throughput: 0,
+    vat: 20938.05,
+    admin: 608.02, insurance: 118.74, tech_loss: 1347.44,
+    transport: 6673.49, dealer: 4628.78,
+    retailPrice: 182, demand: 865, demandUnit: 'KL',
+    vatFormula: 'inclusive'
+  },
+  ATF_DP: {
+    label: 'ATF-DP', color: '#14b8a6', unitFactor: 1000,
+    unitLabel: 'liter', unitHint: 'NPR/liter',
+    exDepotIrs: 133311.58,
+    custom_duty: 2100, cargo: 0, custom_svc: 25,
+    road_maint: 0, pollution: 0, green_tax: 0,
+    psf: 2510, idt: 0, throughput: 888.50,
+    vat: 28876.11,
+    admin: 608.02, insurance: 128.10, tech_loss: 1383.15,
+    transport: 6728.64, dealer: 0,
+    retailPrice: 251, demand: 2616, demandUnit: 'KL',
+    vatFormula: 'inclusive'
+  },
+  ATF_DF: {
+    label: 'ATF-DF', color: '#06b6d4', unitFactor: 1000,
+    unitLabel: 'liter', unitHint: 'NPR/liter',
+    exDepotIrs: 133311.58,
+    custom_duty: 2100, cargo: 0, custom_svc: 25,
+    road_maint: 0, pollution: 0, green_tax: 0,
+    psf: 2703.20, idt: 0, throughput: 1081.28,
+    vat: 35141.65,
+    admin: 608.02, insurance: 128.10, tech_loss: 1383.15,
+    transport: 6728.64, dealer: 0,
+    retailPrice: 270.41, demand: 5892, demandUnit: 'KL',
+    vatFormula: 'exclusive'  // vat = retail*1000 * rate (straight, not inclusive)
+  },
+  LP_Gas: {
+    label: 'LP Gas', color: '#ec4899', unitFactor: 1,
+    unitLabel: 'cylinder', unitHint: 'NPR/cylinder',
+    exDepotIrs: 1055.27,
+    custom_duty: 90.42, cargo: 1.18, custom_svc: 0.39,
+    road_maint: 0, pollution: 0, green_tax: 0,
+    psf: 19.10, idt: 0, throughput: 0,
+    vat: 213.85,
+    admin: 8.63, insurance: 1.77, tech_loss: 0,
+    transport: 0, dealer: 301.01,
+    retailPrice: 1910, demand: 1522444, demandUnit: 'cylinders',
+    vatFormula: 'inclusive'
+  }
+};
+
+const FUEL_KEYS = ['Petrol','Diesel','Kerosene','ATF_DP','ATF_DF','LP_Gas'];
+const TAX_FIELDS = ['custom_duty','cargo','custom_svc','road_maint','pollution','green_tax','psf','idt','throughput'];
+const TAX_LABELS = {
+  custom_duty: 'Custom Duty',
+  cargo: 'Cargo/Vehicle Charge',
+  custom_svc: 'Custom Service Charge',
+  road_maint: 'Road Maintenance',
+  pollution: 'Pollution Charge',
+  green_tax: 'Green Tax',
+  psf: 'PSF Transfer',
+  idt: 'Infrastructure Dev. Tax',
+  throughput: 'Fuel Throughput Charge'
+};
+
+// State — current editable values (cloned from BASE_DATA)
+let STATE = {};
+let savedScenario = null;
+let activeFuelTab = 'Petrol';
+let activeMainTab = 'overview';
+let charts = {};
+
+function cloneBase() {
+  const s = {};
+  FUEL_KEYS.forEach(k => {
+    s[k] = { ...BASE_DATA[k] };
+  });
+  return s;
+}
+
+function initState() {
+  STATE = cloneBase();
+}
+
+// ══════════════════════════════════════════════════════
+// 2. COMPUTATIONS
+// ══════════════════════════════════════════════════════
+function getGlobalRates() {
+  return {
+    irsRate: parseFloat(document.getElementById('hdr-irs').value) || DEFAULTS.irsRate,
+    usdRate: parseFloat(document.getElementById('hdr-usd').value) || DEFAULTS.usdRate,
+    vatRate: parseFloat(document.getElementById('hdr-vat').value) / 100 || DEFAULTS.vatRate / 100
+  };
+}
+
+function computeFuel(key) {
+  const d = STATE[key];
+  const { irsRate, vatRate } = getGlobalRates();
+  const f = d.unitFactor; // 1000 for liquids, 1 for LP_Gas
+
+  // Step 1: Ex-depot in NPR
+  const exDepotNpr = d.exDepotIrs * irsRate;
+
+  // Step 2: Specific taxes (everything except VAT)
+  const specificTaxBulk = TAX_FIELDS.reduce((sum, t) => sum + (d[t] || 0), 0);
+
+  // Step 3: NOC expenses
+  const nocExpenses = (d.admin || 0) + (d.insurance || 0) + (d.tech_loss || 0);
+
+  // Step 4: Landed cost
+  const landedCost = exDepotNpr + specificTaxBulk + nocExpenses + (d.transport || 0);
+
+  // Step 5: Total cost without VAT
+  const totalCostWithoutVat = landedCost + (d.dealer || 0);
+
+  // Step 6: VAT
+  const vat = d.vat;
+
+  // Step 7: Total cost with VAT
+  let totalCostWithVat;
+  if (key === 'ATF_DF') {
+    // ATF_DF: VAT is already included as straight addition (exclusive)
+    totalCostWithVat = totalCostWithoutVat + vat;
+  } else {
+    totalCostWithVat = totalCostWithoutVat + vat;
+  }
+
+  // Step 8: Cost per unit
+  const costPerUnit = totalCostWithVat / f;
+
+  // Step 9: Profit per unit
+  const profitPerUnit = d.retailPrice - costPerUnit;
+
+  // Step 10: Total crore
+  let totalProfitCrore, totalGovtRevCrore;
+  if (key === 'LP_Gas') {
+    totalProfitCrore = (profitPerUnit * d.demand) / 1e7;
+    const govtRevPerUnit = (specificTaxBulk + vat) / f;
+    totalGovtRevCrore = (govtRevPerUnit * d.demand) / 1e7;
+  } else {
+    totalProfitCrore = (profitPerUnit * d.demand * 1000) / 1e7;
+    const govtRevPerUnit = (specificTaxBulk + vat) / f;
+    totalGovtRevCrore = (govtRevPerUnit * d.demand * 1000) / 1e7;
+  }
+
+  const govtRevPerUnit = (specificTaxBulk + vat) / f;
+
+  return {
+    key, label: d.label, color: d.color,
+    unitLabel: d.unitLabel, unitFactor: f,
+    exDepotIrs: d.exDepotIrs, exDepotNpr,
+    specificTaxBulk, vat, nocExpenses,
+    transport: d.transport, dealer: d.dealer,
+    landedCost, totalCostWithoutVat, totalCostWithVat,
+    costPerUnit, retailPrice: d.retailPrice,
+    profitPerUnit, totalProfitCrore,
+    govtRevPerUnit, totalGovtRevCrore,
+    demand: d.demand, demandUnit: d.demandUnit,
+    taxes: TAX_FIELDS.reduce((o,t) => { o[t] = d[t]; return o; }, {}),
+    admin: d.admin, insurance: d.insurance, tech_loss: d.tech_loss,
+    vatFormula: d.vatFormula
+  };
+}
+
+function computeAll() {
+  return FUEL_KEYS.map(k => computeFuel(k));
+}
+
+function computeAggregate(results) {
+  const totalPL = results.reduce((s, r) => s + r.totalProfitCrore, 0);
+  const totalGovt = results.reduce((s, r) => s + r.totalGovtRevCrore, 0);
+  const biggestLoss = results.reduce((a, b) => a.totalProfitCrore < b.totalProfitCrore ? a : b);
+  const annualProj = totalPL * 26; // 26 fortnights
+  const govtAnnual = totalGovt * 26;
+
+  const rtAnnual = parseFloat(document.getElementById('rt-annual').value) || DEFAULTS.annualTarget;
+  const rtCollected = parseFloat(document.getElementById('rt-collected').value) || DEFAULTS.collected;
+  const rtRemaining = parseFloat(document.getElementById('rt-remaining').value) || DEFAULTS.remaining;
+
+  const revenueGap = rtAnnual - rtCollected - (totalGovt * rtRemaining);
+  const netFlow = totalPL + totalGovt;
+
+  return { totalPL, totalGovt, biggestLoss, annualProj, govtAnnual, revenueGap, netFlow, rtAnnual, rtCollected, rtRemaining };
+}
+
+// ══════════════════════════════════════════════════════
+// 3. SIDEBAR FUEL PANELS
+// ══════════════════════════════════════════════════════
+function buildFuelPanels() {
+  const container = document.getElementById('fuel-panels');
+  container.innerHTML = '';
+  FUEL_KEYS.forEach(key => {
+    const d = STATE[key];
+    const isLPG = key === 'LP_Gas';
+    const unitHint = isLPG ? 'NPR/cyl' : 'NPR/KL';
+    const unitHintIrs = isLPG ? 'IRs/cyl' : 'IRs/KL';
+
+    const panel = document.createElement('div');
+    panel.id = `panel-${key}`;
+    panel.style.display = activeFuelTab === key ? 'block' : 'none';
+
+    panel.innerHTML = `
+      <!-- Import Cost -->
+      <div class="accordion open" id="acc-${key}-import">
+        <button class="acc-header" onclick="toggleAcc('${key}-import')">
+          Import Cost <span class="acc-arrow">▼</span>
+        </button>
+        <div class="acc-body">
+          <div class="field">
+            <label>Ex-Depot (IOC) <span class="unit-hint">${unitHintIrs}</span></label>
+            <input type="number" id="inp-${key}-exDepotIrs" value="${d.exDepotIrs}"
+              step="${isLPG ? '0.01' : '1'}" min="0"
+              oninput="onFieldChange('${key}','exDepotIrs',this.value)">
+          </div>
+          <div class="computed-val" id="cv-${key}-exDepotNpr">NPR: —</div>
+        </div>
+      </div>
+
+      <!-- Tax Components -->
+      <div class="accordion open" id="acc-${key}-tax">
+        <button class="acc-header" onclick="toggleAcc('${key}-tax')">
+          Tax Components <span class="acc-arrow">▼</span>
+        </button>
+        <div class="acc-body">
+          ${TAX_FIELDS.map(t => `
+          <div class="field">
+            <label>${TAX_LABELS[t]} <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-${t}" value="${d[t]}"
+              step="${isLPG ? '0.01' : '1'}" min="0"
+              oninput="onFieldChange('${key}','${t}',this.value)">
+          </div>`).join('')}
+          <div class="field">
+            <label>VAT <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-vat" value="${d.vat}"
+              step="${isLPG ? '0.01' : '1'}" min="0"
+              oninput="onFieldChange('${key}','vat',this.value)">
+          </div>
+          <button class="recalc-btn" onclick="recalcVat('${key}')">↻ Recalc VAT from Retail Price</button>
+          <div class="subtotal-row"><span>Specific Taxes</span><span class="st-val" id="st-${key}-spec">—</span></div>
+          <div class="subtotal-row"><span>VAT</span><span class="st-val" id="st-${key}-vat">—</span></div>
+          <div class="subtotal-row"><span>Total Tax Burden</span><span class="st-val" id="st-${key}-total">—</span></div>
+        </div>
+      </div>
+
+      <!-- NOC Operations -->
+      <div class="accordion open" id="acc-${key}-noc">
+        <button class="acc-header" onclick="toggleAcc('${key}-noc')">
+          NOC Operations <span class="acc-arrow">▼</span>
+        </button>
+        <div class="acc-body">
+          <div class="field">
+            <label>Administration <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-admin" value="${d.admin}" step="0.01" min="0"
+              oninput="onFieldChange('${key}','admin',this.value)">
+          </div>
+          <div class="field">
+            <label>Insurance <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-insurance" value="${d.insurance}" step="0.01" min="0"
+              oninput="onFieldChange('${key}','insurance',this.value)">
+          </div>
+          <div class="field">
+            <label>Technical Loss <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-tech_loss" value="${d.tech_loss}" step="0.01" min="0"
+              oninput="onFieldChange('${key}','tech_loss',this.value)">
+          </div>
+          <div class="field">
+            <label>Transportation <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-transport" value="${d.transport}" step="0.01" min="0"
+              oninput="onFieldChange('${key}','transport',this.value)">
+          </div>
+          <div class="field">
+            <label>Dealer Expenses <span class="unit-hint">${unitHint}</span></label>
+            <input type="number" id="inp-${key}-dealer" value="${d.dealer}" step="0.01" min="0"
+              oninput="onFieldChange('${key}','dealer',this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Retail Price & Demand -->
+      <div class="accordion open" id="acc-${key}-retail">
+        <button class="acc-header" onclick="toggleAcc('${key}-retail')">
+          Retail Price &amp; Demand <span class="acc-arrow">▼</span>
+        </button>
+        <div class="acc-body">
+          <div class="field">
+            <label>Retail Price <span class="unit-hint">${isLPG ? 'NPR/cyl' : 'NPR/liter'}</span></label>
+            <input type="number" id="inp-${key}-retailPrice" value="${d.retailPrice}"
+              step="${isLPG ? '10' : '0.01'}" min="0"
+              oninput="onFieldChange('${key}','retailPrice',this.value)">
+          </div>
+          <div class="field">
+            <label>Demand <span class="unit-hint">${d.demandUnit}</span></label>
+            <input type="number" id="inp-${key}-demand" value="${d.demand}" step="1" min="0"
+              oninput="onFieldChange('${key}','demand',this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-box" id="sb-${key}">
+        <div class="sb-title">Summary — ${d.label}</div>
+        <div class="sb-row"><span class="sb-lbl">Total Cost</span><span class="sb-v" id="sbs-${key}-cost">—</span></div>
+        <div class="sb-row"><span class="sb-lbl">Retail Price</span><span class="sb-v" id="sbs-${key}-retail">—</span></div>
+        <div class="sb-row"><span class="sb-lbl">Profit/Loss per Unit</span><span class="sb-v" id="sbs-${key}-pl">—</span></div>
+        <div class="sb-row"><span class="sb-lbl">Tax per Unit</span><span class="sb-v" id="sbs-${key}-tax">—</span></div>
+        <div class="sb-row"><span class="sb-lbl">Fortnight P/L</span><span class="sb-v" id="sbs-${key}-fpl">—</span></div>
+        <div class="sb-row"><span class="sb-lbl">Govt Revenue</span><span class="sb-v" id="sbs-${key}-grev">—</span></div>
+      </div>
+    `;
+    container.appendChild(panel);
+  });
+}
+
+function updateSidebarSummaries(results) {
+  results.forEach(r => {
+    const k = r.key;
+    const isLPG = k === 'LP_Gas';
+    const ul = r.unitLabel;
+
+    // Ex-depot NPR display
+    const cvEl = document.getElementById(`cv-${k}-exDepotNpr`);
+    if (cvEl) cvEl.textContent = `NPR: ${fmt(r.exDepotNpr)} / ${isLPG ? 'cyl' : 'KL'}`;
+
+    // Tax subtotals
+    const stSpec = document.getElementById(`st-${k}-spec`);
+    const stVat = document.getElementById(`st-${k}-vat`);
+    const stTotal = document.getElementById(`st-${k}-total`);
+    if (stSpec) stSpec.textContent = fmtN(r.specificTaxBulk);
+    if (stVat) stVat.textContent = fmtN(r.vat);
+    if (stTotal) stTotal.textContent = fmtN(r.specificTaxBulk + r.vat);
+
+    // Summary box
+    const sign = r.profitPerUnit >= 0 ? '+' : '';
+    const plClass = r.profitPerUnit >= 0 ? 'pos' : 'neg';
+    const fplClass = r.totalProfitCrore >= 0 ? 'pos' : 'neg';
+
+    const costEl = document.getElementById(`sbs-${k}-cost`);
+    const retailEl = document.getElementById(`sbs-${k}-retail`);
+    const plEl = document.getElementById(`sbs-${k}-pl`);
+    const taxEl = document.getElementById(`sbs-${k}-tax`);
+    const fplEl = document.getElementById(`sbs-${k}-fpl`);
+    const grevEl = document.getElementById(`sbs-${k}-grev`);
+
+    if (costEl) costEl.textContent = `NPR ${fmt(r.costPerUnit)}/${ul}`;
+    if (retailEl) retailEl.textContent = `NPR ${fmt(r.retailPrice)}/${ul}`;
+    if (plEl) { plEl.textContent = `${sign}${fmt(r.profitPerUnit)} NPR`; plEl.className = `sb-v ${plClass}`; }
+    if (taxEl) taxEl.textContent = `NPR ${fmt(r.govtRevPerUnit)}/${ul}`;
+    if (fplEl) { fplEl.textContent = `${sign}${fmt(r.totalProfitCrore)} Cr`; fplEl.className = `sb-v ${fplClass}`; }
+    if (grevEl) grevEl.textContent = `${fmt(r.totalGovtRevCrore)} Cr`;
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// 4. MAIN CONTENT TABS
+// ══════════════════════════════════════════════════════
+
+function renderMainContent(results, agg) {
+  switch (activeMainTab) {
+    case 'overview':    renderOverview(results, agg); break;
+    case 'pricebuild':  renderPriceBuild(results); break;
+    case 'taxanalysis': renderTaxAnalysis(results); break;
+    case 'revtarget':   renderRevTarget(results, agg); break;
+    case 'scenarios':   renderScenarios(results); break;
+  }
+}
+
+// ─── OVERVIEW ────────────────────────────────────────
+function renderOverview(results, agg) {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="section-title">Fuel Summary</div>
+    <div class="kpi-grid" id="ov-kpi-grid"></div>
+    <div class="section-title">Charts</div>
+    <div class="charts-2col">
+      <div class="chart-card"><h3>Cost vs Retail Price <span class="sub">(NPR per unit)</span></h3><canvas id="ch-costvretail"></canvas></div>
+      <div class="chart-card"><h3>Profit / Loss per Unit <span class="sub">(NPR)</span></h3><canvas id="ch-pl"></canvas></div>
+      <div class="chart-card"><h3>Fortnightly P/L <span class="sub">(Crore NPR)</span></h3><canvas id="ch-total-pl"></canvas></div>
+      <div class="chart-card"><h3>Govt Revenue <span class="sub">(Crore NPR, fortnight)</span></h3><canvas id="ch-govt-rev"></canvas></div>
+    </div>
+  `;
+
+  // KPI cards
+  const grid = document.getElementById('ov-kpi-grid');
+  results.forEach(r => {
+    const sign = r.profitPerUnit >= 0 ? '+' : '';
+    const plClass = r.profitPerUnit >= 0 ? 'k-pos' : 'k-neg';
+    const fplClass = r.totalProfitCrore >= 0 ? 'badge-green' : 'badge-red';
+    grid.innerHTML += `
+      <div class="kpi-card" style="border-left: 3px solid ${r.color}">
+        <div class="kc-label"><span class="dot" style="background:${r.color}"></span>${r.label}</div>
+        <div class="kc-val ${plClass}">${sign}${fmt(r.profitPerUnit)}</div>
+        <div class="kc-sub">NPR/${r.unitLabel} · Retail: ${fmt(r.retailPrice)}</div>
+        <div class="kc-sub">Cost: ${fmt(r.costPerUnit)} NPR/${r.unitLabel}</div>
+        <span class="kc-badge ${fplClass}">${sign}${fmt(r.totalProfitCrore)} Cr fortnight</span>
+      </div>`;
+  });
+
+  // Chart 1: Cost vs Retail
+  destroyChart('ch-costvretail');
+  charts['ch-costvretail'] = new Chart(document.getElementById('ch-costvretail'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.label),
+      datasets: [
+        { label: 'Total Cost', data: results.map(r => r.costPerUnit), backgroundColor: 'rgba(220,38,38,0.7)' },
+        { label: 'Retail Price', data: results.map(r => r.retailPrice), backgroundColor: results.map(r => r.color + 'bb') }
+      ]
+    },
+    options: chartOpts('NPR/unit')
+  });
+
+  // Chart 2: P/L per unit
+  destroyChart('ch-pl');
+  charts['ch-pl'] = new Chart(document.getElementById('ch-pl'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.label),
+      datasets: [{
+        label: 'Profit/Loss',
+        data: results.map(r => r.profitPerUnit),
+        backgroundColor: results.map(r => r.profitPerUnit >= 0 ? 'rgba(22,163,74,0.7)' : 'rgba(220,38,38,0.7)')
+      }]
+    },
+    options: chartOpts('NPR')
+  });
+
+  // Chart 3: Total P/L crore
+  destroyChart('ch-total-pl');
+  charts['ch-total-pl'] = new Chart(document.getElementById('ch-total-pl'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.label),
+      datasets: [{
+        label: 'Fortnight P/L (Crore NPR)',
+        data: results.map(r => r.totalProfitCrore),
+        backgroundColor: results.map(r => r.totalProfitCrore >= 0 ? 'rgba(22,163,74,0.7)' : 'rgba(220,38,38,0.7)')
+      }]
+    },
+    options: chartOpts('Crore NPR')
+  });
+
+  // Chart 4: Govt revenue
+  destroyChart('ch-govt-rev');
+  charts['ch-govt-rev'] = new Chart(document.getElementById('ch-govt-rev'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.label),
+      datasets: [{
+        label: 'Govt Revenue (Crore NPR)',
+        data: results.map(r => r.totalGovtRevCrore),
+        backgroundColor: results.map(r => r.color + 'bb')
+      }]
+    },
+    options: chartOpts('Crore NPR')
+  });
+}
+
+// ─── PRICE BUILD-UP ───────────────────────────────────
+function renderPriceBuild(results) {
+  const mc = document.getElementById('main-content');
+
+  // Stacked bar data
+  const labels = results.map(r => r.label);
+  mc.innerHTML = `
+    <div class="section-title">Price Build-Up — Stacked Components</div>
+    <div class="chart-card" style="margin-bottom:16px">
+      <h3>Cost Stack per Unit <span class="sub">(NPR/unit)</span></h3>
+      <canvas id="ch-stack" class="tall"></canvas>
+    </div>
+    <div class="section-title">Detailed Breakdown Table</div>
+    <div class="chart-card">
+      <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto">
+        <table class="dtbl" id="pb-table"></table>
+      </div>
+    </div>
+  `;
+
+  destroyChart('ch-stack');
+  charts['ch-stack'] = new Chart(document.getElementById('ch-stack'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Ex-Depot (NPR)', data: results.map(r => r.exDepotNpr / r.unitFactor), backgroundColor: 'rgba(59,130,246,0.8)' },
+        { label: 'Specific Taxes', data: results.map(r => r.specificTaxBulk / r.unitFactor), backgroundColor: 'rgba(234,179,8,0.8)' },
+        { label: 'VAT', data: results.map(r => r.vat / r.unitFactor), backgroundColor: 'rgba(168,85,247,0.8)' },
+        { label: 'NOC Expenses', data: results.map(r => r.nocExpenses / r.unitFactor), backgroundColor: 'rgba(16,185,129,0.8)' },
+        { label: 'Transport', data: results.map(r => r.transport / r.unitFactor), backgroundColor: 'rgba(249,115,22,0.8)' },
+        { label: 'Dealer', data: results.map(r => r.dealer / r.unitFactor), backgroundColor: 'rgba(236,72,153,0.8)' }
+      ]
+    },
+    options: {
+      ...chartOpts('NPR/unit'),
+      plugins: { ...chartOpts('NPR/unit').plugins, legend: { ...chartOpts('NPR/unit').plugins.legend, display: true } },
+      scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis(), title: { display: true, text: 'NPR/unit', color: '#8892a4' } } }
+    }
+  });
+
+  // Detailed table
+  const tbl = document.getElementById('pb-table');
+  const cols = results.map(r => `<th>${r.label}</th>`).join('');
+  let html = `<thead><tr><th>Component</th>${cols}<th>Unit</th></tr></thead><tbody>`;
+
+  function row(label, fn, cls='') {
+    const vals = results.map(r => `<td class="${cls}">${fmtN(fn(r))}</td>`).join('');
+    return `<tr><td>${label}</td>${vals}<td class="muted">see below</td></tr>`;
+  }
+
+  function sectionRow(label) {
+    const blanks = results.map(() => '<td></td>').join('');
+    return `<tr class="section-row"><td colspan="${results.length+2}">${label}</td></tr>`;
+  }
+
+  html += sectionRow('Import Cost');
+  html += row('Ex-Depot (IRs)', r => r.exDepotIrs);
+  html += row('Ex-Depot (NPR/unit)', r => r.exDepotNpr / r.unitFactor);
+  html += sectionRow('Specific Taxes (per KL / per cyl)');
+  TAX_FIELDS.forEach(t => {
+    html += row(TAX_LABELS[t], r => r.taxes[t] / r.unitFactor);
+  });
+  html += row('Specific Tax Subtotal', r => r.specificTaxBulk / r.unitFactor, 'muted');
+  html += sectionRow('VAT');
+  html += `<tr><td>VAT (type)</td>${results.map(r => `<td class="muted">${r.vatFormula === 'exclusive' ? 'Exclusive<span class="tag tag-atfdf">ATF-DF</span>' : 'Inclusive'}</td>`).join('')}<td></td></tr>`;
+  html += row('VAT Amount', r => r.vat / r.unitFactor);
+  html += sectionRow('NOC Expenses');
+  html += row('Administration', r => r.admin / r.unitFactor);
+  html += row('Insurance', r => r.insurance / r.unitFactor);
+  html += row('Technical Loss', r => r.tech_loss / r.unitFactor);
+  html += row('Transportation', r => r.transport / r.unitFactor);
+  html += row('Dealer Expenses', r => r.dealer / r.unitFactor);
+  html += sectionRow('Summary');
+  html += row('Landed Cost', r => r.landedCost / r.unitFactor);
+  html += row('Total Cost (without VAT)', r => r.totalCostWithoutVat / r.unitFactor);
+  html += `<tr class="total-row"><td>Total Cost per Unit</td>${results.map(r => `<td class="${r.costPerUnit > r.retailPrice ? 'neg' : 'pos'}">${fmt(r.costPerUnit)}</td>`).join('')}<td>NPR/unit</td></tr>`;
+  html += `<tr class="total-row"><td>Retail Price</td>${results.map(r => `<td>${fmt(r.retailPrice)}</td>`).join('')}<td>NPR/unit</td></tr>`;
+  html += `<tr class="total-row"><td>Profit/Loss per Unit</td>${results.map(r => `<td class="${r.profitPerUnit >= 0 ? 'pos' : 'neg'}">${r.profitPerUnit >= 0 ? '+' : ''}${fmt(r.profitPerUnit)}</td>`).join('')}<td>NPR/unit</td></tr>`;
+  html += `<tr class="total-row"><td>Fortnight P/L (Crore)</td>${results.map(r => `<td class="${r.totalProfitCrore >= 0 ? 'pos' : 'neg'}">${r.totalProfitCrore >= 0 ? '+' : ''}${fmt(r.totalProfitCrore)}</td>`).join('')}<td>Cr NPR</td></tr>`;
+
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── TAX ANALYSIS ─────────────────────────────────────
+function renderTaxAnalysis(results) {
+  const mc = document.getElementById('main-content');
+  mc.innerHTML = `
+    <div class="section-title">Tax Composition</div>
+    <div class="charts-2col" style="margin-bottom:16px">
+      <div class="chart-card">
+        <h3>Tax Component Stack <span class="sub">(NPR/unit)</span></h3>
+        <canvas id="ch-tax-stack" class="tall"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Tax as % of Retail Price</h3>
+        <canvas id="ch-tax-pct" class="tall"></canvas>
+      </div>
+    </div>
+    <div class="section-title">Tax Detail Table</div>
+    <div class="chart-card">
+      <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto">
+        <table class="dtbl" id="ta-table"></table>
+      </div>
+    </div>
+  `;
+
+  const labels = results.map(r => r.label);
+  const taxColors = ['#3b82f6','#f97316','#a855f7','#14b8a6','#06b6d4','#ec4899','#eab308','#16a34a','#dc2626'];
+
+  destroyChart('ch-tax-stack');
+  charts['ch-tax-stack'] = new Chart(document.getElementById('ch-tax-stack'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: TAX_FIELDS.map((t, i) => ({
+        label: TAX_LABELS[t],
+        data: results.map(r => r.taxes[t] / r.unitFactor),
+        backgroundColor: taxColors[i] + 'cc'
+      })).concat([{
+        label: 'VAT',
+        data: results.map(r => r.vat / r.unitFactor),
+        backgroundColor: '#8892a4cc'
+      }])
+    },
+    options: {
+      ...chartOpts('NPR/unit'),
+      plugins: { ...chartOpts('NPR/unit').plugins, legend: { display: true, labels: { color: '#8892a4', font: { size: 10 } } } },
+      scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis() } }
+    }
+  });
+
+  destroyChart('ch-tax-pct');
+  charts['ch-tax-pct'] = new Chart(document.getElementById('ch-tax-pct'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Specific Taxes % of Retail',
+        data: results.map(r => (r.specificTaxBulk / r.unitFactor / r.retailPrice * 100).toFixed(1)),
+        backgroundColor: 'rgba(234,179,8,0.7)'
+      },{
+        label: 'VAT % of Retail',
+        data: results.map(r => (r.vat / r.unitFactor / r.retailPrice * 100).toFixed(1)),
+        backgroundColor: 'rgba(168,85,247,0.7)'
+      },{
+        label: 'Total Tax % of Retail',
+        data: results.map(r => ((r.specificTaxBulk + r.vat) / r.unitFactor / r.retailPrice * 100).toFixed(1)),
+        backgroundColor: 'transparent',
+        type: 'line',
+        borderColor: '#dc2626',
+        borderWidth: 2,
+        pointBackgroundColor: '#dc2626',
+        tension: 0.3,
+        yAxisID: 'y'
+      }]
+    },
+    options: {
+      ...chartOpts('%'),
+      plugins: { ...chartOpts('%').plugins, legend: { display: true, labels: { color: '#8892a4', font: { size: 10 } } } },
+      scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: false, ...darkAxis() } }
+    }
+  });
+
+  // Tax table
+  const tbl = document.getElementById('ta-table');
+  const cols = results.map(r => `<th>${r.label}<br><span style="color:#566378;font-weight:400">${r.unitLabel}</span></th>`).join('');
+  const pctCols = results.map(r => `<th>${r.label} %</th>`).join('');
+  let html = `<thead><tr><th>Tax Item</th>${cols}${pctCols}</tr></thead><tbody>`;
+
+  TAX_FIELDS.forEach(t => {
+    html += `<tr><td>${TAX_LABELS[t]}</td>
+      ${results.map(r => `<td>${fmtN(r.taxes[t] / r.unitFactor)}</td>`).join('')}
+      ${results.map(r => `<td class="muted">${r.retailPrice > 0 ? (r.taxes[t] / r.unitFactor / r.retailPrice * 100).toFixed(2) + '%' : '—'}</td>`).join('')}
+    </tr>`;
+  });
+
+  html += `<tr><td>VAT</td>
+    ${results.map(r => `<td>${fmtN(r.vat / r.unitFactor)}</td>`).join('')}
+    ${results.map(r => `<td class="muted">${(r.vat / r.unitFactor / r.retailPrice * 100).toFixed(2)}%</td>`).join('')}
+  </tr>`;
+
+  html += `<tr class="total-row"><td>Total Tax per Unit</td>
+    ${results.map(r => `<td>${fmtN((r.specificTaxBulk + r.vat) / r.unitFactor)}</td>`).join('')}
+    ${results.map(r => `<td class="muted">${((r.specificTaxBulk + r.vat) / r.unitFactor / r.retailPrice * 100).toFixed(2)}%</td>`).join('')}
+  </tr>`;
+
+  html += `<tr class="total-row"><td>Govt Rev/Fortnight</td>
+    ${results.map(r => `<td>${fmt(r.totalGovtRevCrore)} Cr</td>`).join('')}
+    ${results.map(() => '<td></td>').join('')}
+  </tr>`;
+
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── REVENUE TARGET ───────────────────────────────────
+function renderRevTarget(results, agg) {
+  const mc = document.getElementById('main-content');
+  const { rtAnnual, rtCollected, rtRemaining, totalGovt, govtAnnual } = agg;
+  const projectedFromNow = totalGovt * rtRemaining;
+  const projectedTotal = rtCollected + projectedFromNow;
+  const gap = rtAnnual - projectedTotal;
+  const pctCollected = (rtCollected / rtAnnual * 100).toFixed(1);
+  const projPct = (projectedTotal / rtAnnual * 100).toFixed(1);
+  const status = gap <= 0 ? 'On Track' : gap < rtAnnual * 0.1 ? 'At Risk' : 'Shortfall';
+  const statusClass = gap <= 0 ? 'badge-green' : gap < rtAnnual * 0.1 ? 'badge-yellow' : 'badge-red';
+  const nocNetPL = results.reduce((s, r) => s + r.totalProfitCrore, 0);
+
+  mc.innerHTML = `
+    <div class="section-title">Revenue Target Overview</div>
+    <div class="kpi-grid" style="margin-bottom:16px">
+      <div class="kpi-card"><div class="kc-label">Annual Target</div><div class="kc-val k-info">${fmtC(rtAnnual)}</div><div class="kc-sub">Crore NPR</div></div>
+      <div class="kpi-card"><div class="kc-label">Collected So Far</div><div class="kc-val k-pos">${fmtC(rtCollected)}</div><div class="kc-sub">${pctCollected}% of target</div></div>
+      <div class="kpi-card"><div class="kc-label">Current Fortnight Rate</div><div class="kc-val k-info">${fmt(totalGovt)}</div><div class="kc-sub">Crore NPR</div></div>
+      <div class="kpi-card"><div class="kc-label">Projected Total</div><div class="kc-val ${gap <= 0 ? 'k-pos' : 'k-neg'}">${fmtC(projectedTotal)}</div><div class="kc-sub">${projPct}% of target</div><span class="kc-badge ${statusClass}">${status}</span></div>
+      <div class="kpi-card"><div class="kc-label">Revenue Gap</div><div class="kc-val ${gap > 0 ? 'k-neg' : 'k-pos'}">${gap > 0 ? '+' : ''}${fmt(Math.abs(gap))}</div><div class="kc-sub">Crore NPR ${gap > 0 ? 'shortfall' : 'surplus'}</div></div>
+      <div class="kpi-card"><div class="kc-label">NOC Net P/L</div><div class="kc-val ${nocNetPL >= 0 ? 'k-pos' : 'k-neg'}">${nocNetPL >= 0 ? '+' : ''}${fmt(nocNetPL)}</div><div class="kc-sub">Crore NPR/fortnight</div></div>
+    </div>
+
+    <div class="charts-2col" style="margin-bottom:16px">
+      <div class="chart-card">
+        <h3>Revenue Progress</h3>
+        <div class="doughnut-wrap" id="doughnut-wrap">
+          <canvas id="ch-doughnut" style="max-width:200px;max-height:200px"></canvas>
+          <div class="doughnut-legend" id="doughnut-legend"></div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Fortnight Revenue Projection <span class="sub">(Crore NPR)</span></h3>
+        <canvas id="ch-ftn-proj"></canvas>
+      </div>
+    </div>
+
+    <div class="section-title">Impact Simulator — Per Fuel Revenue</div>
+    <div class="chart-card">
+      <div class="tbl-wrap">
+        <table class="dtbl" id="rt-table"></table>
+      </div>
+    </div>
+  `;
+
+  // Doughnut
+  destroyChart('ch-doughnut');
+  const remaining_pct = Math.max(0, 100 - parseFloat(pctCollected));
+  charts['ch-doughnut'] = new Chart(document.getElementById('ch-doughnut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Collected', 'Projected', 'Gap'],
+      datasets: [{
+        data: [rtCollected, projectedFromNow, Math.max(0, gap)],
+        backgroundColor: ['rgba(22,163,74,0.8)', 'rgba(59,130,246,0.8)', 'rgba(220,38,38,0.5)'],
+        borderColor: ['#16a34a','#3b82f6','#dc2626'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '65%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${fmtC(ctx.parsed)} Cr` } }
+      }
+    }
+  });
+
+  // Legend
+  const leg = document.getElementById('doughnut-legend');
+  const items = [
+    { label: 'Collected', val: rtCollected, color: '#16a34a' },
+    { label: 'Projected Remaining', val: projectedFromNow, color: '#3b82f6' },
+    { label: 'Gap/Surplus', val: Math.abs(gap), color: gap > 0 ? '#dc2626' : '#16a34a' },
+    { label: 'Annual Target', val: rtAnnual, color: '#8892a4' }
+  ];
+  leg.innerHTML = items.map(i => `
+    <div class="dl-item">
+      <span class="dl-name"><span class="dot" style="background:${i.color}"></span>${i.label}</span>
+      <span class="dl-val">${fmtC(i.val)} Cr</span>
+    </div>`).join('');
+
+  // Fortnight projection bar
+  const ftnLabels = Array.from({length: rtRemaining}, (_, i) => `FN ${i+1}`);
+  destroyChart('ch-ftn-proj');
+  charts['ch-ftn-proj'] = new Chart(document.getElementById('ch-ftn-proj'), {
+    type: 'bar',
+    data: {
+      labels: ftnLabels,
+      datasets: results.map(r => ({
+        label: r.label,
+        data: Array(rtRemaining).fill(r.totalGovtRevCrore),
+        backgroundColor: r.color + 'bb',
+        stack: 'ftn'
+      }))
+    },
+    options: {
+      ...chartOpts('Crore NPR'),
+      plugins: { ...chartOpts('Crore NPR').plugins, legend: { display: true, labels: { color: '#8892a4', font: { size: 10 } } } },
+      scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis() } }
+    }
+  });
+
+  // Impact simulator table
+  const tbl = document.getElementById('rt-table');
+  let html = `<thead><tr>
+    <th>Fuel</th>
+    <th>Govt Rev/Unit</th>
+    <th>Demand</th>
+    <th>Fortnight Rev (Cr)</th>
+    <th>7-FN Total (Cr)</th>
+    <th>Annual Rate (Cr)</th>
+    <th>% of Total Rev</th>
+  </tr></thead><tbody>`;
+
+  const totalGovtRev = results.reduce((s, r) => s + r.totalGovtRevCrore, 0);
+  results.forEach(r => {
+    const annualRate = r.totalGovtRevCrore * 26;
+    const pct = totalGovtRev > 0 ? (r.totalGovtRevCrore / totalGovtRev * 100).toFixed(1) + '%' : '—';
+    html += `<tr>
+      <td><span class="dot" style="background:${r.color}"></span>${r.label}</td>
+      <td>${fmt(r.govtRevPerUnit)}</td>
+      <td>${fmtD(r.demand)} ${r.demandUnit}</td>
+      <td>${fmt(r.totalGovtRevCrore)}</td>
+      <td>${fmt(r.totalGovtRevCrore * rtRemaining)}</td>
+      <td>${fmt(annualRate)}</td>
+      <td>${pct}</td>
+    </tr>`;
+  });
+
+  html += `<tr class="total-row">
+    <td>TOTAL</td>
+    <td>—</td><td>—</td>
+    <td>${fmt(totalGovtRev)}</td>
+    <td>${fmt(totalGovtRev * rtRemaining)}</td>
+    <td>${fmt(totalGovtRev * 26)}</td>
+    <td>100%</td>
+  </tr>`;
+
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ─── SCENARIOS ────────────────────────────────────────
+function renderScenarios(results) {
+  const mc = document.getElementById('main-content');
+  const compareData = savedScenario || computeBaseline();
+  const compareLabel = savedScenario ? 'Saved Scenario' : 'Baseline';
+
+  mc.innerHTML = `
+    <div class="section-title">Scenario Comparison: ${compareLabel} vs Current</div>
+    <div class="compare-grid">
+      <div>
+        <div class="compare-label">${compareLabel}</div>
+        <div id="sc-baseline-cards"></div>
+      </div>
+      <div>
+        <div class="compare-label">Current Parameters</div>
+        <div id="sc-current-cards"></div>
+      </div>
+    </div>
+    <div class="section-title">Side-by-Side Comparison</div>
+    <div class="charts-2col" style="margin-bottom:16px">
+      <div class="chart-card">
+        <h3>Profit/Loss per Unit <span class="sub">(NPR)</span></h3>
+        <canvas id="ch-sc-pl"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Total P/L Fortnight <span class="sub">(Crore NPR)</span></h3>
+        <canvas id="ch-sc-fpl"></canvas>
+      </div>
+    </div>
+    <div class="section-title">Detailed Delta Table</div>
+    <div class="chart-card">
+      <div class="tbl-wrap">
+        <table class="dtbl" id="sc-table"></table>
+      </div>
+    </div>
+  `;
+
+  function renderScCards(data, containerId) {
+    const totalPL = data.reduce((s, r) => s + r.totalProfitCrore, 0);
+    const totalGovt = data.reduce((s, r) => s + r.totalGovtRevCrore, 0);
+    const c = document.getElementById(containerId);
+    c.innerHTML = `
+      <div class="summary-box">
+        <div class="sb-row"><span class="sb-lbl">Total Fortnight P/L</span>
+          <span class="sb-v ${totalPL >= 0 ? 'pos' : 'neg'}">${totalPL >= 0 ? '+' : ''}${fmt(totalPL)} Cr</span></div>
+        <div class="sb-row"><span class="sb-lbl">Total Govt Revenue</span>
+          <span class="sb-v k-info">${fmt(totalGovt)} Cr</span></div>
+        ${data.map(r => `
+        <div class="sb-row" style="border-left: 2px solid ${r.color}; padding-left: 6px; margin-left: -6px">
+          <span class="sb-lbl">${r.label}</span>
+          <span class="sb-v ${r.profitPerUnit >= 0 ? 'pos' : 'neg'}">${r.profitPerUnit >= 0 ? '+' : ''}${fmt(r.profitPerUnit)} NPR</span>
+        </div>`).join('')}
+      </div>`;
+  }
+
+  renderScCards(compareData, 'sc-baseline-cards');
+  renderScCards(results, 'sc-current-cards');
+
+  // Chart: P/L per unit comparison
+  destroyChart('ch-sc-pl');
+  charts['ch-sc-pl'] = new Chart(document.getElementById('ch-sc-pl'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.label),
+      datasets: [
+        { label: compareLabel, data: compareData.map(r => r.profitPerUnit), backgroundColor: 'rgba(139,92,246,0.7)' },
+        { label: 'Current', data: results.map(r => r.profitPerUnit), backgroundColor: results.map(r => r.color + 'bb') }
+      ]
+    },
+    options: chartOpts('NPR')
+  });
+
+  // Chart: Total P/L crore comparison
+  destroyChart('ch-sc-fpl');
+  charts['ch-sc-fpl'] = new Chart(document.getElementById('ch-sc-fpl'), {
+    type: 'bar',
+    data: {
+      labels: results.map(r => r.label),
+      datasets: [
+        { label: compareLabel, data: compareData.map(r => r.totalProfitCrore), backgroundColor: 'rgba(139,92,246,0.7)' },
+        { label: 'Current', data: results.map(r => r.totalProfitCrore), backgroundColor: results.map(r => r.color + 'bb') }
+      ]
+    },
+    options: chartOpts('Crore NPR')
+  });
+
+  // Delta table
+  const tbl = document.getElementById('sc-table');
+  let html = `<thead><tr>
+    <th>Fuel</th>
+    <th>${compareLabel}: Cost</th><th>Current: Cost</th><th>Delta Cost</th>
+    <th>${compareLabel}: P/L</th><th>Current: P/L</th><th>Delta P/L</th>
+    <th>${compareLabel}: Govt Rev</th><th>Current: Govt Rev</th><th>Delta Rev</th>
+  </tr></thead><tbody>`;
+
+  const baseMap = {};
+  compareData.forEach(r => baseMap[r.key] = r);
+
+  results.forEach(r => {
+    const b = baseMap[r.key];
+    if (!b) return;
+    const dCost = r.costPerUnit - b.costPerUnit;
+    const dPL = r.profitPerUnit - b.profitPerUnit;
+    const dRev = r.totalGovtRevCrore - b.totalGovtRevCrore;
+    html += `<tr>
+      <td><span class="dot" style="background:${r.color}"></span>${r.label}</td>
+      <td>${fmt(b.costPerUnit)}</td><td>${fmt(r.costPerUnit)}</td>
+      <td class="${dCost > 0 ? 'neg' : dCost < 0 ? 'pos' : ''}">${dCost >= 0 ? '+' : ''}${fmt(dCost)}</td>
+      <td class="${b.profitPerUnit >= 0 ? 'pos' : 'neg'}">${b.profitPerUnit >= 0 ? '+' : ''}${fmt(b.profitPerUnit)}</td>
+      <td class="${r.profitPerUnit >= 0 ? 'pos' : 'neg'}">${r.profitPerUnit >= 0 ? '+' : ''}${fmt(r.profitPerUnit)}</td>
+      <td class="${dPL > 0 ? 'pos' : dPL < 0 ? 'neg' : ''}">${dPL >= 0 ? '+' : ''}${fmt(dPL)}</td>
+      <td>${fmt(b.totalGovtRevCrore)}</td><td>${fmt(r.totalGovtRevCrore)}</td>
+      <td class="${dRev >= 0 ? 'pos' : 'neg'}">${dRev >= 0 ? '+' : ''}${fmt(dRev)}</td>
+    </tr>`;
+  });
+
+  const totalBasePL = compareData.reduce((s,r) => s + r.totalProfitCrore, 0);
+  const totalCurPL = results.reduce((s,r) => s + r.totalProfitCrore, 0);
+  const totalBaseRev = compareData.reduce((s,r) => s + r.totalGovtRevCrore, 0);
+  const totalCurRev = results.reduce((s,r) => s + r.totalGovtRevCrore, 0);
+  html += `<tr class="total-row">
+    <td>TOTAL</td>
+    <td colspan="3">—</td>
+    <td class="${totalBasePL >= 0 ? 'pos' : 'neg'}">${totalBasePL >= 0 ? '+' : ''}${fmt(totalBasePL)} Cr</td>
+    <td class="${totalCurPL >= 0 ? 'pos' : 'neg'}">${totalCurPL >= 0 ? '+' : ''}${fmt(totalCurPL)} Cr</td>
+    <td class="${(totalCurPL-totalBasePL) >= 0 ? 'pos' : 'neg'}">${(totalCurPL-totalBasePL) >= 0 ? '+' : ''}${fmt(totalCurPL-totalBasePL)} Cr</td>
+    <td>${fmt(totalBaseRev)} Cr</td>
+    <td>${fmt(totalCurRev)} Cr</td>
+    <td class="${(totalCurRev-totalBaseRev) >= 0 ? 'pos' : 'neg'}">${(totalCurRev-totalBaseRev) >= 0 ? '+' : ''}${fmt(totalCurRev-totalBaseRev)} Cr</td>
+  </tr>`;
+
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════
+// 5. KPI STRIP
+// ══════════════════════════════════════════════════════
+function updateKpiStrip(results, agg) {
+  const totalPL = agg.totalPL;
+  const totalGovt = agg.totalGovt;
+  const biggestLoss = agg.biggestLoss;
+  const annualProj = totalPL * 26;
+  const nocNet = totalPL + totalGovt;
+
+  const rtAnnual = parseFloat(document.getElementById('rt-annual').value) || DEFAULTS.annualTarget;
+  const rtCollected = parseFloat(document.getElementById('rt-collected').value) || DEFAULTS.collected;
+  const rtRemaining = parseFloat(document.getElementById('rt-remaining').value) || DEFAULTS.remaining;
+  const revGap = rtAnnual - rtCollected - (totalGovt * rtRemaining);
+
+  document.getElementById('ks-total-pl').textContent = (totalPL >= 0 ? '+' : '') + fmt(totalPL) + ' Cr';
+  document.getElementById('ks-total-pl').className = 'k-val ' + (totalPL >= 0 ? 'k-pos' : 'k-neg');
+
+  document.getElementById('ks-govt-rev').textContent = fmt(totalGovt) + ' Cr';
+  document.getElementById('ks-biggest-loss').textContent = biggestLoss.label + ' (' + fmt(biggestLoss.totalProfitCrore) + ' Cr)';
+  document.getElementById('ks-annual-proj').textContent = (annualProj >= 0 ? '+' : '') + fmt(annualProj) + ' Cr';
+  document.getElementById('ks-annual-proj').className = 'k-val ' + (annualProj >= 0 ? 'k-pos' : 'k-neg');
+
+  document.getElementById('ks-rev-gap').textContent = (revGap > 0 ? '' : '−') + fmtC(Math.abs(revGap)) + ' Cr';
+  document.getElementById('ks-rev-gap').className = 'k-val ' + (revGap <= 0 ? 'k-pos' : 'k-warn');
+
+  document.getElementById('ks-net-flow').textContent = (nocNet >= 0 ? '+' : '') + fmt(nocNet) + ' Cr';
+  document.getElementById('ks-net-flow').className = 'k-val ' + (nocNet >= 0 ? 'k-pos' : 'k-neg');
+}
+
+// ══════════════════════════════════════════════════════
+// 6. CHART UTILITIES
+// ══════════════════════════════════════════════════════
+function darkAxis() {
+  return {
+    grid: { color: 'rgba(30,50,82,0.6)' },
+    ticks: { color: '#8892a4', font: { size: 11 } },
+    border: { color: '#1e3252' }
+  };
+}
+
+function chartOpts(yLabel) {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0f1929',
+        borderColor: '#1e3252',
+        borderWidth: 1,
+        titleColor: '#e1e7f0',
+        bodyColor: '#8892a4'
+      }
+    },
+    scales: {
+      x: darkAxis(),
+      y: { ...darkAxis(), title: { display: true, text: yLabel, color: '#8892a4', font: { size: 10 } } }
+    }
+  };
+}
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function destroyAllCharts() {
+  Object.keys(charts).forEach(k => { charts[k].destroy(); delete charts[k]; });
+}
+
+// ══════════════════════════════════════════════════════
+// 7. NUMBER FORMATTERS
+// ══════════════════════════════════════════════════════
+const nf2 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const nf0 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+function fmt(n) { return nf2.format(Number(n) || 0); }
+function fmtN(n) { return nf2.format(Number(n) || 0); }
+function fmtC(n) { return nf2.format(Number(n) || 0); }
+function fmtD(n) { return nf0.format(Number(n) || 0); }
+
+// ══════════════════════════════════════════════════════
+// 8. INTERACTIONS
+// ══════════════════════════════════════════════════════
+function toggleAcc(id) {
+  const el = document.getElementById(`acc-${id}`);
+  if (el) el.classList.toggle('open');
+}
+
+function setFuelTab(key) {
+  activeFuelTab = key;
+  document.querySelectorAll('.fuel-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.fuel === key);
+  });
+  FUEL_KEYS.forEach(k => {
+    const p = document.getElementById(`panel-${k}`);
+    if (p) p.style.display = k === key ? 'block' : 'none';
+  });
+}
+
+function setMainTab(tab) {
+  activeMainTab = tab;
+  document.querySelectorAll('.main-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+  destroyAllCharts();
+  fullUpdate();
+}
+
+function onFieldChange(key, field, val) {
+  const parsed = parseFloat(val);
+  if (Number.isFinite(parsed) && parsed >= 0) {
+    STATE[key][field] = parsed;
+    fullUpdate();
+  }
+}
+
+function recalcVat(key) {
+  const d = STATE[key];
+  const vatRate = parseFloat(document.getElementById('hdr-vat').value) / 100 || 0.13;
+  const f = d.unitFactor;
+  let newVat;
+  if (key === 'ATF_DF') {
+    // Exclusive: vat = retail_per_unit * unitFactor * rate (straight)
+    newVat = d.retailPrice * f * vatRate;
+  } else {
+    // Inclusive: vat = retail_per_unit * unitFactor * rate / (1 + rate)
+    newVat = d.retailPrice * f * vatRate / (1 + vatRate);
+  }
+  STATE[key].vat = parseFloat(newVat.toFixed(2));
+  const inp = document.getElementById(`inp-${key}-vat`);
+  if (inp) inp.value = STATE[key].vat;
+  fullUpdate();
+  showToast(`VAT recalculated for ${d.label}: NPR ${fmt(newVat / f)}/unit`);
+}
+
+function resetAll() {
+  initState();
+  document.getElementById('hdr-irs').value = DEFAULTS.irsRate;
+  document.getElementById('hdr-usd').value = DEFAULTS.usdRate;
+  document.getElementById('hdr-vat').value = DEFAULTS.vatRate;
+  document.getElementById('rt-annual').value = DEFAULTS.annualTarget;
+  document.getElementById('rt-collected').value = DEFAULTS.collected;
+  document.getElementById('rt-remaining').value = DEFAULTS.remaining;
+  buildFuelPanels();
+  fullUpdate();
+  showToast('All parameters reset to baseline');
+}
+
+function saveScenario() {
+  savedScenario = computeAll();
+  showToast('Scenario saved! Scenarios tab will compare against this.');
+}
+
+function computeBaseline() {
+  const origState = STATE;
+  STATE = cloneBase();
+  const origIrs = document.getElementById('hdr-irs').value;
+  const origUsd = document.getElementById('hdr-usd').value;
+  const origVat = document.getElementById('hdr-vat').value;
+  document.getElementById('hdr-irs').value = DEFAULTS.irsRate;
+  document.getElementById('hdr-usd').value = DEFAULTS.usdRate;
+  document.getElementById('hdr-vat').value = DEFAULTS.vatRate;
+  const res = computeAll();
+  STATE = origState;
+  document.getElementById('hdr-irs').value = origIrs;
+  document.getElementById('hdr-usd').value = origUsd;
+  document.getElementById('hdr-vat').value = origVat;
+  return res;
+}
+
+function togglePresentation() {
+  document.body.classList.toggle('presentation-mode');
+  const btn = document.getElementById('pres-btn');
+  btn.textContent = document.body.classList.contains('presentation-mode') ? 'Exit Present.' : 'Presentation';
+  adjustBodyMargin();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════════════════════
+// 9. EXPORT CSV
+// ══════════════════════════════════════════════════════
+function exportCSV() {
+  const results = computeAll();
+  const headers = ['Fuel','ExDepotIrs','ExDepotNpr','SpecificTaxBulk','VAT','NocExpenses','Transport','Dealer','TotalCostKL','CostPerUnit','RetailPrice','ProfitPerUnit','Demand','DemandUnit','TotalProfitCrore','GovtRevPerUnit','TotalGovtRevCrore'];
+  const rows = results.map(r => [
+    r.label, r.exDepotIrs.toFixed(2), r.exDepotNpr.toFixed(2),
+    r.specificTaxBulk.toFixed(2), r.vat.toFixed(2), r.nocExpenses.toFixed(2),
+    r.transport.toFixed(2), r.dealer.toFixed(2),
+    r.totalCostWithVat.toFixed(2), r.costPerUnit.toFixed(2),
+    r.retailPrice.toFixed(2), r.profitPerUnit.toFixed(2),
+    r.demand, r.demandUnit,
+    r.totalProfitCrore.toFixed(4), r.govtRevPerUnit.toFixed(4),
+    r.totalGovtRevCrore.toFixed(4)
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `noc_fiscal_analysis_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast('CSV exported successfully');
+}
+
+// ══════════════════════════════════════════════════════
+// 10. MAIN UPDATE LOOP
+// ══════════════════════════════════════════════════════
+function fullUpdate() {
+  const results = computeAll();
+  const agg = computeAggregate(results);
+  updateKpiStrip(results, agg);
+  updateSidebarSummaries(results);
+  renderMainContent(results, agg);
+}
+
+function adjustBodyMargin() {
+  const hdr = document.getElementById('header');
+  const body = document.getElementById('app-body');
+  const h = hdr.offsetHeight;
+  body.style.marginTop = h + 'px';
+  body.style.height = `calc(100vh - ${h}px)`;
+}
+
+// ══════════════════════════════════════════════════════
+// 11. INIT
+// ══════════════════════════════════════════════════════
+function init() {
+  initState();
+  buildFuelPanels();
+
+  // Wire header inputs
+  ['hdr-irs','hdr-usd','hdr-vat'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => fullUpdate());
+  });
+  ['rt-annual','rt-collected','rt-remaining'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => fullUpdate());
+  });
+
+  adjustBodyMargin();
+  window.addEventListener('resize', adjustBodyMargin);
+
+  fullUpdate();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
