@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOC Petroleum Fiscal Analysis 2082/83</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b1120;--surface:#111b2e;--surface2:#162038;--surface3:#1d2a4a;
+  --border:#243052;--border2:#2e3d64;
+  --text:#e8edf5;--dim:#8fa3c4;--muted:#5a6f94;
+  --blue:#3b82f6;--blue2:#60a5fa;--indigo:#6366f1;--purple:#8b5cf6;
+  --green:#10b981;--green2:#34d399;--greenbg:rgba(16,185,129,.12);
+  --red:#ef4444;--red2:#f87171;--redbg:rgba(239,68,68,.12);
+  --amber:#f59e0b;--amberbg:rgba(245,158,11,.12);
+  --cyan:#06b6d4;--pink:#ec4899;
+  --petrol:#f97316;--diesel:#a855f7;--kerosene:#06b6d4;
+  --atfdp:#3b82f6;--atfdf:#6366f1;--lpg:#10b981;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#0f1829,#162038,#1a1540);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;backdrop-filter:blur(16px);flex-wrap:wrap;gap:8px}
+.header-left{display:flex;align-items:center;gap:10px}
+.header h1{font-size:15px;font-weight:800;letter-spacing:-.4px;color:var(--text)}
+.header .sub{font-size:10px;color:var(--muted);margin-top:1px}
+.header-right{display:flex;gap:6px;align-items:center}
+.hbtn{padding:5px 12px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--dim);font-family:'Inter';transition:all .2s;white-space:nowrap}
+.hbtn:hover{background:var(--surface3);color:var(--text)}
+.hbtn.danger{border-color:var(--red);color:var(--red)}
+
+/* HEADER KPI BAR */
+.hkpi-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:8px 24px;border-bottom:1px solid var(--border)}
+.hkpi{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;position:relative;overflow:hidden}
+.hkpi::before{content:'';position:absolute;top:0;left:0;width:100%;height:2.5px}
+.hkpi.c-red::before{background:var(--red)}.hkpi.c-green::before{background:var(--green)}.hkpi.c-blue::before{background:var(--blue)}.hkpi.c-amber::before{background:var(--amber)}.hkpi.c-purple::before{background:var(--purple)}.hkpi.c-cyan::before{background:var(--cyan)}
+.hkpi-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-weight:700}
+.hkpi-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:800;margin-top:2px}
+.hkpi-sub{font-size:9px;color:var(--dim);margin-top:1px}
+.hkpi input{background:transparent;border:none;border-bottom:1px dashed var(--border2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;width:100%;outline:none;padding:1px 0;margin-top:2px}
+.hkpi input:focus{border-bottom-color:var(--blue)}
+.hkpi .inline-input{font-size:12px;width:50px;display:inline;text-align:right}
+
+/* GLOBALS */
+.globals-row{display:flex;gap:8px;padding:6px 24px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border)}
+.gi{display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px}
+.gi label{font-size:9px;color:var(--muted);white-space:nowrap;font-weight:600}
+.gi input{background:transparent;border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;width:52px;outline:none;text-align:right}
+.gi-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+
+/* FUEL TABS */
+.ftab{padding:5px 11px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--dim);transition:all .2s;font-family:'Inter'}
+.ftab.active{border-color:var(--blue);color:#fff;background:var(--surface3)}
+.ftab:hover:not(.active){border-color:var(--border2);color:var(--text);background:var(--surface2)}
+
+/* CONTENT TABS */
+.content-tabs{display:flex;gap:0;padding:0 24px}
+.ctab{padding:9px 18px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:transparent;font-family:'Inter';border-bottom:2px solid transparent;transition:all .2s}
+.ctab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.ctab:hover:not(.active){color:var(--text)}
+.tab-line{height:1px;background:var(--border);margin:0 24px}
+
+/* PANELS */
+.panels{padding:14px 24px 40px}.panel{display:none}.panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:700}
+.card-desc{font-size:10px;color:var(--muted);margin-top:2px}
+.card-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+/* INPUTS */
+.input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.fg{position:relative}
+.fg label{display:block;font-size:9px;color:var(--muted);margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.fg input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s}
+.fg input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.12)}
+.fg input.changed{border-color:var(--amber);background:var(--amberbg)}
+.fg .unit{position:absolute;right:7px;top:21px;font-size:8px;color:var(--muted);font-family:'JetBrains Mono',monospace;pointer-events:none}
+
+/* CHART */
+.chart-box{position:relative;width:100%}
+.ch-sm{height:260px}.ch-md{height:320px}.ch-lg{height:380px}
+
+/* TABLE */
+.dtable{width:100%;border-collapse:collapse;font-size:11px}
+.dtable th{text-align:left;padding:6px 8px;font-size:9px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);border-bottom:2px solid var(--border);font-weight:700;position:sticky;top:0;background:var(--surface)}
+.dtable td{padding:5px 8px;border-bottom:1px solid rgba(36,48,82,.4);font-family:'JetBrains Mono',monospace;font-size:10px}
+.dtable tr:hover{background:rgba(59,130,246,.03)}
+.dtable .rh{font-family:'Inter',sans-serif;color:var(--dim);font-weight:500;font-size:10px}
+.dtable .sub{font-weight:700;color:var(--text);border-top:2px solid var(--border);background:var(--surface2)}
+.dtable .total{font-weight:800;background:var(--surface3);color:#fff}
+.dtable .grn{color:var(--green)}.dtable .red{color:var(--red)}.r{text-align:right}
+
+/* TAX EDITOR */
+.tax-fuel-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tax-fuel-tab{padding:6px 14px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface2);color:var(--dim);transition:all .2s;font-family:'Inter'}
+.tax-fuel-tab.active{color:#fff;background:var(--surface3)}
+.tax-fuel-tab[data-f="petrol"].active{border-color:var(--petrol)}.tax-fuel-tab[data-f="diesel"].active{border-color:var(--diesel)}.tax-fuel-tab[data-f="kerosene"].active{border-color:var(--kerosene)}.tax-fuel-tab[data-f="atfdp"].active{border-color:var(--atfdp)}.tax-fuel-tab[data-f="atfdf"].active{border-color:var(--atfdf)}.tax-fuel-tab[data-f="lpg"].active{border-color:var(--lpg)}
+.tax-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:7px}
+.tax-summary-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px}
+.tax-sum-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;text-align:center}
+.tax-sum-card .fuel-name{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tax-sum-card .tax-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;margin:4px 0}
+.tax-sum-card .tax-sub{font-size:9px;color:var(--dim)}
+
+/* PROGRESS */
+.pbar{width:100%;height:12px;background:var(--surface2);border-radius:6px;overflow:hidden}
+.pbar .fill{height:100%;border-radius:6px;transition:width .6s ease;position:relative;overflow:hidden}
+.pbar .fill::after{content:'';position:absolute;top:0;left:0;width:200%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);animation:shimmer 2s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* SCENARIO */
+.scenario-list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto}
+.scenario-item{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all .2s}
+.scenario-item:hover{border-color:var(--blue);background:var(--surface3)}
+.scenario-item .name{font-weight:600;font-size:12px}
+.scenario-item .meta{font-size:9px;color:var(--muted)}
+.scenario-item .sbtn{padding:3px 8px;border-radius:4px;font-size:9px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--dim);font-family:'Inter';margin-left:4px}
+.scenario-item .sbtn:hover{color:var(--text);background:var(--surface3)}
+.scenario-item .sbtn.del{border-color:var(--red);color:var(--red)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeIn .2s ease}
+
+@media(max-width:1100px){.hkpi-bar{grid-template-columns:repeat(3,1fr)}.grid2,.grid3{grid-template-columns:1fr}.tax-summary-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.hkpi-bar{grid-template-columns:repeat(2,1fr)}.header{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div>
+      <h1>Nepal Oil Corporation — Petroleum Fiscal Analysis 2082/83</h1>
+      <div class="sub">IOC Price 2082/12/18 &middot; NOC Revision 2082/12/20 (2026-04-03) &middot; All computations in NPR</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="hbtn" onclick="saveScenario()">Save Scenario</button>
+    <button class="hbtn danger" onclick="resetAll()">Reset All</button>
+    <button class="hbtn" onclick="exportCSV()">Export CSV</button>
+  </div>
+</div>
+
+<!-- HEADER KPI BAR -->
+<div class="hkpi-bar">
+  <div class="hkpi" id="hk_pl"><div class="hkpi-label">Total P/L (Fortnight)</div><div class="hkpi-val" id="hv_pl">—</div><div class="hkpi-sub">NRs Crore &middot; all fuels</div></div>
+  <div class="hkpi c-blue"><div class="hkpi-label">Govt Revenue (Fortnight)</div><div class="hkpi-val" id="hv_gov" style="color:var(--blue)">—</div><div class="hkpi-sub">NRs Crore &middot; tax collection</div></div>
+  <div class="hkpi c-amber"><div class="hkpi-label">FY Revenue Target</div><input id="hIn_target" value="17100" oninput="recalc()"><div class="hkpi-sub">NRs Crore &middot; editable</div></div>
+  <div class="hkpi" id="hk_coll"><div class="hkpi-label">Collected So Far</div><input id="hIn_collected" value="13550" oninput="recalc()"><div class="hkpi-sub">NRs Crore &middot; editable</div></div>
+  <div class="hkpi c-purple"><div class="hkpi-label">Fortnights Remaining</div><div style="display:flex;align-items:baseline;gap:4px"><input class="inline-input" id="hIn_rem" value="5" oninput="recalc()"><span style="font-size:10px;color:var(--muted)">of 24</span></div><div class="hkpi-sub" id="hSub_rem">FY 2082/83</div></div>
+  <div class="hkpi c-cyan"><div class="hkpi-label">Projected FY Revenue</div><div class="hkpi-val" id="hv_proj">—</div><div class="hkpi-sub" id="hSub_proj">vs target</div></div>
+</div>
+
+<!-- GLOBALS -->
+<div class="globals-row">
+  <div class="gi"><label>1 IRs =</label><input id="gXR" value="1.6025" oninput="recalc()"><label>NPR</label></div>
+  <div class="gi"><label>1 USD =</label><input id="gUSD" value="134.20" oninput="recalc()"><label>NPR</label></div>
+  <div class="gi"><label>VAT</label><input id="gVAT" value="13" oninput="recalc()"><label>%</label></div>
+  <div class="gi-sep"></div>
+  <span style="font-size:9px;color:var(--muted);font-weight:700">FUEL:</span>
+  <div id="fuelBar" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+</div>
+
+<!-- CONTENT TABS -->
+<div class="content-tabs">
+  <button class="ctab active" onclick="showPanel('overview',this)">Overview</button>
+  <button class="ctab" onclick="showPanel('buildup',this)">Price Build-Up</button>
+  <button class="ctab" onclick="showPanel('taxeditor',this)">Tax Editor</button>
+  <button class="ctab" onclick="showPanel('tax',this)">Tax Analysis</button>
+  <button class="ctab" onclick="showPanel('revenue',this)">Revenue Target</button>
+  <button class="ctab" onclick="showPanel('scenarios',this)">Scenarios</button>
+</div>
+<div class="tab-line"></div>
+
+<!-- PANELS -->
+<div class="panels">
+
+<!-- ── OVERVIEW ── -->
+<div class="panel active" id="p-overview">
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:12px" id="fuelKpis"></div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title">Fortnightly Profit / Loss by Fuel</div><div class="card-desc">Bars = NRs per unit, Line = NRs Crore total</div></div></div><div class="chart-box ch-sm"><canvas id="chPL"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Government Revenue by Fuel</div><div class="card-desc">Fortnightly revenue contribution (NRs Crore)</div></div></div><div class="chart-box ch-sm"><canvas id="chRevBar"></canvas></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title">Cost per Unit vs Retail Selling Price</div><div class="card-desc">Gap = profit or loss per unit</div></div></div><div class="chart-box ch-sm"><canvas id="chCompare"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Cost Composition — Selected Fuel</div><div class="card-desc">Stacked components per unit</div></div></div><div class="chart-box ch-sm"><canvas id="chCostStack"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-head"><div><div class="card-title">Complete Fortnightly Summary</div><div class="card-desc">All fuels — key metrics at a glance</div></div></div><div style="overflow-x:auto"><table class="dtable" id="tblSummary"></table></div></div>
+</div>
+
+<!-- ── PRICE BUILD-UP ── -->
+<div class="panel" id="p-buildup">
+  <div class="card"><div class="card-head"><div><div class="card-title" id="buildTitle">Price Build-Up — Petrol</div><div class="card-desc">Horizontal waterfall: IOC base to final cost (per litre/cylinder)</div></div></div><div class="chart-box ch-lg"><canvas id="chWaterfall"></canvas></div></div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title">Editable Cost Components</div><div class="card-desc">Modify any value — all charts update live</div></div></div><div class="input-grid" id="inputGrid"></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Detailed Breakdown</div><div class="card-desc" id="breakUnit">NRs per KL</div></div></div><div style="overflow-y:auto;max-height:460px"><table class="dtable" id="tblBreak"></table></div></div>
+  </div>
+  <div class="card"><div class="card-head"><div><div class="card-title">All Fuels — Stacked Cost Comparison</div><div class="card-desc">IOC base, taxes, NOC expenses, transport, dealer — stacked per unit</div></div></div><div class="chart-box ch-md"><canvas id="chAllStack"></canvas></div></div>
+</div>
+
+<!-- ── TAX EDITOR ── -->
+<div class="panel" id="p-taxeditor">
+  <div class="card">
+    <div class="card-head"><div><div class="card-title">Tax Variables Editor — Per Fuel</div><div class="card-desc">Select a fuel and adjust individual tax components. All changes propagate to every chart and calculation.</div></div></div>
+    <div class="tax-fuel-tabs" id="taxFuelTabs"></div>
+    <div class="tax-grid" id="taxInputGrid"></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div><div class="card-title">Total Tax per Unit — All Fuels</div><div class="card-desc">Impact of your tax adjustments across all fuel types</div></div></div>
+    <div class="tax-summary-row" id="taxSummaryRow"></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title">Tax Components Comparison</div><div class="card-desc">Stacked tax breakdown across all fuels (per unit)</div></div></div><div class="chart-box ch-md"><canvas id="chTaxEditorStack"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Tax vs Non-Tax Share of RSP</div><div class="card-desc">How much of each fuel's price is government tax?</div></div></div><div class="chart-box ch-md"><canvas id="chTaxPctEditor"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-head"><div><div class="card-title">All Fuels — Editable Tax Matrix</div><div class="card-desc">Quick-edit all taxes for all fuels in one table</div></div></div><div style="overflow-x:auto"><table class="dtable" id="tblTaxMatrix"></table></div></div>
+</div>
+
+<!-- ── TAX ANALYSIS ── -->
+<div class="panel" id="p-tax">
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title" id="taxBarTitle">Tax Breakdown — Petrol</div><div class="card-desc">Government levies per unit — bar chart</div></div></div><div class="chart-box ch-md"><canvas id="chTaxBar"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Tax Components — All Fuels</div><div class="card-desc">Stacked government tax per unit</div></div></div><div class="chart-box ch-md"><canvas id="chTaxStack"></canvas></div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title">Border Price: Nepal vs India</div><div class="card-desc">Retail price differential — Birgunj vs Raxaul</div></div></div><div class="chart-box ch-sm"><canvas id="chBorder"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Tax as Percentage of RSP</div><div class="card-desc">Tax burden on each fuel type</div></div></div><div class="chart-box ch-sm"><canvas id="chTaxPct"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ── REVENUE TARGET ── -->
+<div class="panel" id="p-revenue">
+  <div class="card"><div class="card-head"><div><div class="card-title">Fiscal Year Revenue Progress</div><div class="card-desc">FY 2082/83 — Shrawan 2082 to Ashad 2083</div></div><div class="card-badge" id="rvPctBadge" style="background:var(--greenbg);color:var(--green)">—</div></div><div class="pbar"><div class="fill" id="rvFill" style="width:0;background:linear-gradient(90deg,var(--blue),var(--green))"></div></div><div style="display:flex;justify-content:space-between;margin-top:5px"><span style="font-size:9px;color:var(--muted)">Shrawan 2082</span><span style="font-size:9px;color:var(--muted)">Ashad 2083</span></div></div>
+  <div class="grid3">
+    <div class="card" style="text-align:center"><div class="hkpi-label" style="margin-bottom:4px">Revenue Gap</div><div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800" id="rvGap">—</div><div style="font-size:10px;color:var(--dim)" id="rvGapPct">—</div></div>
+    <div class="card" style="text-align:center"><div class="hkpi-label" style="margin-bottom:4px">Needed per Fortnight</div><div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:var(--red)" id="rvNeeded">—</div><div style="font-size:10px;color:var(--dim)">NRs Crore to meet target</div></div>
+    <div class="card" style="text-align:center"><div class="hkpi-label" style="margin-bottom:4px">Current per Fortnight</div><div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:800;color:var(--green)" id="rvCurrent">—</div><div style="font-size:10px;color:var(--dim)">NRs Crore at current rates</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><div><div class="card-title">Projection vs Target</div><div class="card-desc">Cumulative trajectory — actual, projected, required</div></div></div><div class="chart-box ch-md"><canvas id="chRevProj"></canvas></div></div>
+    <div class="card"><div class="card-head"><div><div class="card-title">Revenue by Fuel — Fortnightly</div><div class="card-desc">Which fuel contributes most?</div></div></div><div class="chart-box ch-md"><canvas id="chRevByFuel"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ── SCENARIOS ── -->
+<div class="panel" id="p-scenarios">
+  <div class="card"><div class="card-head"><div><div class="card-title">Saved Scenarios</div><div class="card-desc">Compare different pricing and tax configurations</div></div><button class="hbtn" style="background:var(--blue);color:#fff;border-color:var(--blue)" onclick="saveScenario()">+ Save Current</button></div><div class="scenario-list" id="scenarioList"><div style="text-align:center;color:var(--muted);padding:24px;font-size:11px">No saved scenarios yet. Modify values and click Save to create one.</div></div></div>
+  <div class="card" id="scenarioCompareCard" style="display:none"><div class="card-head"><div><div class="card-title">Scenario Comparison</div><div class="card-desc">Side-by-side P/L and revenue</div></div></div><div class="chart-box ch-md"><canvas id="chScenario"></canvas></div></div>
+</div>
+
+</div>
+
+<script>
+const F=['petrol','diesel','kerosene','atfdp','atfdf','lpg'];
+const FL={petrol:'Petrol',diesel:'Diesel',kerosene:'Kerosene',atfdp:'ATF (DP)',atfdf:'ATF (DF)',lpg:'LP Gas'};
+const FC={petrol:'#f97316',diesel:'#a855f7',kerosene:'#06b6d4',atfdp:'#3b82f6',atfdf:'#6366f1',lpg:'#10b981'};
+const FUNIT={petrol:'KL',diesel:'KL',kerosene:'KL',atfdp:'KL',atfdf:'KL',lpg:'Cyl'};
+const FDIV={petrol:1000,diesel:1000,kerosene:1000,atfdp:1000,atfdf:1000,lpg:1};
+
+const TAX_FIELDS=[
+  ['custom','Customs Duty'],['csc','Custom Service Charge'],['road','Road Maintenance'],
+  ['pollution','Pollution Charge'],['green','Green Tax'],['psf','PSF Transfer'],
+  ['infra','Infrastructure Dev Tax'],['thruput','Fuel Through-put Charge'],['vat','VAT Amount']
+];
+
+const BASE={
+  petrol:{iocOld:70051.33,iocNew:96024.41,custom:25200,cvc:0,csc:25,road:4000,pollution:1500,green:1000,psf:2020,infra:10000,vat:23238.94,thruput:0,admin:608.02,ins:92.27,tech:1722.44,transport:6673.49,dealer:6496.91,rsp:202,demand:33108,rspIndia:171.26,rspNepal:199.50},
+  diesel:{iocOld:92135.96,iocNew:151412.27,custom:12000,cvc:0,csc:25,road:2000,pollution:1500,green:1000,psf:1820,infra:10000,vat:20938.05,thruput:0,admin:608.02,ins:145.50,tech:1621.22,transport:3221.64,dealer:5174.13,rsp:182,demand:82277,rspIndia:149.26,rspNepal:179.50},
+  kerosene:{iocOld:55940.20,iocNew:123573.65,custom:12000,cvc:0,csc:25,road:0,pollution:0,green:0,psf:1820,infra:0,vat:20938.05,thruput:0,admin:608.02,ins:118.74,tech:1347.44,transport:6673.49,dealer:4628.78,rsp:182,demand:865,rspIndia:159.49,rspNepal:179.50},
+  atfdp:{iocOld:56007.63,iocNew:133311.58,custom:2100,cvc:0,csc:25,road:0,pollution:0,green:0,psf:2510,infra:0,vat:28876.11,thruput:888.50,admin:608.02,ins:128.10,tech:1383.15,transport:6728.64,dealer:0,rsp:251,demand:2616,rspIndia:0,rspNepal:251},
+  atfdf:{iocOld:56007.63,iocNew:133311.58,custom:2100,cvc:0,csc:25,road:0,pollution:0,green:0,psf:2703.20,infra:0,vat:35141.65,thruput:1081.28,admin:608.02,ins:128.10,tech:1383.15,transport:6728.64,dealer:0,rsp:263.40,demand:5892,rspIndia:0,rspNepal:263.40},
+  lpg:{iocOld:936.40,iocNew:1055.27,custom:90.42,cvc:1.18,csc:0.39,road:0,pollution:0,green:0,psf:19.10,infra:0,vat:213.85,thruput:1081.28,admin:8.63,ins:1.77,tech:0,transport:0,dealer:301.01,rsp:1910,demand:1522444,rspIndia:1526.23,rspNepal:1910}
+};
+
+let S={},CF='petrol',taxEditFuel='petrol',scenarios=[],charts={};
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function pv(id){return parseFloat(document.getElementById(id).value)||0}
+function fmt(n){if(isNaN(n))return'—';if(Math.abs(n)>=1e5)return n.toLocaleString('en-IN',{maximumFractionDigits:0});return n.toLocaleString('en-IN',{maximumFractionDigits:2})}
+
+function init(){S=clone(BASE);buildFuelTabs();buildTaxFuelTabs();populateInputs();populateTaxInputs();recalc()}
+
+function buildFuelTabs(){document.getElementById('fuelBar').innerHTML=F.map(f=>`<button class="ftab${f===CF?' active':''}" data-f="${f}" onclick="selectFuel('${f}')">${FL[f]}</button>`).join('')}
+function selectFuel(f){CF=f;document.querySelectorAll('#fuelBar .ftab').forEach(t=>t.classList.toggle('active',t.dataset.f===f));populateInputs();recalc()}
+
+function buildTaxFuelTabs(){document.getElementById('taxFuelTabs').innerHTML=F.map(f=>`<button class="tax-fuel-tab${f===taxEditFuel?' active':''}" data-f="${f}" onclick="selectTaxFuel('${f}')">${FL[f]}</button>`).join('')}
+function selectTaxFuel(f){taxEditFuel=f;document.querySelectorAll('.tax-fuel-tab').forEach(t=>t.classList.toggle('active',t.dataset.f===f));populateTaxInputs();recalc()}
+
+// COST INPUTS
+const COST_FIELDS=[['iocNew','IOC Price (Current)'],['admin','Admin Cost'],['ins','Insurance'],['tech','Technical Loss'],['transport','Transportation'],['dealer','Dealer/Gas Expense'],['rsp','Retail Selling Price'],['demand','Fortnightly Demand']];
+function populateInputs(){
+  const d=S[CF],isLP=CF==='lpg',uB=isLP?'NRs/Cyl':'NRs/KL';
+  document.getElementById('inputGrid').innerHTML=COST_FIELDS.map(([k,label])=>{
+    let u=uB;if(k==='rsp')u=isLP?'NRs/Cyl':'NRs/L';if(k==='demand')u=FUNIT[CF];if(k==='iocNew')u=isLP?'NRs/Cyl':'IRs/KL';
+    const ch=Math.abs(d[k]-BASE[CF][k])>0.001;
+    return`<div class="fg"><label>${label}</label><input id="in_${k}" value="${d[k]}" class="${ch?'changed':''}" oninput="onIn('${k}',this)"><span class="unit">${u}</span></div>`;
+  }).join('');
+}
+function onIn(k,el){S[CF][k]=parseFloat(el.value)||0;el.classList.toggle('changed',Math.abs(S[CF][k]-BASE[CF][k])>0.001);recalc()}
+
+// TAX INPUTS
+function populateTaxInputs(){
+  const d=S[taxEditFuel],isLP=taxEditFuel==='lpg',u=isLP?'NRs/Cyl':'NRs/KL';
+  document.getElementById('taxInputGrid').innerHTML=TAX_FIELDS.map(([k,label])=>{
+    const ch=Math.abs(d[k]-BASE[taxEditFuel][k])>0.001;
+    return`<div class="fg"><label>${label}</label><input id="tx_${k}" value="${d[k]}" class="${ch?'changed':''}" oninput="onTaxIn('${k}',this)"><span class="unit">${u}</span></div>`;
+  }).join('');
+}
+function onTaxIn(k,el){S[taxEditFuel][k]=parseFloat(el.value)||0;el.classList.toggle('changed',Math.abs(S[taxEditFuel][k]-BASE[taxEditFuel][k])>0.001);recalc()}
+
+// CALC
+function calc(f){
+  const d=S[f],xr=pv('gXR'),div=FDIV[f],isLP=f==='lpg';
+  const exDepotNRs=isLP?d.iocNew:d.iocNew*xr;
+  const taxBefore=d.custom+(d.cvc||0)+d.csc+d.road+d.pollution+d.green+d.psf+d.infra+d.thruput;
+  const nocExp=d.admin+d.ins+d.tech;
+  const landed=exDepotNRs+taxBefore+nocExp+d.transport;
+  const costWoVat=landed+d.dealer;
+  const costWithVat=costWoVat+d.vat;
+  const cpu=costWithVat/div;
+  const plUnit=d.rsp-cpu;
+  const plCrore=(plUnit*d.demand)/1e7;
+  const totalTax=taxBefore+d.vat;
+  const govUnit=totalTax/div;
+  const govCrore=(govUnit*d.demand)/1e7;
+  return{f,exDepotNRs,taxBefore,totalTax,nocExp,landed,costWoVat,costWithVat,cpu,rsp:d.rsp,plUnit,plCrore,govUnit,govCrore,demand:d.demand,div,vat:d.vat};
+}
+
+function recalc(){
+  const R={};let totPL=0,totGov=0;
+  F.forEach(f=>{R[f]=calc(f);totPL+=R[f].plCrore;totGov+=R[f].govCrore});
+  renderHeaderKPI(R,totPL,totGov);renderFuelKpis(R);
+  renderPLChart(R);renderRevBarChart(R);renderCompareChart(R);renderCostStack(R);renderSummaryTable(R,totPL,totGov);
+  renderBuildUp(R);renderBreakdownTable(R);renderAllStack(R);
+  renderTaxSummary(R);renderTaxEditorStack(R);renderTaxPctEditor(R);renderTaxMatrix(R);
+  renderTaxBar(R);renderTaxStack(R);renderBorderChart(R);renderTaxPctChart(R);
+  renderRevenue(R,totGov);
+}
+
+// HEADER KPI
+function renderHeaderKPI(R,totPL,totGov){
+  const target=pv('hIn_target'),collected=pv('hIn_collected'),rem=parseInt(document.getElementById('hIn_rem').value)||5;
+  const proj=collected+totGov*rem;
+  const plEl=document.getElementById('hv_pl');
+  plEl.textContent=(totPL>=0?'+':'')+totPL.toFixed(2)+' Cr';
+  plEl.style.color=totPL>=0?'var(--green)':'var(--red)';
+  document.getElementById('hk_pl').className='hkpi '+(totPL>=0?'c-green':'c-red');
+  document.getElementById('hv_gov').textContent=totGov.toFixed(2)+' Cr';
+  const pct=collected/target*100;
+  document.getElementById('hk_coll').className='hkpi '+(pct>=75?'c-green':pct>=40?'c-amber':'c-red');
+  document.getElementById('hv_proj').textContent=fmt(Math.round(proj))+' Cr';
+  document.getElementById('hv_proj').style.color=proj>=target?'var(--green)':'var(--red)';
+  const diff=proj-target;
+  document.getElementById('hSub_proj').textContent=(diff>=0?'+':'')+fmt(Math.round(diff))+' vs target';
+  document.getElementById('hSub_rem').textContent='Elapsed: '+(24-rem)+' of 24';
+}
+
+function renderFuelKpis(R){
+  document.getElementById('fuelKpis').innerHTML=F.map(f=>{
+    const r=R[f],s=r.plUnit>=0?'+':'',c=r.plUnit>=0?'var(--green)':'var(--red)',u=f==='lpg'?'/Cyl':'/L';
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 10px;border-top:3px solid ${FC[f]}">
+      <div style="font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px">${FL[f]}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;color:${c};margin:2px 0">${s}${r.plUnit.toFixed(2)}</div>
+      <div style="font-size:9px;color:var(--dim)">NRs${u} | ${s}${r.plCrore.toFixed(2)} Cr</div></div>`;
+  }).join('');
+}
+
+// CHART UTILS
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
+function cx(id){return document.getElementById(id).getContext('2d')}
+const CD={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8fa3c4',font:{family:'Inter',size:10},padding:8,usePointStyle:true,pointStyleWidth:8}},tooltip:{backgroundColor:'#162038',borderColor:'#243052',borderWidth:1,titleColor:'#e8edf5',bodyColor:'#8fa3c4',titleFont:{family:'Inter',weight:700,size:10},bodyFont:{family:'JetBrains Mono',size:10},padding:8,cornerRadius:6}},scales:{x:{ticks:{color:'#5a6f94',font:{family:'Inter',size:9}},grid:{color:'rgba(36,48,82,.3)'}},y:{ticks:{color:'#5a6f94',font:{family:'JetBrains Mono',size:9}},grid:{color:'rgba(36,48,82,.3)'}}}};
+
+// OVERVIEW CHARTS
+function renderPLChart(R){
+  dc('chPL');
+  charts.chPL=new Chart(cx('chPL'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:[
+    {label:'P/L per unit (NRs)',data:F.map(f=>R[f].plUnit),backgroundColor:F.map(f=>R[f].plUnit>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderColor:F.map(f=>R[f].plUnit>=0?'#10b981':'#ef4444'),borderWidth:1.5,borderRadius:5,yAxisID:'y',barPercentage:.4,categoryPercentage:.7},
+    {label:'P/L total (Crore)',data:F.map(f=>R[f].plCrore),type:'line',borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.08)',pointBackgroundColor:'#f59e0b',pointRadius:4,tension:.3,borderWidth:2,yAxisID:'y1',fill:true}
+  ]},options:{...CD,scales:{x:CD.scales.x,y:{...CD.scales.y,position:'left',title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}},y1:{...CD.scales.y,position:'right',title:{display:true,text:'Crore',color:'#5a6f94',font:{size:9}},grid:{drawOnChartArea:false}}}}});
+}
+
+function renderRevBarChart(R){
+  dc('chRevBar');
+  charts.chRevBar=new Chart(cx('chRevBar'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:[{label:'Govt Revenue (Crore)',data:F.map(f=>R[f].govCrore),backgroundColor:F.map(f=>FC[f]+'aa'),borderColor:F.map(f=>FC[f]),borderWidth:1.5,borderRadius:5,barPercentage:.5}]},options:{...CD,plugins:{...CD.plugins,legend:{display:false}},scales:{...CD.scales,y:{...CD.scales.y,title:{display:true,text:'NRs Crore',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderCompareChart(R){
+  dc('chCompare');
+  charts.chCompare=new Chart(cx('chCompare'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:[
+    {label:'Cost/Unit',data:F.map(f=>R[f].cpu),backgroundColor:F.map(f=>FC[f]+'77'),borderColor:F.map(f=>FC[f]),borderWidth:1.5,borderRadius:4,barPercentage:.3,categoryPercentage:.7},
+    {label:'RSP',data:F.map(f=>R[f].rsp),backgroundColor:'rgba(16,185,129,.6)',borderColor:'#10b981',borderWidth:1.5,borderRadius:4,barPercentage:.3,categoryPercentage:.7}
+  ]},options:{...CD,scales:{...CD.scales,y:{...CD.scales.y,title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderCostStack(R){
+  dc('chCostStack');
+  const r=R[CF],d=S[CF],div=FDIV[CF];
+  charts.chCostStack=new Chart(cx('chCostStack'),{type:'bar',data:{labels:[FL[CF]],datasets:[
+    {label:'IOC Base',data:[r.exDepotNRs/div],backgroundColor:'#f59e0baa',borderColor:'#f59e0b',borderWidth:1},
+    {label:'Govt Tax',data:[r.totalTax/div],backgroundColor:'#ef4444aa',borderColor:'#ef4444',borderWidth:1},
+    {label:'NOC Exp',data:[r.nocExp/div],backgroundColor:'#8b5cf6aa',borderColor:'#8b5cf6',borderWidth:1},
+    {label:'Transport',data:[d.transport/div],backgroundColor:'#06b6d4aa',borderColor:'#06b6d4',borderWidth:1},
+    {label:'Dealer',data:[d.dealer/div],backgroundColor:'#ec4899aa',borderColor:'#ec4899',borderWidth:1}
+  ].map(ds=>({...ds,barPercentage:.5}))},options:{...CD,indexAxis:'y',scales:{y:{...CD.scales.y,stacked:true},x:{...CD.scales.x,stacked:true,title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderSummaryTable(R,totPL,totGov){
+  let h='<tr><th>Metric</th>'+F.map(f=>`<th class="r" style="color:${FC[f]}">${FL[f]}</th>`).join('')+'<th class="r" style="color:var(--amber)">TOTAL</th></tr>';
+  [['IOC Price (NRs)',f=>R[f].exDepotNRs,0],['Govt Tax',f=>R[f].totalTax,0],['NOC Expenses',f=>R[f].nocExp,0],['Cost/Unit',f=>R[f].cpu,0],['RSP',f=>R[f].rsp,0],['P/L per Unit',f=>R[f].plUnit,1],['Demand',f=>R[f].demand,0],['P/L (Crore)',f=>R[f].plCrore,1],['Govt Rev (Crore)',f=>R[f].govCrore,0]].forEach(([l,fn,p])=>{
+    h+='<tr><td class="rh">'+l+'</td>';let t=0;
+    F.forEach(f=>{const v=fn(f);t+=v;h+=`<td class="r ${p?(v>=0?'grn':'red'):''}">${fmt(v)}</td>`});
+    h+=`<td class="r ${p?(t>=0?'grn':'red'):''}" style="font-weight:700">${l.includes('Demand')?'—':fmt(t)}</td></tr>`;
+  });
+  document.getElementById('tblSummary').innerHTML=h;
+}
+
+// BUILD-UP
+function renderBuildUp(R){
+  document.getElementById('buildTitle').textContent='Price Build-Up — '+FL[CF];
+  dc('chWaterfall');
+  const d=S[CF],r=R[CF],div=FDIV[CF];
+  const items=[['IOC Base',r.exDepotNRs/div,'#f59e0b'],['Customs',d.custom/div,'#ef4444'],['Road',d.road/div,'#f87171'],['Pollution',d.pollution/div,'#fb923c'],['Green Tax',d.green/div,'#84cc16'],['PSF',d.psf/div,'#f97316'],['Infra Tax',d.infra/div,'#e11d48'],['CSC',d.csc/div,'#ec4899'],['Through-put',d.thruput/div,'#d946ef'],['VAT',d.vat/div,'#dc2626'],['Admin',d.admin/div,'#8b5cf6'],['Insurance',d.ins/div,'#a78bfa'],['Tech Loss',d.tech/div,'#c084fc'],['Transport',d.transport/div,'#06b6d4'],['Dealer',d.dealer/div,'#22d3ee']].filter(i=>i[1]>0.01);
+  let cum=0;const bases=[],vals=[],colors=[],labels=[];
+  items.forEach(([l,v,c])=>{labels.push(l);bases.push(cum);vals.push(v);colors.push(c);cum+=v});
+  labels.push('Total Cost');bases.push(0);vals.push(cum);colors.push('#f59e0b');
+  labels.push('RSP');bases.push(0);vals.push(r.rsp);colors.push('#10b981');
+  charts.chWaterfall=new Chart(cx('chWaterfall'),{type:'bar',data:{labels,datasets:[
+    {label:'_',data:bases,backgroundColor:'transparent',borderWidth:0,barPercentage:.55},
+    {label:'Value',data:vals,backgroundColor:colors.map(c=>c+'bb'),borderColor:colors,borderWidth:1.5,borderRadius:3,barPercentage:.55}
+  ]},options:{...CD,indexAxis:'y',plugins:{...CD.plugins,legend:{display:false},tooltip:{...CD.plugins.tooltip,callbacks:{title:c=>c[0].label,label:c=>c.datasetIndex===0?null:`NRs ${c.raw.toFixed(2)}`}}},scales:{y:{...CD.scales.y,stacked:true},x:{...CD.scales.x,stacked:true,title:{display:true,text:`NRs/${CF==='lpg'?'cyl':'litre'}`,color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderBreakdownTable(R){
+  const d=S[CF],r=R[CF],div=FDIV[CF],isLP=CF==='lpg';
+  document.getElementById('breakUnit').textContent='All in '+(isLP?'NRs/Cyl':'NRs/KL')+' and per '+(isLP?'cyl':'litre');
+  const rows=[['IOC (NRs)',r.exDepotNRs,''],['Customs',d.custom,''],['CSC',d.csc,''],['Road',d.road,''],['Pollution',d.pollution,''],['Green Tax',d.green,''],['PSF',d.psf,''],['Infra Tax',d.infra,''],['Through-put',d.thruput,''],['Govt Tax (excl VAT)',r.taxBefore,'sub'],['VAT',d.vat,''],['Govt Tax Total',r.totalTax,'sub'],['Admin',d.admin,''],['Insurance',d.ins,''],['Tech Loss',d.tech,''],['NOC Expenses',r.nocExp,'sub'],['Transport',d.transport,''],['Landed',r.landed,'sub'],['Dealer',d.dealer,''],['Cost w/o VAT',r.costWoVat,'sub'],['Cost w/ VAT',r.costWithVat,'total'],['Cost/Unit',r.cpu,'total'],['RSP',d.rsp,'total'],['P/L per Unit',r.plUnit,r.plUnit>=0?'grn':'red'],['Demand',d.demand,''],['P/L (Crore)',r.plCrore,r.plCrore>=0?'grn':'red']];
+  let h='<tr><th>Component</th><th class="r">Total</th><th class="r">Per Unit</th></tr>';
+  rows.forEach(([l,v,c])=>{const tr=c==='sub'?'sub':c==='total'?'total':'';const td=c==='grn'?'grn':c==='red'?'red':'';const pu=l.includes('Demand')||l.includes('Crore')?'—':(v/div).toFixed(2);h+=`<tr class="${tr}"><td class="rh ${td}" style="${td?'font-weight:700':''}">${l}</td><td class="r ${td}">${fmt(v)}</td><td class="r ${td}">${pu}</td></tr>`});
+  document.getElementById('tblBreak').innerHTML=h;
+}
+
+function renderAllStack(R){
+  dc('chAllStack');
+  const ds=[{label:'IOC Base',data:F.map(f=>R[f].exDepotNRs/FDIV[f]),bg:'#f59e0b'},{label:'Govt Tax',data:F.map(f=>R[f].totalTax/FDIV[f]),bg:'#ef4444'},{label:'NOC Exp',data:F.map(f=>R[f].nocExp/FDIV[f]),bg:'#8b5cf6'},{label:'Transport',data:F.map(f=>S[f].transport/FDIV[f]),bg:'#06b6d4'},{label:'Dealer',data:F.map(f=>S[f].dealer/FDIV[f]),bg:'#ec4899'}];
+  charts.chAllStack=new Chart(cx('chAllStack'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:ds.map(d=>({label:d.label,data:d.data,backgroundColor:d.bg+'99',borderColor:d.bg,borderWidth:1,barPercentage:.55}))},options:{...CD,plugins:{...CD.plugins,tooltip:{...CD.plugins.tooltip,mode:'index'}},scales:{x:{...CD.scales.x,stacked:true},y:{...CD.scales.y,stacked:true,title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+// TAX EDITOR
+function renderTaxSummary(R){
+  document.getElementById('taxSummaryRow').innerHTML=F.map(f=>{
+    const r=R[f],u=f==='lpg'?'/Cyl':'/L';
+    return`<div class="tax-sum-card" style="border-top:3px solid ${FC[f]}"><div class="fuel-name">${FL[f]}</div><div class="tax-val" style="color:${FC[f]}">${r.govUnit.toFixed(2)}</div><div class="tax-sub">NRs${u} tax</div><div class="tax-sub">${(r.govUnit/r.rsp*100).toFixed(1)}% of RSP</div></div>`;
+  }).join('');
+}
+
+function renderTaxEditorStack(R){
+  dc('chTaxEditorStack');
+  const tK=['custom','csc','road','pollution','green','psf','infra','thruput'];
+  const tL=['Customs','CSC','Road','Pollution','Green','PSF','Infra','Through-put','VAT'];
+  const tC=['#ef4444','#f87171','#fb923c','#fbbf24','#84cc16','#f97316','#e11d48','#d946ef','#dc2626'];
+  const datasets=[...tK.map((t,i)=>({label:tL[i],data:F.map(f=>S[f][t]/FDIV[f]),backgroundColor:tC[i]+'99',borderColor:tC[i],borderWidth:1,barPercentage:.55})),{label:'VAT',data:F.map(f=>S[f].vat/FDIV[f]),backgroundColor:tC[8]+'99',borderColor:tC[8],borderWidth:1,barPercentage:.55}];
+  charts.chTaxEditorStack=new Chart(cx('chTaxEditorStack'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets},options:{...CD,plugins:{...CD.plugins,tooltip:{...CD.plugins.tooltip,mode:'index'}},scales:{x:{...CD.scales.x,stacked:true},y:{...CD.scales.y,stacked:true,title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderTaxPctEditor(R){
+  dc('chTaxPctEditor');
+  charts.chTaxPctEditor=new Chart(cx('chTaxPctEditor'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:[
+    {label:'Tax %',data:F.map(f=>R[f].govUnit/R[f].rsp*100),backgroundColor:F.map(f=>FC[f]+'99'),borderColor:F.map(f=>FC[f]),borderWidth:1.5,borderRadius:4,barPercentage:.5},
+    {label:'Non-Tax %',data:F.map(f=>100-R[f].govUnit/R[f].rsp*100),backgroundColor:'rgba(90,111,148,.15)',borderColor:'rgba(90,111,148,.3)',borderWidth:1,borderRadius:4,barPercentage:.5}
+  ]},options:{...CD,scales:{x:{...CD.scales.x,stacked:true},y:{...CD.scales.y,stacked:true,max:100,title:{display:true,text:'% of RSP',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderTaxMatrix(R){
+  let h='<tr><th>Tax Component</th>'+F.map(f=>`<th class="r" style="color:${FC[f]}">${FL[f]}</th>`).join('')+'</tr>';
+  TAX_FIELDS.forEach(([k,label])=>{
+    h+='<tr><td class="rh">'+label+'</td>';
+    F.forEach(f=>{
+      const v=S[f][k],ch=Math.abs(v-BASE[f][k])>0.001;
+      h+=`<td class="r"><input style="width:80px;background:${ch?'var(--amberbg)':'var(--surface2)'};border:1px solid ${ch?'var(--amber)':'var(--border)'};color:var(--text);font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 5px;border-radius:4px;text-align:right;outline:none" value="${v}" onchange="S['${f}']['${k}']=parseFloat(this.value)||0;this.style.background=Math.abs(S['${f}']['${k}']-BASE['${f}']['${k}'])>0.001?'var(--amberbg)':'var(--surface2)';this.style.borderColor=Math.abs(S['${f}']['${k}']-BASE['${f}']['${k}'])>0.001?'var(--amber)':'var(--border)';populateTaxInputs();recalc()"></td>`;
+    });
+    h+='</tr>';
+  });
+  // Total row
+  h+='<tr class="sub"><td class="rh" style="font-weight:700">Total Tax/Unit</td>';
+  F.forEach(f=>{h+=`<td class="r" style="font-weight:700;color:${FC[f]}">${R[f].govUnit.toFixed(2)}</td>`});
+  h+='</tr>';
+  document.getElementById('tblTaxMatrix').innerHTML=h;
+}
+
+// TAX ANALYSIS
+function renderTaxBar(R){
+  dc('chTaxBar');
+  document.getElementById('taxBarTitle').textContent='Tax Breakdown — '+FL[CF];
+  const d=S[CF],div=FDIV[CF];
+  const items=TAX_FIELDS.map(([k,l])=>[l,d[k]/div]).filter(i=>i[1]>0.01);
+  const colors=['#ef4444','#f87171','#fb923c','#fbbf24','#84cc16','#f97316','#e11d48','#d946ef','#dc2626'];
+  charts.chTaxBar=new Chart(cx('chTaxBar'),{type:'bar',data:{labels:items.map(i=>i[0]),datasets:[{label:'NRs/unit',data:items.map(i=>i[1]),backgroundColor:items.map((_,i)=>(colors[i%colors.length])+'99'),borderColor:items.map((_,i)=>colors[i%colors.length]),borderWidth:1.5,borderRadius:5,barPercentage:.6}]},options:{...CD,indexAxis:'y',plugins:{...CD.plugins,legend:{display:false}},scales:{y:CD.scales.y,x:{...CD.scales.x,title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderTaxStack(R){
+  dc('chTaxStack');
+  const tK=['custom','csc','road','pollution','green','psf','infra','thruput'];
+  const tL=['Customs','CSC','Road','Pollution','Green','PSF','Infra','Through-put','VAT'];
+  const tC=['#ef4444','#f87171','#fb923c','#fbbf24','#84cc16','#f97316','#e11d48','#d946ef','#dc2626'];
+  const datasets=[...tK.map((t,i)=>({label:tL[i],data:F.map(f=>S[f][t]/FDIV[f]),backgroundColor:tC[i]+'99',borderColor:tC[i],borderWidth:1,barPercentage:.55})),{label:'VAT',data:F.map(f=>S[f].vat/FDIV[f]),backgroundColor:tC[8]+'99',borderColor:tC[8],borderWidth:1,barPercentage:.55}];
+  charts.chTaxStack=new Chart(cx('chTaxStack'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets},options:{...CD,plugins:{...CD.plugins,tooltip:{...CD.plugins.tooltip,mode:'index'}},scales:{x:{...CD.scales.x,stacked:true},y:{...CD.scales.y,stacked:true,title:{display:true,text:'NRs/unit',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderBorderChart(R){
+  dc('chBorder');
+  const bf=['petrol','diesel','kerosene','lpg'];
+  charts.chBorder=new Chart(cx('chBorder'),{type:'bar',data:{labels:bf.map(f=>FL[f]),datasets:[
+    {label:'India (Raxaul)',data:bf.map(f=>S[f].rspIndia),backgroundColor:'rgba(99,102,241,.65)',borderColor:'#6366f1',borderWidth:1.5,borderRadius:4,barPercentage:.25,categoryPercentage:.7},
+    {label:'Nepal (Birgunj)',data:bf.map(f=>S[f].rspNepal),backgroundColor:'rgba(245,158,11,.65)',borderColor:'#f59e0b',borderWidth:1.5,borderRadius:4,barPercentage:.25,categoryPercentage:.7},
+    {label:'Difference',data:bf.map(f=>S[f].rspNepal-S[f].rspIndia),backgroundColor:'rgba(239,68,68,.45)',borderColor:'#ef4444',borderWidth:1.5,borderRadius:4,barPercentage:.25,categoryPercentage:.7}
+  ]},options:{...CD,scales:{...CD.scales,y:{...CD.scales.y,title:{display:true,text:'NRs',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderTaxPctChart(R){
+  dc('chTaxPct');
+  charts.chTaxPct=new Chart(cx('chTaxPct'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:[
+    {label:'Tax %',data:F.map(f=>R[f].govUnit/R[f].rsp*100),backgroundColor:F.map(f=>FC[f]+'99'),borderColor:F.map(f=>FC[f]),borderWidth:1.5,borderRadius:4,barPercentage:.5},
+    {label:'Non-Tax %',data:F.map(f=>100-R[f].govUnit/R[f].rsp*100),backgroundColor:'rgba(90,111,148,.12)',borderColor:'rgba(90,111,148,.3)',borderWidth:1,borderRadius:4,barPercentage:.5}
+  ]},options:{...CD,scales:{x:{...CD.scales.x,stacked:true},y:{...CD.scales.y,stacked:true,max:100,title:{display:true,text:'% of RSP',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+// REVENUE
+function renderRevenue(R,totGov){
+  const target=pv('hIn_target'),collected=pv('hIn_collected'),rem=parseInt(document.getElementById('hIn_rem').value)||5;
+  const gap=target-collected,pct=collected/target*100,needed=rem>0?gap/rem:0;
+  document.getElementById('rvPctBadge').textContent=pct.toFixed(1)+'%';
+  document.getElementById('rvPctBadge').style.background=pct>=75?'var(--greenbg)':pct>=40?'var(--amberbg)':'var(--redbg)';
+  document.getElementById('rvPctBadge').style.color=pct>=75?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+  document.getElementById('rvFill').style.width=Math.min(pct,100)+'%';
+  document.getElementById('rvGap').textContent=fmt(Math.round(gap))+' Cr';
+  document.getElementById('rvGap').style.color=gap>0?'var(--amber)':'var(--green)';
+  document.getElementById('rvGapPct').textContent=(gap/target*100).toFixed(1)+'% remaining';
+  document.getElementById('rvNeeded').textContent=fmt(needed.toFixed(1));
+  document.getElementById('rvCurrent').textContent=totGov.toFixed(2);
+  renderRevProjChart(R,totGov,target,collected,rem);
+  renderRevByFuelChart(R);
+}
+
+function renderRevProjChart(R,totGov,target,collected,rem){
+  dc('chRevProj');
+  const elapsed=24-rem,avg=elapsed>0?collected/elapsed:totGov,gap=target-collected,nPF=rem>0?gap/rem:0;
+  const labels=[],act=[],proj=[],need=[];
+  for(let i=1;i<=24;i++){labels.push('FN '+i);if(i<=elapsed){act.push(avg*i);proj.push(null);need.push(null)}else{act.push(null);proj.push(collected+totGov*(i-elapsed));need.push(collected+nPF*(i-elapsed))}}
+  charts.chRevProj=new Chart(cx('chRevProj'),{type:'line',data:{labels,datasets:[
+    {label:'Actual',data:act,borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.06)',fill:true,tension:.3,pointRadius:2,borderWidth:2.5},
+    {label:'Projected',data:proj,borderColor:'#3b82f6',borderDash:[6,3],tension:.3,pointRadius:0,borderWidth:2},
+    {label:'Required',data:need,borderColor:'#ef4444',borderDash:[3,3],tension:.3,pointRadius:0,borderWidth:1.5},
+    {label:'Target',data:Array(24).fill(target),borderColor:'#f59e0b',borderDash:[10,5],borderWidth:1.5,pointRadius:0}
+  ]},options:{...CD,plugins:{...CD.plugins,tooltip:{...CD.plugins.tooltip,mode:'index',intersect:false}},scales:{x:CD.scales.x,y:{...CD.scales.y,title:{display:true,text:'Crore NPR',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function renderRevByFuelChart(R){
+  dc('chRevByFuel');
+  charts.chRevByFuel=new Chart(cx('chRevByFuel'),{type:'bar',data:{labels:F.map(f=>FL[f]),datasets:[{label:'Govt Revenue (Crore)',data:F.map(f=>R[f].govCrore),backgroundColor:F.map(f=>FC[f]+'aa'),borderColor:F.map(f=>FC[f]),borderWidth:1.5,borderRadius:5,barPercentage:.5}]},options:{...CD,plugins:{...CD.plugins,legend:{display:false}},scales:{...CD.scales,y:{...CD.scales.y,title:{display:true,text:'NRs Crore',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+// SCENARIOS
+function saveScenario(){
+  const name=prompt('Scenario name:','Scenario '+(scenarios.length+1));if(!name)return;
+  let totPL=0,totGov=0;F.forEach(f=>{const r=calc(f);totPL+=r.plCrore;totGov+=r.govCrore});
+  scenarios.push({name,date:new Date().toLocaleString(),data:clone(S),totPL,totGov,xr:pv('gXR'),vat:pv('gVAT'),target:pv('hIn_target'),collected:pv('hIn_collected'),rem:parseInt(document.getElementById('hIn_rem').value)||5});
+  renderScenarios();
+}
+function loadScenario(i){S=clone(scenarios[i].data);document.getElementById('gXR').value=scenarios[i].xr;document.getElementById('gVAT').value=scenarios[i].vat;document.getElementById('hIn_target').value=scenarios[i].target;document.getElementById('hIn_collected').value=scenarios[i].collected;document.getElementById('hIn_rem').value=scenarios[i].rem;populateInputs();populateTaxInputs();recalc()}
+function deleteScenario(i){scenarios.splice(i,1);renderScenarios()}
+function renderScenarios(){
+  const list=document.getElementById('scenarioList');
+  if(!scenarios.length){list.innerHTML='<div style="text-align:center;color:var(--muted);padding:24px;font-size:11px">No saved scenarios yet.</div>';document.getElementById('scenarioCompareCard').style.display='none';return}
+  list.innerHTML=scenarios.map((s,i)=>`<div class="scenario-item"><div><div class="name">${s.name}</div><div class="meta">${s.date} | P/L: <span style="color:${s.totPL>=0?'var(--green)':'var(--red)'}">${s.totPL>=0?'+':''}${s.totPL.toFixed(2)} Cr</span> | Rev: ${s.totGov.toFixed(2)} Cr | XR: ${s.xr}</div></div><div><button class="sbtn" onclick="loadScenario(${i})">Load</button><button class="sbtn del" onclick="deleteScenario(${i})">X</button></div></div>`).join('');
+  document.getElementById('scenarioCompareCard').style.display='block';renderScenarioChart();
+}
+function renderScenarioChart(){
+  dc('chScenario');
+  charts.chScenario=new Chart(cx('chScenario'),{type:'bar',data:{labels:scenarios.map(s=>s.name),datasets:[
+    {label:'Total P/L (Crore)',data:scenarios.map(s=>s.totPL),backgroundColor:scenarios.map(s=>s.totPL>=0?'rgba(16,185,129,.65)':'rgba(239,68,68,.65)'),borderColor:scenarios.map(s=>s.totPL>=0?'#10b981':'#ef4444'),borderWidth:2,borderRadius:5,barPercentage:.35,categoryPercentage:.8},
+    {label:'Govt Revenue (Crore)',data:scenarios.map(s=>s.totGov),backgroundColor:'rgba(59,130,246,.6)',borderColor:'#3b82f6',borderWidth:2,borderRadius:5,barPercentage:.35,categoryPercentage:.8}
+  ]},options:{...CD,scales:{...CD.scales,y:{...CD.scales.y,title:{display:true,text:'NRs Crore',color:'#5a6f94',font:{size:9}}}}}});
+}
+
+function exportCSV(){
+  let csv='Fuel,IOC NRs,Customs,Road,Pollution,Green,PSF,Infra,CSC,Thruput,VAT,TotalTax,Admin,Ins,Tech,Transport,Dealer,Cost/Unit,RSP,PL/Unit,Demand,PL Crore,GovRev Crore\n';
+  F.forEach(f=>{const r=calc(f),d=S[f];csv+=`${FL[f]},${r.exDepotNRs.toFixed(2)},${d.custom},${d.road},${d.pollution},${d.green},${d.psf},${d.infra},${d.csc},${d.thruput},${d.vat},${r.totalTax.toFixed(2)},${d.admin},${d.ins},${d.tech},${d.transport},${d.dealer},${r.cpu.toFixed(2)},${r.rsp},${r.plUnit.toFixed(2)},${r.demand},${r.plCrore.toFixed(2)},${r.govCrore.toFixed(2)}\n`});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='NOC_Analysis_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+function showPanel(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ctab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');btn.classList.add('active');
+  setTimeout(()=>{Object.values(charts).forEach(c=>{try{c.resize()}catch(e){}})},60);
+}
+
+function resetAll(){
+  S=clone(BASE);document.getElementById('gXR').value='1.6025';document.getElementById('gUSD').value='134.20';document.getElementById('gVAT').value='13';
+  document.getElementById('hIn_target').value='17100';document.getElementById('hIn_collected').value='13550';document.getElementById('hIn_rem').value='5';
+  populateInputs();populateTaxInputs();recalc();
+}
+
+init();
+</script>
+</body>
+</html>
