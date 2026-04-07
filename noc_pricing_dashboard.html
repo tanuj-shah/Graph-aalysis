@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOC Petroleum Pricing Dashboard — FY 2081/82</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --navy:#1b3f7d;--navy-dk:#112952;--navy-lt:#2559aa;
+  --red:#b91c1c;--red-lt:#dc2626;
+  --bg:#f1f5f9;--white:#ffffff;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --green:#166534;--green-bg:#f0fdf4;--green-bd:#bbf7d0;
+  --loss:#991b1b;--loss-bg:#fff1f2;--loss-bd:#fecdd3;
+  --amber:#92400e;--amber-bg:#fffbeb;--amber-bd:#fde68a;
+  --blue-bg:#eff6ff;--blue-bd:#bfdbfe;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.5}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+
+/* ── HEADER ── */
+#header{
+  position:sticky;top:0;z-index:200;
+  background:linear-gradient(160deg,var(--navy-dk) 0%,var(--navy) 100%);
+  border-bottom:3px solid var(--red);
+  box-shadow:0 2px 12px rgba(0,0,0,.25)
+}
+.hdr-top{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 24px;border-bottom:1px solid rgba(255,255,255,.1)
+}
+.hdr-flag{font-size:1.9rem;line-height:1;flex-shrink:0}
+.hdr-info h1{font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:.01em}
+.hdr-info p{font-size:.7rem;color:rgba(255,255,255,.55);margin-top:1px}
+.hdr-badge{
+  margin-left:auto;padding:4px 13px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;font-size:.7rem;color:rgba(255,255,255,.75);white-space:nowrap
+}
+/* ── KPI BAR ── */
+.kpi-bar{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  gap:8px;padding:9px 24px
+}
+.kpi{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;padding:8px 11px;
+}
+.kpi-lbl{font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5);font-weight:600;white-space:nowrap}
+.kpi-val{font-size:1.15rem;font-weight:700;margin-top:2px;color:#fff;font-variant-numeric:tabular-nums}
+.kpi-val.red{color:#fca5a5}.kpi-val.green{color:#86efac}.kpi-val.amber{color:#fcd34d}
+.kpi-val input{
+  background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,.3);
+  color:#fff;font-size:1.05rem;font-weight:700;width:100%;
+  outline:none;padding:1px 0;font-family:inherit;font-variant-numeric:tabular-nums
+}
+.kpi-val input:focus{border-bottom-color:rgba(255,255,255,.75)}
+.kpi-sub{font-size:.62rem;color:rgba(255,255,255,.38);margin-top:2px}
+/* ── FY FORMULA BAR ── */
+.fy-bar{
+  padding:5px 24px;background:rgba(0,0,0,.18);
+  font-size:.7rem;color:rgba(255,255,255,.5);
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.06)
+}
+.fy-bar b{color:rgba(255,255,255,.75)}
+.fy-proj-val{color:#fcd34d;font-weight:700;font-size:.78rem}
+
+/* ── MAIN ── */
+main{padding:14px 24px}
+
+/* ── FUEL TABS ── */
+.tabs-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.tab{
+  padding:6px 15px;border-radius:6px;font-size:.78rem;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--border);background:var(--white);
+  color:var(--text2);transition:all .15s;font-family:inherit;display:flex;align-items:center;gap:5px
+}
+.tab:hover{border-color:var(--navy);color:var(--navy)}
+.tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
+.tab-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fn-select{
+  margin-left:auto;padding:5px 10px;border:1.5px solid var(--border);
+  border-radius:6px;font-size:.75rem;background:var(--white);
+  color:var(--text2);cursor:pointer;font-family:inherit;outline:none
+}
+.fn-select:focus{border-color:var(--navy)}
+
+/* ── FORMULA NOTICE ── */
+.formula-notice{
+  background:var(--blue-bg);border:1px solid var(--blue-bd);
+  border-radius:7px;padding:8px 14px;margin-bottom:10px;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap
+}
+.formula-notice span{font-size:.73rem;color:#1e40af}
+.formula-notice b{font-weight:700;color:var(--navy)}
+.formula-sep{color:var(--text3);font-weight:700}
+.reset-btn{
+  margin-left:auto;padding:4px 10px;border:1.5px solid var(--border);
+  border-radius:5px;font-size:.72rem;cursor:pointer;background:var(--white);
+  color:var(--text2);font-family:inherit;transition:all .15s;white-space:nowrap
+}
+.reset-btn:hover{border-color:var(--navy);color:var(--navy)}
+
+/* ── CARD ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)}
+.card-hd{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text2);padding:11px 14px 0;display:flex;align-items:center;gap:6px
+}
+.card-hd-bar{width:3px;height:12px;border-radius:2px;flex-shrink:0}
+.card-body{padding:10px 14px 12px}
+
+/* ── INPUT TABLE ── */
+.itbl{width:100%;border-collapse:collapse}
+.itbl tr{border-bottom:1px solid #f8fafc}
+.itbl tr:last-child{border-bottom:none}
+.itbl td{padding:4.5px 2px;font-size:.76rem}
+.itbl td.lbl{color:var(--text2);padding-right:8px;line-height:1.35}
+.itbl td.val{text-align:right;white-space:nowrap}
+.itbl input{
+  width:76px;text-align:right;border:none;border-bottom:1px solid transparent;
+  background:transparent;color:var(--text);font-size:.76rem;font-weight:500;
+  outline:none;padding:1px 2px;font-family:inherit
+}
+.itbl input:hover{border-bottom-color:var(--border2)}
+.itbl input:focus{border-bottom-color:var(--navy);background:var(--blue-bg);border-radius:2px}
+.itbl tr.subtotal td{font-weight:700;font-size:.79rem;background:#f8fafc;padding:6px 2px}
+
+/* ── PANEL GRIDS ── */
+.row1{display:grid;grid-template-columns:2fr 1.5fr 1.5fr;gap:10px;margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+
+/* ── TOTAL COST BANNER ── */
+.tcbanner{
+  background:var(--navy);border:none;border-radius:8px;
+  padding:14px 20px;margin-bottom:10px;
+  display:flex;align-items:center;gap:0;flex-wrap:wrap
+}
+.tc-part{display:flex;flex-direction:column;align-items:center;padding:0 18px}
+.tc-part:first-child{padding-left:0}
+.tc-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.45);font-weight:600}
+.tc-val{font-size:1.1rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;margin-top:2px}
+.tc-unit{font-size:.62rem;color:rgba(255,255,255,.35);margin-top:1px}
+.tc-op{font-size:1.3rem;color:rgba(255,255,255,.3);padding:0 6px;align-self:center;font-weight:300}
+.tc-eq{
+  margin-left:auto;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  border-radius:7px;padding:8px 18px;text-align:center
+}
+.tc-eq-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.45);font-weight:600}
+.tc-eq-val{font-size:1.5rem;font-weight:800;color:#fff;font-variant-numeric:tabular-nums}
+.tc-eq-unit{font-size:.65rem;color:rgba(255,255,255,.4)}
+.tc-divider{width:1px;background:rgba(255,255,255,.15);height:44px;margin:0 4px;align-self:center}
+
+/* ── METRIC VALUES ── */
+.mv{font-variant-numeric:tabular-nums}
+.mv-lbl{font-size:.7rem;color:var(--text2);margin-bottom:2px}
+.mv-val{font-size:1.25rem;font-weight:700}
+.mv-val.xl{font-size:1.6rem}
+.mv-val.green{color:var(--green)}
+.mv-val.red{color:var(--loss)}
+.mv-unit{font-size:.65rem;color:var(--text3);font-weight:400;margin-left:3px}
+.mv-note{font-size:.63rem;color:var(--text3);margin-top:2px}
+
+/* ── FORTNIGHTLY CARD ── */
+.fn-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px}
+.fn-cell{padding:10px 12px;border-right:1px solid var(--border)}
+.fn-cell:last-child{border-right:none}
+
+/* ── GOVT REVENUE CARD ── */
+.rev-split{display:grid;grid-template-columns:1fr 1px 1fr;gap:14px;align-items:center;padding:4px 0}
+.rev-div{background:var(--border);height:48px;align-self:center}
+
+/* ── RETAIL/PL CARD ── */
+.rp-split{display:grid;grid-template-columns:1fr 1px 1fr;gap:14px;align-items:center;padding:4px 0}
+
+/* ── P/L BADGE ── */
+.plbadge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 9px;border-radius:12px;font-size:.72rem;font-weight:700
+}
+.plbadge.profit{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)}
+.plbadge.loss{background:var(--loss-bg);color:var(--loss);border:1px solid var(--loss-bd)}
+
+/* ── SECTION HEADING ── */
+.sec-hd{font-size:.67rem;text-transform:uppercase;letter-spacing:.09em;font-weight:700;color:var(--text3);margin:4px 0 8px}
+
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.chart-hd{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:10px}
+.chart-wrap{position:relative;height:195px}
+
+/* ── FOOTER ── */
+.dash-footer{
+  text-align:center;padding:12px 24px;
+  font-size:.67rem;color:var(--text3);border-top:1px solid var(--border);
+  margin-top:16px;background:var(--white)
+}
+
+@media(max-width:960px){
+  .row1,.row2,.kpi-bar,.charts-grid{grid-template-columns:1fr}
+  .tcbanner{flex-direction:column;align-items:flex-start;gap:8px}
+  .tc-eq{margin-left:0;width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<div id="header">
+  <div class="hdr-top">
+    <div class="hdr-flag">🇳🇵</div>
+    <div class="hdr-info">
+      <h1>Nepal Oil Corporation &mdash; Petroleum Pricing Dashboard</h1>
+      <p id="hdr-subtitle">Fortnightly Profit/Loss Analysis &amp; Revenue Projection &nbsp;·&nbsp; Fiscal Year 2081/82</p>
+    </div>
+    <div class="hdr-badge" id="hdr-badge">Fortnight: 2082 Chaitra 20 &nbsp;|&nbsp; 2026-04-03</div>
+  </div>
+
+  <div class="kpi-bar">
+    <div class="kpi">
+      <div class="kpi-lbl">Total P/L — This Fortnight</div>
+      <div class="kpi-val red" id="kpi-pl">−1,171.89</div>
+      <div class="kpi-sub">NRs Crore · All Fuels</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Govt Revenue — This Fortnight</div>
+      <div class="kpi-val green" id="kpi-rev">712.92</div>
+      <div class="kpi-sub">NRs Crore · All Fuels</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">FY Revenue Target</div>
+      <div class="kpi-val">
+        <input type="number" id="fy-target" value="15000" oninput="onFYChange()">
+      </div>
+      <div class="kpi-sub">NRs Crore</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">FY Revenue Collected</div>
+      <div class="kpi-val">
+        <input type="number" id="fy-collected" value="712.92" step="0.01" oninput="onFYChange()">
+      </div>
+      <div class="kpi-sub">NRs Crore · so far</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Fortnights Remaining</div>
+      <div class="kpi-val">
+        <input type="number" id="fy-remaining" value="23" min="0" max="26" oninput="onFYChange()">
+      </div>
+      <div class="kpi-sub">of ~24 per fiscal year</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Projected FY Revenue</div>
+      <div class="kpi-val amber" id="kpi-projected">—</div>
+      <div class="kpi-sub" id="kpi-vs-target">—</div>
+    </div>
+  </div>
+
+  <div class="fy-bar">
+    <b>Projection:</b>
+    <span>FY Collected + (Fortnights Remaining × Current Fortnight Revenue)</span>
+    <span style="color:rgba(255,255,255,.2)">=</span>
+    <span class="fy-proj-val" id="fy-formula-val">—</span>
+  </div>
+</div>
+
+<!-- ══════════════════ MAIN ══════════════════ -->
+<main>
+
+  <!-- Fuel Tabs + Fortnight Selector -->
+  <div class="tabs-row" id="fuel-tabs"></div>
+
+  <!-- Formula Notice -->
+  <div class="formula-notice">
+    <span><b>Total Cost</b> = Government Tax + NOC Expenses + Procurement &amp; Logistics Cost</span>
+    <span class="formula-sep">→</span>
+    <span><b>Profit / Loss</b> = Retail Price &minus; Total Cost</span>
+    <span class="formula-sep">→</span>
+    <span><b>Total P/L</b> = P/L per unit × Total Demand</span>
+    <button class="reset-btn" onclick="resetActiveFuel()">↺ Reset to Base Values</button>
+  </div>
+
+  <!-- ── FUEL PANEL (built by JS) ── -->
+  <div id="fuel-panel"></div>
+
+  <!-- ══════ CHARTS ══════ -->
+  <div class="sec-hd">Analysis &amp; Projections</div>
+  <div class="charts-grid">
+    <div class="card" style="padding:14px">
+      <div class="chart-hd">Cost Breakdown — <span id="chart-fuel-lbl">Petrol</span></div>
+      <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+    </div>
+    <div class="card" style="padding:14px">
+      <div class="chart-hd">Fortnightly Profit / Loss by Fuel (NRs Crore)</div>
+      <div class="chart-wrap"><canvas id="plChart"></canvas></div>
+    </div>
+    <div class="card" style="padding:14px">
+      <div class="chart-hd">FY Revenue Projection (NRs Crore)</div>
+      <div class="chart-wrap"><canvas id="revChart"></canvas></div>
+    </div>
+  </div>
+
+</main>
+
+<div class="dash-footer" id="dash-footer">
+  Data Source: NOC Fortnightly Pricing Sheet · IOC Price effective 2026-04-01 · NOC Revision effective 2026-04-03 &nbsp;|&nbsp;
+  All values in NRs unless noted &nbsp;|&nbsp; ATF-DF retail price derived from source P/L data
+</div>
+
+<!-- ══════════════════════════════════════════
+     JAVASCRIPT — DATA + LOGIC + RENDERING
+══════════════════════════════════════════ -->
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// BASE DATA  (sourced from noc_fuel_pricing_dashboard.csv, 2026-04-03)
+// ─────────────────────────────────────────────────────────────────────────────
+let BASE = {
+  Petrol: {
+    label:'Petrol', shortLabel:'Petrol', color:'#d97706',
+    unit:'litre', depot:'Barauni', isCyl:false, demandKL:33108,
+    taxes:[
+      ['Custom Duty',                25.2     ],
+      ['Cargo Vehicle Charge (CVC)',  0       ],
+      ['Custom Service Charge',       0.025   ],
+      ['Road Maintenance Charge',     4       ],
+      ['Pollution Charge',            1.5     ],
+      ['Green Tax',                   1       ],
+      ['PSF Transfer',                2.02    ],
+      ['Infrastructure Dev. Tax',    10       ],
+      ['VAT (13%)',                  23.2389  ],
+      ['Fuel Throughput Charge',      0       ]
+    ],
+    noc:[
+      ['Administration Cost',  0.608  ],
+      ['Insurance Premium',    0.0923 ],
+      ['Technical Loss',       1.7224 ]
+    ],
+    extra:[
+      ['Ex-Depot Price (IOC→NRs)',  153.7831 ],
+      ['Transportation Cost',         6.6735 ],
+      ['Dealer / Retailer Expenses',  6.4969 ]
+    ],
+    retail: 202
+  },
+  Diesel: {
+    label:'Diesel', shortLabel:'Diesel', color:'#1d4ed8',
+    unit:'litre', depot:'Amj / Barauni', isCyl:false, demandKL:82277,
+    taxes:[
+      ['Custom Duty',                12      ],
+      ['Cargo Vehicle Charge (CVC)',  0      ],
+      ['Custom Service Charge',       0.025  ],
+      ['Road Maintenance Charge',     2      ],
+      ['Pollution Charge',            1.5    ],
+      ['Green Tax',                   1      ],
+      ['PSF Transfer',                1.82   ],
+      ['Infrastructure Dev. Tax',    10      ],
+      ['VAT (13%)',                  20.9381 ],
+      ['Fuel Throughput Charge',      0      ]
+    ],
+    noc:[
+      ['Administration Cost',  0.608  ],
+      ['Insurance Premium',    0.1455 ],
+      ['Technical Loss',       1.6212 ]
+    ],
+    extra:[
+      ['Ex-Depot Price (IOC→NRs)',  242.4868 ],
+      ['Transportation Cost',         3.2216 ],
+      ['Dealer / Retailer Expenses',  5.1741 ]
+    ],
+    retail: 182
+  },
+  Kerosene: {
+    label:'Kerosene', shortLabel:'Kerosene', color:'#7c3aed',
+    unit:'litre', depot:'Barauni', isCyl:false, demandKL:865,
+    taxes:[
+      ['Custom Duty',                12      ],
+      ['Cargo Vehicle Charge (CVC)',  0      ],
+      ['Custom Service Charge',       0.025  ],
+      ['Road Maintenance Charge',     0      ],
+      ['Pollution Charge',            0      ],
+      ['Green Tax',                   0      ],
+      ['PSF Transfer',                1.82   ],
+      ['Infrastructure Dev. Tax',     0      ],
+      ['VAT (13%)',                  20.9381 ],
+      ['Fuel Throughput Charge',      0      ]
+    ],
+    noc:[
+      ['Administration Cost',  0.608  ],
+      ['Insurance Premium',    0.1187 ],
+      ['Technical Loss',       1.3474 ]
+    ],
+    extra:[
+      ['Ex-Depot Price (IOC→NRs)',  197.9032 ],
+      ['Transportation Cost',         6.6735 ],
+      ['Dealer / Retailer Expenses',  4.6288 ]
+    ],
+    retail: 182
+  },
+  ATF_DP: {
+    label:'ATF — Domestic Passenger', shortLabel:'ATF-DP', color:'#059669',
+    unit:'litre', depot:'Barauni', isCyl:false, demandKL:2616,
+    taxes:[
+      ['Custom Duty',                2.1    ],
+      ['Cargo Vehicle Charge (CVC)', 0      ],
+      ['Custom Service Charge',      0.025  ],
+      ['Road Maintenance Charge',    0      ],
+      ['Pollution Charge',           0      ],
+      ['Green Tax',                  0      ],
+      ['PSF Transfer',               2.51   ],
+      ['Infrastructure Dev. Tax',    0      ],
+      ['VAT (13%)',                 28.8761 ],
+      ['Fuel Throughput Charge',     0.8885 ]
+    ],
+    noc:[
+      ['Administration Cost',  0.608  ],
+      ['Insurance Premium',    0.1281 ],
+      ['Technical Loss',       1.3832 ]
+    ],
+    extra:[
+      ['Ex-Depot Price (IOC→NRs)',  213.4985 ],
+      ['Transportation Cost',         6.7286 ],
+      ['Dealer / Retailer Expenses',  0      ]
+    ],
+    retail: 251
+  },
+  ATF_DF: {
+    label:'ATF — Domestic Freight', shortLabel:'ATF-DF', color:'#0e7490',
+    unit:'litre', depot:'Barauni', isCyl:false, demandKL:5892,
+    taxes:[
+      ['Custom Duty',                2.1    ],
+      ['Cargo Vehicle Charge (CVC)', 0      ],
+      ['Custom Service Charge',      0.025  ],
+      ['Road Maintenance Charge',    0      ],
+      ['Pollution Charge',           0      ],
+      ['Green Tax',                  0      ],
+      ['PSF Transfer',               2.7032 ],
+      ['Infrastructure Dev. Tax',    0      ],
+      ['VAT (13%)',                 35.1416 ],
+      ['Fuel Throughput Charge',     1.0813 ]
+    ],
+    noc:[
+      ['Administration Cost',  0.608  ],
+      ['Insurance Premium',    0.1281 ],
+      ['Technical Loss',       1.3832 ]
+    ],
+    extra:[
+      ['Ex-Depot Price (IOC→NRs)',  213.4985 ],
+      ['Transportation Cost',         6.7286 ],
+      ['Dealer / Retailer Expenses',  0      ]
+    ],
+    // ATF-DF retail is priced in USD per litre (NOC ex-depot = $1785/KL = $1.785/litre)
+    // NRs retail = retailUSD × usdRate   →   1.785 × 151.44 = 270.32 NRs/litre
+    retailUSD: 1.785,
+    usdRate:   151.44,
+    retail:    270.32   // computed: 1.785 × 151.44
+  },
+  LP_Gas: {
+    label:'LP Gas (Cylinder)', shortLabel:'LP Gas', color:'#dc2626',
+    unit:'cylinder', depot:'Barauni', isCyl:true, demandCyl:1522444,
+    taxes:[
+      ['Custom Duty',                 90.42  ],
+      ['Cargo Vehicle Charge (CVC)',   1.18  ],
+      ['Custom Service Charge',        0.39  ],
+      ['Road Maintenance Charge',      0     ],
+      ['Pollution Charge',             0     ],
+      ['Green Tax',                    0     ],
+      ['PSF Transfer',                19.1   ],
+      ['Infrastructure Dev. Tax',      0     ],
+      ['VAT (13%)',                  213.85  ],
+      ['Fuel Throughput Charge',       0     ]
+    ],
+    noc:[
+      ['Administration Cost',   8.63 ],
+      ['Insurance Premium',     1.77 ],
+      ['Technical Loss',        0    ]
+    ],
+    extra:[
+      ['Ex-Depot Price (IOC→NRs)',  1690.01 ],
+      ['Transportation Cost',          0    ],
+      ['Dealer / Retailer Expenses', 301.01 ]
+    ],
+    retail: 1910
+  }
+};
+
+const FUEL_KEYS = ['Petrol','Diesel','Kerosene','ATF_DP','ATF_DF','LP_Gas'];
+const DEFAULT_FORTNIGHT = '2026-04-03';
+const BASE_TEMPLATE = JSON.parse(JSON.stringify(BASE));
+const DATASET_CANDIDATES = ['noc_pricing_dashboard.csv', 'noc_fuel_pricing_dashboard.csv'];
+
+const TAX_VAR_INDEX = {
+  custom_duty: 0,
+  cargo_vehicle_charge: 1,
+  custom_service_charge: 2,
+  road_maintenance_charge: 3,
+  pollution_charge: 4,
+  green_tax: 5,
+  psf_transfer: 6,
+  infrastructure_development_tax: 7,
+  vat_amount: 8,
+  vat_13pct: 8,
+  fuel_throughput_charge: 9
+};
+
+const NOC_VAR_INDEX = {
+  administration_cost: 0,
+  insurance_premium: 1,
+  technical_loss: 2
+};
+
+const EXTRA_VAR_INDEX = {
+  ex_depot_price_nrs: 0,
+  transportation_cost: 1,
+  dealer_expenses: 2
+};
+
+const DATA_MODEL = {
+  source: 'Embedded baseline',
+  dates: [DEFAULT_FORTNIGHT],
+  byDate: { [DEFAULT_FORTNIGHT]: JSON.parse(JSON.stringify(BASE_TEMPLATE)) },
+  processedRows: 0,
+  droppedRows: 0,
+  warnings: []
+};
+
+let ACTIVE_DATE = DEFAULT_FORTNIGHT;
+
+const deepClone = obj => JSON.parse(JSON.stringify(obj));
+
+function parseNum(v) {
+  const n = Number.parseFloat(String(v ?? '').replace(/,/g, '').trim());
+  return Number.isFinite(n) ? n : null;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(Boolean);
+  if (!lines.length) return rows;
+
+  function splitCsv(line) {
+    const out = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i += 1) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          cur += '"';
+          i += 1;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === ',' && !inQuotes) {
+        out.push(cur);
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  const headers = splitCsv(lines[0]).map(h => h.trim());
+  for (let i = 1; i < lines.length; i += 1) {
+    const parts = splitCsv(lines[i]);
+    if (!parts.length || parts.every(p => p.trim() === '')) continue;
+    const row = {};
+    headers.forEach((h, idx) => {
+      row[h] = (parts[idx] || '').trim();
+    });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function formatDateLabel(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function toKL(value, unit) {
+  const u = String(unit || '').toLowerCase();
+  if (u.includes('liter') || u.includes('litre')) return value / 1000;
+  return value;
+}
+
+function buildFuelBaseFromMetrics(baseFuel, fuelKey, metricMap) {
+  const next = deepClone(baseFuel);
+
+  const applyIndexMap = (indexMap, targetArr) => {
+    Object.keys(indexMap).forEach(metric => {
+      const idx = indexMap[metric];
+      const rec = metricMap.get(metric);
+      if (!rec || !targetArr[idx]) return;
+      const n = parseNum(rec.value);
+      if (Number.isFinite(n)) targetArr[idx][1] = n;
+    });
+  };
+
+  applyIndexMap(TAX_VAR_INDEX, next.taxes);
+  applyIndexMap(NOC_VAR_INDEX, next.noc);
+  applyIndexMap(EXTRA_VAR_INDEX, next.extra);
+
+  const exDepotNrs = parseNum(metricMap.get('ex_depot_price_nrs')?.value);
+  const exDepotIrs = parseNum(metricMap.get('ex_depot_price_ioc_current')?.value);
+  if (!Number.isFinite(exDepotNrs) && Number.isFinite(exDepotIrs)) {
+    next.extra[0][1] = fuelKey === 'LP_Gas' ? exDepotIrs : exDepotIrs * 1.60153;
+  }
+
+  const retailNrs = parseNum(metricMap.get('retail_price_per_liter')?.value);
+  const retailUsd = parseNum(metricMap.get('retail_price_usd_per_liter')?.value);
+  if (fuelKey === 'ATF_DF') {
+    const totalCostWithVat = parseNum(metricMap.get('total_cost_with_vat_per_kl')?.value);
+    const totalCostPerLiter = parseNum(metricMap.get('total_cost_per_liter')?.value);
+    const profitPerLiter = parseNum(metricMap.get('profit_loss_per_liter')?.value);
+    const costForRetail = Number.isFinite(totalCostWithVat) ? totalCostWithVat : totalCostPerLiter;
+
+    if (Number.isFinite(costForRetail) && Number.isFinite(profitPerLiter)) {
+      next.retail = costForRetail + profitPerLiter;
+      next.retailUSD = (+next.usdRate || 1) > 0 ? next.retail / (+next.usdRate || 1) : next.retail;
+    } else if (Number.isFinite(retailUsd)) {
+      next.retailUSD = retailUsd;
+      next.retail = retailUsd * (+next.usdRate || 1);
+    } else if (Number.isFinite(retailNrs)) {
+      if (retailNrs > 0 && retailNrs < 10) {
+        next.retailUSD = retailNrs;
+        next.retail = retailNrs * (+next.usdRate || 1);
+      } else {
+        next.retail = retailNrs;
+        next.retailUSD = (+next.usdRate || 1) > 0 ? retailNrs / (+next.usdRate || 1) : retailNrs;
+      }
+    }
+  } else if (Number.isFinite(retailNrs)) {
+    next.retail = retailNrs;
+  }
+
+  const demandRec = metricMap.get('fortnightly_projected_demand');
+  const demandVal = parseNum(demandRec?.value);
+  if (Number.isFinite(demandVal)) {
+    if (fuelKey === 'LP_Gas') {
+      next.demandCyl = Math.max(0, demandVal);
+    } else {
+      next.demandKL = Math.max(0, toKL(demandVal, demandRec?.unit));
+    }
+  }
+
+  const depot = String(metricMap.get('__meta__depot')?.value || '').trim();
+  if (depot) next.depot = depot;
+
+  return next;
+}
+
+function useEmbeddedFallback(warning) {
+  DATA_MODEL.source = 'Embedded baseline';
+  DATA_MODEL.dates = [DEFAULT_FORTNIGHT];
+  DATA_MODEL.byDate = { [DEFAULT_FORTNIGHT]: deepClone(BASE_TEMPLATE) };
+  DATA_MODEL.warnings = warning ? [warning] : [];
+  ACTIVE_DATE = DEFAULT_FORTNIGHT;
+}
+
+async function loadDataModel() {
+  DATA_MODEL.processedRows = 0;
+  DATA_MODEL.droppedRows = 0;
+  DATA_MODEL.warnings = [];
+
+  let rawText = '';
+  let source = '';
+  for (const fileName of DATASET_CANDIDATES) {
+    try {
+      const resp = await fetch(fileName, { cache: 'no-store' });
+      if (resp.ok) {
+        rawText = await resp.text();
+        source = fileName;
+        break;
+      }
+    } catch (err) {
+      // Try next candidate.
+    }
+  }
+
+  if (!rawText) {
+    useEmbeddedFallback('CSV not reachable in browser. Loaded embedded baseline values.');
+    return;
+  }
+
+  const rows = parseCsv(rawText);
+  const grouped = new Map();
+
+  rows.forEach(row => {
+    const date = String(row.date || '').trim();
+    const fuel = String(row.fuel_type || '').trim();
+    const variable = String(row.variable_name || '').trim();
+
+    if (!date || !fuel || !variable || fuel === 'All' || !FUEL_KEYS.includes(fuel)) {
+      DATA_MODEL.droppedRows += 1;
+      return;
+    }
+
+    const key = `${date}||${fuel}`;
+    if (!grouped.has(key)) grouped.set(key, new Map());
+    const metricMap = grouped.get(key);
+    metricMap.set(variable, { value: row.value, unit: row.unit, depot: row.depot });
+    if (!metricMap.has('__meta__depot') && row.depot) {
+      metricMap.set('__meta__depot', { value: row.depot });
+    }
+    DATA_MODEL.processedRows += 1;
+  });
+
+  const dates = Array.from(new Set(Array.from(grouped.keys()).map(k => k.split('||')[0]))).sort();
+  if (!dates.length) {
+    useEmbeddedFallback('CSV parsed but had no usable date/fuel rows. Loaded embedded baseline values.');
+    return;
+  }
+
+  const byDate = {};
+  dates.forEach(date => {
+    const baseForDate = deepClone(BASE_TEMPLATE);
+    FUEL_KEYS.forEach(fuelKey => {
+      const metricMap = grouped.get(`${date}||${fuelKey}`) || new Map();
+      baseForDate[fuelKey] = buildFuelBaseFromMetrics(baseForDate[fuelKey], fuelKey, metricMap);
+    });
+    byDate[date] = baseForDate;
+  });
+
+  DATA_MODEL.source = source;
+  DATA_MODEL.dates = dates;
+  DATA_MODEL.byDate = byDate;
+  ACTIVE_DATE = dates[dates.length - 1];
+}
+
+function refreshMetaUI() {
+  const badgeEl = document.getElementById('hdr-badge');
+  if (badgeEl) badgeEl.textContent = `Fortnight: ${formatDateLabel(ACTIVE_DATE)} | ${ACTIVE_DATE}`;
+
+  const subtitleEl = document.getElementById('hdr-subtitle');
+  if (subtitleEl) {
+    const warn = DATA_MODEL.warnings.length ? ` | ${DATA_MODEL.warnings[0]}` : '';
+    subtitleEl.textContent = `Fortnightly Profit/Loss Analysis & Revenue Projection | Source: ${DATA_MODEL.source} | Fortnights: ${DATA_MODEL.dates.length}${warn}`;
+  }
+
+  const footerEl = document.getElementById('dash-footer');
+  if (footerEl) {
+    footerEl.textContent = `Data Source: ${DATA_MODEL.source} | Active Fortnight: ${ACTIVE_DATE} | All values in NRs unless noted | ATF-DF retail supports USD inputs`;
+  }
+}
+
+function setBaseForDate(date) {
+  if (!DATA_MODEL.byDate[date]) return;
+  ACTIVE_DATE = date;
+  BASE = deepClone(DATA_MODEL.byDate[date]);
+  refreshMetaUI();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+const S = {
+  active: 'Petrol',
+  fy: { target:15000, collected:712.92, remaining:23 },
+  fuels: {}
+};
+
+function cloneFuelState(key) {
+  const b = BASE[key];
+  const s = {
+    taxes:  b.taxes.map(([n,v])  => [n, v]),
+    noc:    b.noc.map(([n,v])    => [n, v]),
+    extra:  b.extra.map(([n,v])  => [n, v]),
+    retail: b.retail,
+    // computed
+    totTax:0, totNoc:0, totExtra:0, totCost:0,
+    plUnit:0, govRevUnit:0, demandUnits:0, plCrore:0, govRevCrore:0
+  };
+  // ATF_DF: retail priced in USD — carry USD fields in state
+  if (b.retailUSD !== undefined) {
+    s.retailUSD = b.retailUSD;
+    s.usdRate   = b.usdRate;
+    s.retail    = b.retailUSD * b.usdRate;
+  }
+  return s;
+}
+
+function initState() {
+  FUEL_KEYS.forEach(k => { S.fuels[k] = cloneFuelState(k); });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CALCULATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+function calcFuel(k) {
+  const f = S.fuels[k], b = BASE[k];
+  // For ATF_DF: derive NRs retail from USD price × exchange rate
+  if (f.retailUSD !== undefined) {
+    f.retail = (+f.retailUSD || 0) * (+f.usdRate || 1);
+  }
+  f.totTax   = f.taxes.reduce((s,[,v]) => s + (+v||0), 0);
+  f.totNoc   = f.noc.reduce(  (s,[,v]) => s + (+v||0), 0);
+  f.totExtra = f.extra.reduce((s,[,v]) => s + (+v||0), 0);
+  f.totCost  = f.totTax + f.totNoc + f.totExtra;
+  f.plUnit   = (+f.retail||0) - f.totCost;
+  f.govRevUnit = f.totTax;
+  f.demandUnits = b.isCyl ? b.demandCyl : b.demandKL * 1000;
+  f.plCrore     = (f.plUnit     * f.demandUnits) / 1e7;
+  f.govRevCrore = (f.govRevUnit * f.demandUnits) / 1e7;
+}
+
+function calcAll() {
+  FUEL_KEYS.forEach(calcFuel);
+  S.totPL  = FUEL_KEYS.reduce((s,k) => s + S.fuels[k].plCrore,     0);
+  S.totRev = FUEL_KEYS.reduce((s,k) => s + S.fuels[k].govRevCrore, 0);
+  const rem  = +S.fy.remaining  || 0;
+  const coll = +S.fy.collected  || 0;
+  S.fy.projected = coll + rem * S.totRev;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FORMATTERS
+// ─────────────────────────────────────────────────────────────────────────────
+const R2 = v => (+v).toFixed(2);
+const R4 = v => (+v).toFixed(4);
+const fmtN = (v,d=2) => {
+  const n = +v;
+  if (isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  const str = abs >= 10000 ? abs.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d})
+                           : abs.toFixed(d);
+  return (n < 0 ? '−' : '') + str;
+};
+const plSign = v => v >= 0 ? '+' : '−';
+const plClass = v => v >= 0 ? 'green' : 'red';
+const plBadge = v => `<span class="plbadge ${v>=0?'profit':'loss'}">${v>=0?'▲ Profit':'▼ Loss'}</span>`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUILD TABS
+// ─────────────────────────────────────────────────────────────────────────────
+function buildTabs() {
+  const options = (DATA_MODEL.dates || []).map(date =>
+    `<option value="${date}"${date === ACTIVE_DATE ? ' selected' : ''}>Fortnight: ${formatDateLabel(date)} (${date})</option>`
+  ).join('');
+
+  document.getElementById('fuel-tabs').innerHTML =
+    FUEL_KEYS.map(k => {
+      const b = BASE[k];
+      return `<button class="tab${k===S.active?' active':''}" onclick="setFuel('${k}')">
+        <span class="tab-dot" style="background:${b.color}"></span>${b.shortLabel}
+      </button>`;
+    }).join('') +
+    `<select class="fn-select" id="fn-sel" onchange="onFortnightChange(this.value)">
+       ${options || `<option value="${DEFAULT_FORTNIGHT}">Fortnight: ${formatDateLabel(DEFAULT_FORTNIGHT)} (${DEFAULT_FORTNIGHT})</option>`}
+     </select>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BUILD FUEL PANEL
+// ─────────────────────────────────────────────────────────────────────────────
+function buildFuelPanel() {
+  const k = S.active, f = S.fuels[k], b = BASE[k];
+  const ul = b.isCyl ? 'NRs/cylinder' : 'NRs/litre';
+  const u  = b.unit;
+
+  const taxRows = f.taxes.map(([n,v],i) =>
+    `<tr><td class="lbl">${n}</td><td class="val">
+      <input type="number" step="0.001" value="${R4(v)}"
+        oninput="onInput('${k}','taxes',${i},this.value)">
+    </td></tr>`).join('');
+
+  const nocRows = f.noc.map(([n,v],i) =>
+    `<tr><td class="lbl">${n}</td><td class="val">
+      <input type="number" step="0.001" value="${R4(v)}"
+        oninput="onInput('${k}','noc',${i},this.value)">
+    </td></tr>`).join('');
+
+  const extRows = f.extra.map(([n,v],i) =>
+    `<tr><td class="lbl">${n}</td><td class="val">
+      <input type="number" step="0.001" value="${R4(v)}"
+        oninput="onInput('${k}','extra',${i},this.value)">
+    </td></tr>`).join('');
+
+  const demandStr = b.isCyl
+    ? b.demandCyl.toLocaleString('en-IN') + ' cylinders'
+    : (b.demandKL * 1000).toLocaleString('en-IN') + ' litres<br><span style="color:var(--text3);font-size:.67rem">(' + b.demandKL.toLocaleString('en-IN') + ' KL)</span>';
+
+  document.getElementById('chart-fuel-lbl').textContent = b.shortLabel;
+
+  document.getElementById('fuel-panel').innerHTML = `
+
+  <!-- ── ROW 1: Three input cards ── -->
+  <div class="row1">
+
+    <!-- 2.1 Government Tax -->
+    <div class="card">
+      <div class="card-hd"><span class="card-hd-bar" style="background:#ef4444"></span>
+        Government Tax
+        <span style="margin-left:auto;font-size:.63rem;color:var(--text3);text-transform:none;font-weight:400">Edit cells to simulate</span>
+      </div>
+      <div class="card-body">
+        <table class="itbl">
+          ${taxRows}
+          <tr class="subtotal">
+            <td class="lbl">Total Government Tax</td>
+            <td class="val" id="tot-tax-${k}" style="color:var(--navy)">${fmtN(f.totTax)} <span style="font-size:.65rem;color:var(--text3)">${ul}</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2.2 NOC Expenses -->
+    <div class="card">
+      <div class="card-hd"><span class="card-hd-bar" style="background:#3b82f6"></span>NOC Expenses</div>
+      <div class="card-body">
+        <table class="itbl">
+          ${nocRows}
+          <tr class="subtotal">
+            <td class="lbl">Total NOC Expenses</td>
+            <td class="val" id="tot-noc-${k}" style="color:var(--navy)">${fmtN(f.totNoc)} <span style="font-size:.65rem;color:var(--text3)">${ul}</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2.3 Extra Cost -->
+    <div class="card">
+      <div class="card-hd"><span class="card-hd-bar" style="background:#8b5cf6"></span>Procurement &amp; Logistics</div>
+      <div class="card-body">
+        <table class="itbl">
+          ${extRows}
+          <tr class="subtotal">
+            <td class="lbl">Total Extra Cost</td>
+            <td class="val" id="tot-ext-${k}" style="color:var(--navy)">${fmtN(f.totExtra)} <span style="font-size:.65rem;color:var(--text3)">${ul}</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /row1 -->
+
+  <!-- ── TOTAL COST BANNER (2.4) ── -->
+  <div class="tcbanner">
+    <div class="tc-part">
+      <div class="tc-lbl">Government Tax</div>
+      <div class="tc-val" id="tc-tax-${k}">${fmtN(f.totTax)}</div>
+      <div class="tc-unit">${ul}</div>
+    </div>
+    <div class="tc-op">+</div>
+    <div class="tc-part">
+      <div class="tc-lbl">NOC Expenses</div>
+      <div class="tc-val" id="tc-noc-${k}">${fmtN(f.totNoc)}</div>
+      <div class="tc-unit">${ul}</div>
+    </div>
+    <div class="tc-op">+</div>
+    <div class="tc-part">
+      <div class="tc-lbl">Procurement &amp; Logistics</div>
+      <div class="tc-val" id="tc-ext-${k}">${fmtN(f.totExtra)}</div>
+      <div class="tc-unit">${ul}</div>
+    </div>
+    <div class="tc-op">=</div>
+    <div class="tc-divider"></div>
+    <div class="tc-eq">
+      <div class="tc-eq-lbl">Total Cost to NOC</div>
+      <div class="tc-eq-val" id="tc-total-${k}">${fmtN(f.totCost)}</div>
+      <div class="tc-eq-unit">${ul}</div>
+    </div>
+  </div>
+
+  <!-- ── ROW 2: Retail+P/L  |  Fortnightly  |  Govt Revenue ── -->
+  <div style="display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:10px;margin-bottom:16px">
+
+    <!-- 2.5 Retail Price & P/L per unit -->
+    <div class="card">
+      <div class="card-hd"><span class="card-hd-bar" style="background:#10b981"></span>Retail Price &amp; P/L per ${u}</div>
+      <div class="card-body">
+        ${f.retailUSD !== undefined ? `
+        <!-- ATF-DF: USD-priced retail -->
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:.7rem;color:#92400e">
+          <b>USD Pricing</b> — NOC sells ATF-DF at <b>$1,785/KL = $1.785/litre</b> (international aviation rate)
+        </div>
+        <table class="itbl" style="margin-bottom:8px">
+          <tr>
+            <td class="lbl">Retail Price (USD/litre)</td>
+            <td class="val">
+              <span style="color:var(--text3);font-size:.72rem;margin-right:2px">$</span>
+              <input type="number" step="0.001" value="${R4(f.retailUSD)}"
+                oninput="onUSDRetail('${k}','retailUSD',this.value)">
+            </td>
+          </tr>
+          <tr>
+            <td class="lbl">Exchange Rate (NRs per USD)</td>
+            <td class="val">
+              <input type="number" step="0.01" value="${(+f.usdRate).toFixed(2)}"
+                oninput="onUSDRetail('${k}','usdRate',this.value)">
+            </td>
+          </tr>
+          <tr class="subtotal">
+            <td class="lbl">= Retail in NRs/litre</td>
+            <td class="val" id="retail-nrs-${k}" style="color:var(--navy)">${fmtN(f.retail)}</td>
+          </tr>
+        </table>
+        <div style="background:var(--border);height:1px;margin:8px 0"></div>
+        <div class="mv-lbl" style="margin-top:8px">Profit / Loss per ${u}</div>
+        <div class="mv-val xl mv ${plClass(f.plUnit)}" id="pl-unit-${k}" style="margin-top:2px">${plSign(f.plUnit)}${fmtN(Math.abs(f.plUnit))}</div>
+        <div class="mv-unit">${ul}</div>
+        <div class="mv-note">= Retail (${fmtN(f.retail)}) − Cost (${fmtN(f.totCost)})</div>
+        <div style="margin-top:6px">${plBadge(f.plUnit)}</div>
+        ` : `
+        <div class="rp-split">
+          <div>
+            <div class="mv-lbl">Avg. Retail Price</div>
+            <div class="mv-val xl mv" style="color:var(--navy)">${fmtN(f.retail)}</div>
+            <div class="mv-unit">${ul}</div>
+          </div>
+          <div style="background:var(--border);height:52px;align-self:center"></div>
+          <div>
+            <div class="mv-lbl">Profit / Loss per ${u}</div>
+            <div class="mv-val xl mv ${plClass(f.plUnit)}" id="pl-unit-${k}">${plSign(f.plUnit)}${fmtN(Math.abs(f.plUnit))}</div>
+            <div class="mv-unit">${ul}</div>
+            <div class="mv-note">= Retail − Total Cost</div>
+            <div style="margin-top:6px">${plBadge(f.plUnit)}</div>
+          </div>
+        </div>
+        `}
+      </div>
+    </div>
+
+    <!-- 2.6 Fortnightly Summary -->
+    <div class="card">
+      <div class="card-hd"><span class="card-hd-bar" style="background:#f59e0b"></span>Fortnightly Summary</div>
+      <div class="fn-grid" style="border-top:1px solid var(--border)">
+        <div class="fn-cell">
+          <div class="mv-lbl">Total Demand</div>
+          <div class="mv-val mv" style="font-size:1.05rem;color:var(--navy)">${demandStr}</div>
+        </div>
+        <div class="fn-cell">
+          <div class="mv-lbl">Profit / Loss per ${u}</div>
+          <div class="mv-val mv ${plClass(f.plUnit)}" id="fn-pl-unit-${k}" style="font-size:1.1rem">${plSign(f.plUnit)}${fmtN(Math.abs(f.plUnit))}</div>
+          <div class="mv-note">NRs / ${u}</div>
+        </div>
+        <div class="fn-cell" style="border-right:none">
+          <div class="mv-lbl">Total Profit / Loss</div>
+          <div class="mv-val mv ${plClass(f.plCrore)}" id="fn-pl-crore-${k}" style="font-size:1.25rem">${plSign(f.plCrore)}${fmtN(Math.abs(f.plCrore))}</div>
+          <div class="mv-note">NRs Crore</div>
+        </div>
+      </div>
+      <div style="padding:7px 12px;background:#fafbfc;border-top:1px solid var(--border);border-radius:0 0 7px 7px;font-size:.67rem;color:var(--text3)">
+        Formula: P/L per ${u} × Total Demand ÷ 10,000,000
+      </div>
+    </div>
+
+    <!-- 2.7 Government Revenue -->
+    <div class="card">
+      <div class="card-hd"><span class="card-hd-bar" style="background:#dc2626"></span>Government Revenue</div>
+      <div class="card-body">
+        <div class="rev-split">
+          <div>
+            <div class="mv-lbl">Revenue per ${u}</div>
+            <div class="mv-val mv" style="color:var(--navy);font-size:1.3rem" id="rev-unit-${k}">${fmtN(f.govRevUnit)}</div>
+            <div class="mv-unit">${ul}</div>
+            <div class="mv-note" style="margin-top:4px">= Total Tax per ${u}</div>
+          </div>
+          <div class="rev-div"></div>
+          <div>
+            <div class="mv-lbl">Total Revenue (Fortnight)</div>
+            <div class="mv-val mv" style="color:var(--green);font-size:1.45rem" id="rev-crore-${k}">${fmtN(f.govRevCrore)}</div>
+            <div class="mv-note">NRs Crore</div>
+            <div class="mv-note" style="margin-top:4px">Revenue × Demand ÷ 10,000,000</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row2 -->`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REFRESH — update only computed display values (no full DOM rebuild)
+// ─────────────────────────────────────────────────────────────────────────────
+function refreshPanel() {
+  const k = S.active, f = S.fuels[k], b = BASE[k];
+  const ul = b.isCyl ? 'NRs/cylinder' : 'NRs/litre';
+  const u  = b.unit;
+
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+  const setCls = (id, cls) => { const el = document.getElementById(id); if (el) el.className = cls; };
+
+  set(`tot-tax-${k}`,   `${fmtN(f.totTax)} <span style="font-size:.65rem;color:var(--text3)">${ul}</span>`);
+  set(`tot-noc-${k}`,   `${fmtN(f.totNoc)} <span style="font-size:.65rem;color:var(--text3)">${ul}</span>`);
+  set(`tot-ext-${k}`,   `${fmtN(f.totExtra)} <span style="font-size:.65rem;color:var(--text3)">${ul}</span>`);
+  setTxt(`tc-tax-${k}`,   fmtN(f.totTax));
+  setTxt(`tc-noc-${k}`,   fmtN(f.totNoc));
+  setTxt(`tc-ext-${k}`,   fmtN(f.totExtra));
+  setTxt(`tc-total-${k}`, fmtN(f.totCost));
+
+  // P/L per unit (retail card + fortnightly)
+  const plUnitStr = plSign(f.plUnit) + fmtN(Math.abs(f.plUnit));
+  ['pl-unit-','fn-pl-unit-'].forEach(pfx => {
+    const el = document.getElementById(pfx+k);
+    if (el) { el.textContent = plUnitStr; el.className = `mv-val xl mv ${plClass(f.plUnit)}`; }
+  });
+
+  // Total P/L
+  const plCroreEl = document.getElementById(`fn-pl-crore-${k}`);
+  if (plCroreEl) {
+    plCroreEl.textContent = plSign(f.plCrore) + fmtN(Math.abs(f.plCrore));
+    plCroreEl.className = `mv-val mv ${plClass(f.plCrore)}`;
+    plCroreEl.style.fontSize = '1.25rem';
+  }
+
+  // Govt revenue
+  setTxt(`rev-unit-${k}`,  fmtN(f.govRevUnit));
+  setTxt(`rev-crore-${k}`, fmtN(f.govRevCrore));
+}
+
+function refreshKPIs() {
+  const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+  const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+
+  // Total P/L
+  const plEl = document.getElementById('kpi-pl');
+  plEl.textContent = plSign(S.totPL) + fmtN(Math.abs(S.totPL));
+  plEl.className = 'kpi-val ' + plClass(S.totPL);
+
+  // Total govt revenue
+  setTxt('kpi-rev', fmtN(S.totRev));
+
+  // Projected FY revenue
+  const projEl = document.getElementById('kpi-projected');
+  projEl.textContent = fmtN(S.fy.projected, 0);
+
+  // vs target
+  const tgt = +S.fy.target || 1;
+  const pct = (S.fy.projected / tgt * 100).toFixed(1);
+  const aboveTarget = S.fy.projected >= tgt;
+  document.getElementById('kpi-vs-target').innerHTML =
+    `<span style="color:${aboveTarget?'#86efac':'#fca5a5'}">${pct}% of target</span>`;
+
+  // formula bar
+  document.getElementById('fy-formula-val').textContent =
+    `${fmtN(S.fy.collected,2)} + (${S.fy.remaining} × ${fmtN(S.totRev,2)}) = ${fmtN(S.fy.projected,0)} Crore`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EVENT HANDLERS
+// ─────────────────────────────────────────────────────────────────────────────
+function onUSDRetail(k, field, val) {
+  S.fuels[k][field] = +val || 0;
+  calcAll();
+  // Update NRs retail display
+  const el = document.getElementById('retail-nrs-' + k);
+  if (el) el.textContent = fmtN(S.fuels[k].retail);
+  refreshPanel();
+  refreshKPIs();
+  updateCharts();
+}
+
+function onInput(k, group, idx, val) {
+  S.fuels[k][group][idx][1] = +val || 0;
+  calcAll();
+  refreshPanel();
+  refreshKPIs();
+  updateCharts();
+}
+
+function onFYChange() {
+  S.fy.target    = +document.getElementById('fy-target').value    || 0;
+  S.fy.collected = +document.getElementById('fy-collected').value || 0;
+  S.fy.remaining = +document.getElementById('fy-remaining').value || 0;
+  calcAll();
+  refreshKPIs();
+  updateCharts();
+}
+
+function setFuel(k) {
+  S.active = k;
+  buildTabs();
+  buildFuelPanel();
+  updateCharts();
+}
+
+function onFortnightChange(date) {
+  if (!DATA_MODEL.byDate[date]) return;
+  setBaseForDate(date);
+  initState();
+  calcAll();
+  buildTabs();
+  buildFuelPanel();
+  refreshKPIs();
+  updateCharts();
+}
+
+function resetActiveFuel() {
+  S.fuels[S.active] = cloneFuelState(S.active);
+  calcAll();
+  buildFuelPanel();
+  refreshKPIs();
+  updateCharts();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHARTS
+// ─────────────────────────────────────────────────────────────────────────────
+let costC, plC, revC;
+
+const TICK_OPT = { font:{size:10}, color:'#94a3b8' };
+const GRID_OPT = { color:'#f1f5f9' };
+const LEGEND_OPT = { display:true, position:'bottom', labels:{font:{size:10}, padding:8, boxWidth:10, color:'#475569'} };
+
+function getCostData() {
+  const k = S.active, f = S.fuels[k], b = BASE[k];
+  const lbl = b.isCyl ? 'NRs/cylinder' : 'NRs/litre';
+  return {
+    labels: [`Tax + NOC + Logistics vs Retail (${lbl})`],
+    datasets: [
+      { label:'Government Tax',      data:[+f.totTax.toFixed(4)],   backgroundColor:'#ef4444', borderRadius:3 },
+      { label:'NOC Expenses',        data:[+f.totNoc.toFixed(4)],   backgroundColor:'#3b82f6', borderRadius:3 },
+      { label:'Procurement/Logistics', data:[+f.totExtra.toFixed(4)], backgroundColor:'#8b5cf6', borderRadius:3 }
+    ]
+  };
+}
+
+function getPLData() {
+  const labels = FUEL_KEYS.map(k => BASE[k].shortLabel);
+  const vals   = FUEL_KEYS.map(k => +S.fuels[k].plCrore.toFixed(2));
+  const colors = vals.map(v => v >= 0 ? '#16a34a' : '#dc2626');
+  const borders= vals.map(v => v >= 0 ? '#15803d' : '#b91c1c');
+  return {
+    labels,
+    datasets:[{ data:vals, backgroundColor:colors, borderColor:borders, borderWidth:1, borderRadius:3, borderSkipped:false }]
+  };
+}
+
+function getRevData() {
+  const completed = 1; // we have 1 actual fortnight
+  const remaining = Math.max(0, +S.fy.remaining || 0);
+  const total = completed + remaining;
+  const avgColl = (+S.fy.collected || 0) / completed;
+  const projPerFN = +S.totRev.toFixed(2);
+
+  const labels=[], coll=[], proj=[];
+  for (let i=1; i<=Math.min(total,24); i++) {
+    labels.push('FN ' + i);
+    if (i <= completed) { coll.push(avgColl); proj.push(null); }
+    else                { coll.push(null); proj.push(projPerFN); }
+  }
+  return {
+    labels,
+    datasets:[
+      { label:'Collected (Actual)',        data:coll, backgroundColor:'#1d4ed8', borderRadius:3 },
+      { label:'Projected (Current Settings)', data:proj, backgroundColor:'#93c5fd', borderRadius:3 }
+    ]
+  };
+}
+
+function initCharts() {
+  costC = new Chart(document.getElementById('costChart'), {
+    type:'bar',
+    data: getCostData(),
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:LEGEND_OPT,
+        tooltip:{ callbacks:{ label:c => ` ${c.dataset.label}: ${(+c.parsed.y).toFixed(2)}` } }
+      },
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:TICK_OPT },
+        y:{ stacked:true, grid:GRID_OPT, ticks:TICK_OPT,
+          title:{display:true, text:'NRs', font:{size:9}, color:'#94a3b8'} }
+      }
+    }
+  });
+
+  plC = new Chart(document.getElementById('plChart'), {
+    type:'bar',
+    data: getPLData(),
+    options:{
+      responsive:true, maintainAspectRatio:false, indexAxis:'y',
+      plugins:{ legend:{display:false},
+        tooltip:{ callbacks:{ label:c => ` ${c.parsed.x >= 0 ? '+' : ''}${c.parsed.x.toFixed(2)} Crore` } }
+      },
+      scales:{
+        x:{ grid:GRID_OPT, ticks:TICK_OPT,
+          title:{display:true, text:'NRs Crore', font:{size:9}, color:'#94a3b8'} },
+        y:{ grid:{display:false}, ticks:{...TICK_OPT, color:'#64748b'} }
+      }
+    }
+  });
+
+  revC = new Chart(document.getElementById('revChart'), {
+    type:'bar',
+    data: getRevData(),
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:LEGEND_OPT,
+        tooltip:{ callbacks:{ label:c => ` ${c.dataset.label}: ${(+c.parsed.y).toFixed(0)} Crore` } }
+      },
+      scales:{
+        x:{ grid:{display:false}, ticks:TICK_OPT },
+        y:{ grid:GRID_OPT, ticks:TICK_OPT,
+          title:{display:true, text:'NRs Crore', font:{size:9}, color:'#94a3b8'} }
+      }
+    }
+  });
+}
+
+function updateCharts() {
+  if (!costC) return;
+  costC.data = getCostData(); costC.update('none');
+  plC.data   = getPLData();   plC.update('none');
+  revC.data  = getRevData();  revC.update('none');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────────────────────────
+async function boot() {
+  await loadDataModel();
+  setBaseForDate(ACTIVE_DATE);
+  initState();
+  calcAll();
+  buildTabs();
+  buildFuelPanel();
+  refreshKPIs();
+  initCharts();
+}
+
+boot();
+</script>
+</body>
+</html>

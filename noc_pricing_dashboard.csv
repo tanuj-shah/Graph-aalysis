@@ -1,0 +1,207 @@
+date,ioc_price_effective_date,fuel_type,depot,category,variable_name,display_name,value,unit
+2026-04-03,2026-04-01,Petrol,Barauni,pricing,ex_depot_price_ioc_prev,"Ex-Depot Price IOC (Previous: 2026-03-16)",70.0513,IRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,pricing,ex_depot_price_ioc_prev,"Ex-Depot Price IOC (Previous: 2026-03-16)",92.136,IRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,pricing,ex_depot_price_ioc_prev,"Ex-Depot Price IOC (Previous: 2026-03-16)",55.9402,IRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,pricing,ex_depot_price_ioc_prev,"Ex-Depot Price IOC (Previous: 2026-03-16)",56.0076,IRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,pricing,ex_depot_price_ioc_prev,"Ex-Depot Price IOC (Previous: 2026-03-16)",56.0076,IRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,pricing,ex_depot_price_ioc_prev,"Ex-Depot Price IOC (Previous: 2026-03-16)",936.4,IRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,pricing,price_difference_irs,"IOC Price Difference (IRs)",25.9731,IRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,pricing,price_difference_irs,"IOC Price Difference (IRs)",59.2763,IRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,pricing,price_difference_irs,"IOC Price Difference (IRs)",67.6335,IRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,pricing,price_difference_irs,"IOC Price Difference (IRs)",77.304,IRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,pricing,price_difference_irs,"IOC Price Difference (IRs)",77.304,IRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,pricing,price_difference_irs,"IOC Price Difference (IRs)",118.86,IRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,pricing,price_difference_nrs,"IOC Price Difference (NRs)",41.6,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,pricing,price_difference_nrs,"IOC Price Difference (NRs)",94.93,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,pricing,price_difference_nrs,"IOC Price Difference (NRs)",108.31,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,pricing,price_difference_nrs,"IOC Price Difference (NRs)",123.8,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,pricing,price_difference_nrs,"IOC Price Difference (NRs)",123.8,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,pricing,price_difference_nrs,"IOC Price Difference (NRs)",190.36,NRs_per_liter
+2026-04-03,2026-04-01,Petrol,Barauni,pricing,ex_depot_price_ioc_current,"Ex-Depot Price IOC (Current: 2026-04-01)",96.0244,IRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,pricing,ex_depot_price_ioc_current,"Ex-Depot Price IOC (Current: 2026-04-01)",151.4123,IRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,pricing,ex_depot_price_ioc_current,"Ex-Depot Price IOC (Current: 2026-04-01)",123.5737,IRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,pricing,ex_depot_price_ioc_current,"Ex-Depot Price IOC (Current: 2026-04-01)",133.3116,IRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,pricing,ex_depot_price_ioc_current,"Ex-Depot Price IOC (Current: 2026-04-01)",133.3116,IRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,pricing,ex_depot_price_ioc_current,"Ex-Depot Price IOC (Current: 2026-04-01)",1055.27,IRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,pricing,ex_depot_price_nrs,"Ex-Depot Price (NRs)",153.7831,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,pricing,ex_depot_price_nrs,"Ex-Depot Price (NRs)",242.4868,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,pricing,ex_depot_price_nrs,"Ex-Depot Price (NRs)",197.9032,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,pricing,ex_depot_price_nrs,"Ex-Depot Price (NRs)",213.4985,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,pricing,ex_depot_price_nrs,"Ex-Depot Price (NRs)",213.4985,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,pricing,ex_depot_price_nrs,"Ex-Depot Price (NRs)",1690.01,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,custom_duty,"Custom Duty",25.2,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,custom_duty,"Custom Duty",12,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,custom_duty,"Custom Duty",12,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,custom_duty,"Custom Duty",2.1,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,custom_duty,"Custom Duty",2.1,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,custom_duty,"Custom Duty",90.42,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,cargo_vehicle_charge,"Cargo Vehicle Charge (CVC)",0,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,cargo_vehicle_charge,"Cargo Vehicle Charge (CVC)",0,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,cargo_vehicle_charge,"Cargo Vehicle Charge (CVC)",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,cargo_vehicle_charge,"Cargo Vehicle Charge (CVC)",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,cargo_vehicle_charge,"Cargo Vehicle Charge (CVC)",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,cargo_vehicle_charge,"Cargo Vehicle Charge (CVC)",1.18,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,custom_service_charge,"Custom Service Charge",0.025,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,custom_service_charge,"Custom Service Charge",0.025,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,custom_service_charge,"Custom Service Charge",0.025,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,custom_service_charge,"Custom Service Charge",0.025,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,custom_service_charge,"Custom Service Charge",0.025,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,custom_service_charge,"Custom Service Charge",0.39,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,road_maintenance_charge,"Road Maintenance Charge",4,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,road_maintenance_charge,"Road Maintenance Charge",2,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,road_maintenance_charge,"Road Maintenance Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,road_maintenance_charge,"Road Maintenance Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,road_maintenance_charge,"Road Maintenance Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,road_maintenance_charge,"Road Maintenance Charge",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,pollution_charge,"Pollution Charge",1.5,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,pollution_charge,"Pollution Charge",1.5,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,pollution_charge,"Pollution Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,pollution_charge,"Pollution Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,pollution_charge,"Pollution Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,pollution_charge,"Pollution Charge",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,green_tax,"Green Tax",1,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,green_tax,"Green Tax",1,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,green_tax,"Green Tax",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,green_tax,"Green Tax",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,green_tax,"Green Tax",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,green_tax,"Green Tax",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,psf_transfer,"PSF Transfer",2.02,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,psf_transfer,"PSF Transfer",1.82,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,psf_transfer,"PSF Transfer",1.82,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,psf_transfer,"PSF Transfer",2.51,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,psf_transfer,"PSF Transfer",2.7032,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,psf_transfer,"PSF Transfer",19.1,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,infrastructure_development_tax,"Infrastructure Development Tax",10,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,infrastructure_development_tax,"Infrastructure Development Tax",10,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,infrastructure_development_tax,"Infrastructure Development Tax",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,infrastructure_development_tax,"Infrastructure Development Tax",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,infrastructure_development_tax,"Infrastructure Development Tax",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,infrastructure_development_tax,"Infrastructure Development Tax",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,vat_13pct,"VAT (13%)",23.2389,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,vat_13pct,"VAT (13%)",20.9381,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,vat_13pct,"VAT (13%)",20.9381,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,vat_13pct,"VAT (13%)",28.8761,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,vat_13pct,"VAT (13%)",35.1416,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,vat_13pct,"VAT (13%)",213.85,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,fuel_throughput_charge,"Fuel Through-put Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,fuel_throughput_charge,"Fuel Through-put Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,fuel_throughput_charge,"Fuel Through-put Charge",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,fuel_throughput_charge,"Fuel Through-put Charge",0.8885,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,fuel_throughput_charge,"Fuel Through-put Charge",1.0813,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,fuel_throughput_charge,"Fuel Through-put Charge",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,tax,total_government_tax,"Total Government Tax",66.9839,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,tax,total_government_tax,"Total Government Tax",49.2831,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,tax,total_government_tax,"Total Government Tax",34.7831,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,tax,total_government_tax,"Total Government Tax",34.3996,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,tax,total_government_tax,"Total Government Tax",41.0511,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,tax,total_government_tax,"Total Government Tax",324.95,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,noc_expense,administration_cost,"Administration Cost",0.608,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,noc_expense,administration_cost,"Administration Cost",0.608,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,noc_expense,administration_cost,"Administration Cost",0.608,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,noc_expense,administration_cost,"Administration Cost",0.608,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,noc_expense,administration_cost,"Administration Cost",0.608,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,noc_expense,administration_cost,"Administration Cost",8.63,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,noc_expense,insurance_premium,"Insurance Premium",0.0923,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,noc_expense,insurance_premium,"Insurance Premium",0.1455,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,noc_expense,insurance_premium,"Insurance Premium",0.1187,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,noc_expense,insurance_premium,"Insurance Premium",0.1281,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,noc_expense,insurance_premium,"Insurance Premium",0.1281,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,noc_expense,insurance_premium,"Insurance Premium",1.77,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,noc_expense,technical_loss,"Technical Loss",1.7224,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,noc_expense,technical_loss,"Technical Loss",1.6212,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,noc_expense,technical_loss,"Technical Loss",1.3474,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,noc_expense,technical_loss,"Technical Loss",1.3832,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,noc_expense,technical_loss,"Technical Loss",1.3832,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,noc_expense,technical_loss,"Technical Loss",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,noc_expense,total_noc_expenses,"Total NOC Expenses",2.4227,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,noc_expense,total_noc_expenses,"Total NOC Expenses",2.3747,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,noc_expense,total_noc_expenses,"Total NOC Expenses",2.0742,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,noc_expense,total_noc_expenses,"Total NOC Expenses",2.1193,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,noc_expense,total_noc_expenses,"Total NOC Expenses",2.1193,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,noc_expense,total_noc_expenses,"Total NOC Expenses",10.41,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,transportation,transportation_cost,"Transportation Cost",6.6735,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,transportation,transportation_cost,"Transportation Cost",3.2216,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,transportation,transportation_cost,"Transportation Cost",6.6735,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,transportation,transportation_cost,"Transportation Cost",6.7286,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,transportation,transportation_cost,"Transportation Cost",6.7286,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,transportation,transportation_cost,"Transportation Cost",0,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,landed_cost,"Landed Cost",206.6243,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,landed_cost,"Landed Cost",276.4281,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,landed_cost,"Landed Cost",220.4959,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,landed_cost,"Landed Cost",227.8699,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,landed_cost,"Landed Cost",263.3975,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,landed_cost,"Landed Cost",1811.51,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,noc_ex_depot_price_wo_vat,"NOC Ex-Depot Price (w/o VAT)",172.2642,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,noc_ex_depot_price_wo_vat,"NOC Ex-Depot Price (w/o VAT)",155.8878,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,noc_ex_depot_price_wo_vat,"NOC Ex-Depot Price (w/o VAT)",156.4332,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,noc_ex_depot_price_wo_vat,"NOC Ex-Depot Price (w/o VAT)",222.1239,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,noc_ex_depot_price_wo_vat,"NOC Ex-Depot Price (w/o VAT)",1.785,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,noc_ex_depot_price_wo_vat,"NOC Ex-Depot Price (w/o VAT)",1395.14,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,dealer_expenses,"Petroleum Dealer/Gas Company Expenses",6.4969,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,dealer_expenses,"Petroleum Dealer/Gas Company Expenses",5.1741,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,dealer_expenses,"Petroleum Dealer/Gas Company Expenses",4.6288,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,dealer_expenses,"Petroleum Dealer/Gas Company Expenses",0,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,dealer_expenses,"Petroleum Dealer/Gas Company Expenses",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,dealer_expenses,"Petroleum Dealer/Gas Company Expenses",301.01,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,total_cost_wo_vat,"Total Cost to NOC (w/o VAT)",213.1212,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,total_cost_wo_vat,"Total Cost to NOC (w/o VAT)",281.6023,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,total_cost_wo_vat,"Total Cost to NOC (w/o VAT)",225.1247,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,total_cost_wo_vat,"Total Cost to NOC (w/o VAT)",227.8699,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,total_cost_wo_vat,"Total Cost to NOC (w/o VAT)",263.3975,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,total_cost_wo_vat,"Total Cost to NOC (w/o VAT)",2112.52,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,vat_amount,"VAT Amount",23.2389,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,vat_amount,"VAT Amount",20.9381,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,vat_amount,"VAT Amount",20.9381,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,vat_amount,"VAT Amount",28.8761,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,vat_amount,"VAT Amount",0,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,vat_amount,"VAT Amount",213.85,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,total_cost_with_vat_per_kl,"Total Cost to NOC (with VAT) per KL/Cyl",236.3602,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,total_cost_with_vat_per_kl,"Total Cost to NOC (with VAT) per KL/Cyl",302.5403,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,total_cost_with_vat_per_kl,"Total Cost to NOC (with VAT) per KL/Cyl",246.0627,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,total_cost_with_vat_per_kl,"Total Cost to NOC (with VAT) per KL/Cyl",256.746,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,total_cost_with_vat_per_kl,"Total Cost to NOC (with VAT) per KL/Cyl",263.3975,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,total_cost_with_vat_per_kl,"Total Cost to NOC (with VAT) per KL/Cyl",2326.37,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,cost_summary,total_cost_per_liter,"Total Cost to NOC per Liter/Cyl",236.36,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,cost_summary,total_cost_per_liter,"Total Cost to NOC per Liter/Cyl",302.54,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,cost_summary,total_cost_per_liter,"Total Cost to NOC per Liter/Cyl",246.06,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,cost_summary,total_cost_per_liter,"Total Cost to NOC per Liter/Cyl",256.75,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,cost_summary,total_cost_per_liter,"Total Cost to NOC per Liter/Cyl",263.4,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,cost_summary,total_cost_per_liter,"Total Cost to NOC per Liter/Cyl",2326.37,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,retail,retail_price_per_liter,"Retail Price per Liter/Cylinder (Average)",202,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,retail,retail_price_per_liter,"Retail Price per Liter/Cylinder (Average)",182,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,retail,retail_price_per_liter,"Retail Price per Liter/Cylinder (Average)",182,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,retail,retail_price_per_liter,"Retail Price per Liter/Cylinder (Average)",251,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,retail,retail_price_per_liter,"Retail Price per Liter/Cylinder (Average)",1.785,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,retail,retail_price_per_liter,"Retail Price per Liter/Cylinder (Average)",1910,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,demand,fortnightly_projected_demand,"Fortnightly Projected Demand",33108,KL
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,demand,fortnightly_projected_demand,"Fortnightly Projected Demand",82277,KL
+2026-04-03,2026-04-01,Kerosene,Barauni,demand,fortnightly_projected_demand,"Fortnightly Projected Demand",865,KL
+2026-04-03,2026-04-01,ATF_DP,Barauni,demand,fortnightly_projected_demand,"Fortnightly Projected Demand",2616,KL
+2026-04-03,2026-04-01,ATF_DF,Barauni,demand,fortnightly_projected_demand,"Fortnightly Projected Demand",5892,KL
+2026-04-03,2026-04-01,LP_Gas,Barauni,demand,fortnightly_projected_demand,"Fortnightly Projected Demand",1522444,cylinders
+2026-04-03,2026-04-01,Petrol,Barauni,profit_loss,profit_loss_per_liter,"Profit/Loss per Liter/Cylinder",-34.36,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,profit_loss,profit_loss_per_liter,"Profit/Loss per Liter/Cylinder",-120.54,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,profit_loss,profit_loss_per_liter,"Profit/Loss per Liter/Cylinder",-64.06,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,profit_loss,profit_loss_per_liter,"Profit/Loss per Liter/Cylinder",-5.75,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,profit_loss,profit_loss_per_liter,"Profit/Loss per Liter/Cylinder",6.92,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,profit_loss,profit_loss_per_liter,"Profit/Loss per Liter/Cylinder",-416.37,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,profit_loss,profit_loss_in_crore,"Profit/Loss (in Crore)",-113.76,NRs_crore
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,profit_loss,profit_loss_in_crore,"Profit/Loss (in Crore)",-991.78,NRs_crore
+2026-04-03,2026-04-01,Kerosene,Barauni,profit_loss,profit_loss_in_crore,"Profit/Loss (in Crore)",-5.54,NRs_crore
+2026-04-03,2026-04-01,ATF_DP,Barauni,profit_loss,profit_loss_in_crore,"Profit/Loss (in Crore)",-1.5,NRs_crore
+2026-04-03,2026-04-01,ATF_DF,Barauni,profit_loss,profit_loss_in_crore,"Profit/Loss (in Crore)",4.08,NRs_crore
+2026-04-03,2026-04-01,LP_Gas,Barauni,profit_loss,profit_loss_in_crore,"Profit/Loss (in Crore)",-63.39,NRs_crore
+2026-04-03,2026-04-01,Petrol,Barauni,government_revenue,govt_revenue_per_liter,"Government Revenue per Liter/Cylinder",66.98,NRs_per_liter
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,government_revenue,govt_revenue_per_liter,"Government Revenue per Liter/Cylinder",49.28,NRs_per_liter
+2026-04-03,2026-04-01,Kerosene,Barauni,government_revenue,govt_revenue_per_liter,"Government Revenue per Liter/Cylinder",34.78,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DP,Barauni,government_revenue,govt_revenue_per_liter,"Government Revenue per Liter/Cylinder",34.4,NRs_per_liter
+2026-04-03,2026-04-01,ATF_DF,Barauni,government_revenue,govt_revenue_per_liter,"Government Revenue per Liter/Cylinder",41.05,NRs_per_liter
+2026-04-03,2026-04-01,LP_Gas,Barauni,government_revenue,govt_revenue_per_liter,"Government Revenue per Liter/Cylinder",324.95,NRs_per_cylinder
+2026-04-03,2026-04-01,Petrol,Barauni,government_revenue,govt_revenue_fortnightly_crore,"Government Revenue Fortnightly (Crore)",221.77,NRs_crore
+2026-04-03,2026-04-01,Diesel,Amj/Barauni,government_revenue,govt_revenue_fortnightly_crore,"Government Revenue Fortnightly (Crore)",405.49,NRs_crore
+2026-04-03,2026-04-01,Kerosene,Barauni,government_revenue,govt_revenue_fortnightly_crore,"Government Revenue Fortnightly (Crore)",3.01,NRs_crore
+2026-04-03,2026-04-01,ATF_DP,Barauni,government_revenue,govt_revenue_fortnightly_crore,"Government Revenue Fortnightly (Crore)",9,NRs_crore
+2026-04-03,2026-04-01,ATF_DF,Barauni,government_revenue,govt_revenue_fortnightly_crore,"Government Revenue Fortnightly (Crore)",24.19,NRs_crore
+2026-04-03,2026-04-01,LP_Gas,Barauni,government_revenue,govt_revenue_fortnightly_crore,"Government Revenue Fortnightly (Crore)",49.47,NRs_crore
+2026-04-03,2026-04-01,All,All,profit_loss,total_profit_loss_all_fuels_crore,"Total Profit/Loss All Fuels (Crore)",-1171.89,NRs_crore
+2026-04-03,2026-04-01,All,All,government_revenue,net_govt_revenue_crore,"Net Government Revenue (Crore)",712.92,NRs_crore

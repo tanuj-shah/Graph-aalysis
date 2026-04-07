@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOC Pricing Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-1: #f5f8f4;
+      --bg-2: #e8f1ec;
+      --panel: #ffffff;
+      --ink: #1a2a2f;
+      --subtle: #51636b;
+      --brand: #0b5f6a;
+      --brand-soft: #d6eef0;
+      --accent: #b76417;
+      --accent-soft: #fbe9d6;
+      --ok: #1d7f4d;
+      --warn: #b74f17;
+      --border: #d9e3de;
+      --shadow: 0 12px 30px rgba(19, 51, 58, 0.09);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 10% -10%, #cde2d5 0%, transparent 55%),
+        radial-gradient(700px 350px at 100% 0%, #f1dfc8 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1240px, 94vw);
+      margin: 26px auto 34px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: calc(var(--radius) + 4px);
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      font-size: clamp(1.35rem, 1.4vw + 1rem, 2.05rem);
+      letter-spacing: 0.2px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--subtle);
+      font-size: 1rem;
+    }
+
+    .quality-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .pill {
+      background: #eef6f2;
+      border: 1px solid #d2e7da;
+      color: #195737;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .pill.warn {
+      background: #fff3e6;
+      border-color: #f0ceb0;
+      color: #905015;
+    }
+
+    .controls {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(6, minmax(130px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 0.87rem;
+      color: var(--subtle);
+      font-weight: 600;
+    }
+
+    select,
+    input[type="number"],
+    button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #cdd9d3;
+      padding: 8px 10px;
+      font: inherit;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    select:focus,
+    input[type="number"]:focus,
+    button:focus {
+      outline: 2px solid #9bc9c9;
+      outline-offset: 1px;
+      border-color: #7db4b8;
+    }
+
+    button {
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 7px 15px rgba(11, 95, 106, 0.15);
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: #0b5f6a;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: #0f5460;
+      border-color: #9dc3c6;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: grid;
+      gap: 6px;
+      animation: fadeInUp 360ms ease both;
+    }
+
+    .card .kpi-label {
+      color: var(--subtle);
+      font-weight: 600;
+      font-size: 0.86rem;
+      line-height: 1.2;
+    }
+
+    .card .kpi-value {
+      font-size: 1.26rem;
+      font-family: "Sora", sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+    }
+
+    .card .kpi-note {
+      font-size: 0.82rem;
+      color: #5e7078;
+    }
+
+    .good {
+      color: var(--ok);
+    }
+
+    .bad {
+      color: var(--warn);
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .panel-stack {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      min-height: 120px;
+      animation: fadeInUp 420ms ease both;
+    }
+
+    .panel h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      font-family: "Sora", sans-serif;
+      color: #244049;
+    }
+
+    .meta {
+      font-size: 0.86rem;
+      color: var(--subtle);
+    }
+
+    .value {
+      font-size: 1.28rem;
+      font-family: "Sora", sans-serif;
+      font-weight: 700;
+    }
+
+    .formula {
+      font-size: 0.82rem;
+      color: #5b6e76;
+      background: #f7faf8;
+      border: 1px solid #e3ece8;
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+
+    .trace {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      animation: fadeInUp 500ms ease both;
+    }
+
+    .trace h3 {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      font-size: 1.04rem;
+      color: #25434c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      padding: 7px 6px;
+      border-bottom: 1px solid #ebf1ee;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: #4b6169;
+      font-weight: 700;
+      background: #f8fbf9;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(240px, 1fr));
+      gap: 10px;
+    }
+
+    .chart-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 10px 10px 6px;
+      animation: fadeInUp 540ms ease both;
+    }
+
+    .chart-title {
+      margin: 0 0 6px;
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: #2a4951;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+    }
+
+    .footnote {
+      background: #fdf6ec;
+      border: 1px solid #f3d8bd;
+      color: #6f451e;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.87rem;
+    }
+
+    .error-box {
+      background: #fff4f2;
+      border: 1px solid #f4c2ba;
+      color: #8d2e1a;
+      padding: 10px;
+      border-radius: 10px;
+      display: none;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .controls {
+        grid-template-columns: repeat(3, minmax(140px, 1fr));
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(140px, 1fr));
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .controls {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .panel-stack {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Nepal Oil Corporation Pricing Dashboard</h1>
+      <p>Simple policy simulation for fortnight-wise pricing, profitability, and government revenue in NRs and crore.</p>
+      <div class="quality-row">
+        <span class="pill" id="qualityPill">Loading data quality summary...</span>
+        <span class="pill warn" id="atfPill">Checking ATF_DF correction status...</span>
+      </div>
+      <div class="error-box" id="errorBox"></div>
+    </section>
+
+    <section class="controls">
+      <div class="field">
+        <label for="fortnightSelect">Fortnight</label>
+        <select id="fortnightSelect"></select>
+      </div>
+      <div class="field">
+        <label for="fuelSelect">Fuel Type</label>
+        <select id="fuelSelect"></select>
+      </div>
+      <div class="field">
+        <label for="fyProjectedInput">Total Projected Revenue in FY (Crore)</label>
+        <input id="fyProjectedInput" type="number" min="0" step="0.01" value="24000" />
+      </div>
+      <div class="field">
+        <label for="fyCollectedInput">Total FY Collected Revenue (Crore)</label>
+        <input id="fyCollectedInput" type="number" min="0" step="0.01" value="11500" />
+      </div>
+      <div class="field">
+        <label for="fortnightsRemainingInput">Fortnights Remaining</label>
+        <input id="fortnightsRemainingInput" type="number" min="0" step="1" value="18" />
+      </div>
+      <div class="field">
+        <label for="dummyField">Scenario Actions</label>
+        <button id="resetSelectedBtn" class="btn-secondary" type="button">Reset Selected Fuel</button>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button id="resetAllBtn" class="btn-primary" type="button">Reset All Custom Inputs</button>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      <article class="card">
+        <div class="kpi-label">Selected Fortnight Total Profit/Loss</div>
+        <div class="kpi-value" id="kpiFortnightProfit">-</div>
+        <div class="kpi-note">Sum across all fuels in selected fortnight (Crore)</div>
+      </article>
+      <article class="card">
+        <div class="kpi-label">Selected Fortnight Govt Revenue</div>
+        <div class="kpi-value" id="kpiFortnightRevenue">-</div>
+        <div class="kpi-note">Tax-derived scenario revenue (Crore)</div>
+      </article>
+      <article class="card">
+        <div class="kpi-label">Completed Fortnights</div>
+        <div class="kpi-value" id="kpiCompleted">-</div>
+        <div class="kpi-note">From available dataset history</div>
+      </article>
+      <article class="card">
+        <div class="kpi-label">Avg Revenue per Completed Fortnight</div>
+        <div class="kpi-value" id="kpiAvgFortnightRevenue">-</div>
+        <div class="kpi-note">After current tax customization (Crore)</div>
+      </article>
+      <article class="card">
+        <div class="kpi-label">Updated FY Revenue Projection</div>
+        <div class="kpi-value" id="kpiUpdatedProjection">-</div>
+        <div class="kpi-note">Collected FY + (Avg Fortnight Revenue x Remaining)</div>
+      </article>
+      <article class="card">
+        <div class="kpi-label">Projection Gap vs FY Target</div>
+        <div class="kpi-value" id="kpiProjectionGap">-</div>
+        <div class="kpi-note" id="kpiProjectionGapNote">Positive means above target</div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel-stack">
+        <article class="panel">
+          <h3>1) Government Tax Panel</h3>
+          <div class="meta" id="taxInputLabel">Tax per unit</div>
+          <input id="taxInput" type="number" step="0.0001" min="0" />
+          <div class="value" id="taxValue">-</div>
+          <div class="formula">Total tax per unit is directly customizable for policy simulation.</div>
+        </article>
+
+        <article class="panel">
+          <h3>2) NOC Expenses Panel</h3>
+          <div class="meta" id="expenseInputLabel">NOC expense per unit</div>
+          <input id="expenseInput" type="number" step="0.0001" min="0" />
+          <div class="value" id="expenseValue">-</div>
+          <div class="formula">Total NOC expense per unit is directly customizable.</div>
+        </article>
+
+        <article class="panel">
+          <h3>3) Extra Cost to NOC (with VAT)</h3>
+          <div class="meta" id="extraInputLabel">Extra cost per unit</div>
+          <input id="extraInput" type="number" step="0.0001" min="0" />
+          <div class="value" id="extraValue">-</div>
+          <div class="formula">Includes the remaining cost block not covered by tax and NOC expense.</div>
+        </article>
+
+        <article class="panel">
+          <h3>4) Total Cost to NOC</h3>
+          <div class="value" id="totalCostValue">-</div>
+          <div class="formula">Total Cost = Tax + NOC Expense + Extra Cost</div>
+        </article>
+
+        <article class="panel">
+          <h3>5) Retail Price Panel</h3>
+          <div class="value" id="retailValue">-</div>
+          <div class="formula">Retail price per litre/cylinder from cleaned source data (with ATF_DF correction rule applied).</div>
+        </article>
+
+        <article class="panel">
+          <h3>6) Fortnightly Panel</h3>
+          <div class="meta" id="demandMeta">Total demand</div>
+          <div class="value" id="demandValue">-</div>
+          <div class="meta" id="profitPerUnitMeta">Profit/Loss per unit</div>
+          <div class="value" id="profitPerUnitValue">-</div>
+          <div class="meta">Total Profit/Loss (Crore)</div>
+          <div class="value" id="profitCroreValue">-</div>
+          <div class="formula">Profit/Loss per unit = Retail Price - Total Cost</div>
+        </article>
+
+        <article class="panel">
+          <h3>7) Government Revenue Panel</h3>
+          <div class="meta" id="govRevenueUnitMeta">Revenue per unit</div>
+          <div class="value" id="govRevenueUnitValue">-</div>
+          <div class="meta">Total revenue (Crore)</div>
+          <div class="value" id="govRevenueCroreValue">-</div>
+          <div class="formula">Total Revenue = Tax per unit x Fortnight demand</div>
+        </article>
+      </section>
+
+      <section class="trace">
+        <h3>Calculation Trace (Selected Fuel + Fortnight)</h3>
+        <div class="meta" id="traceMeta">-</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Formula</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="traceBody"></tbody>
+        </table>
+      </section>
+    </section>
+
+    <section class="chart-grid">
+      <article class="chart-card">
+        <p class="chart-title">Revenue Trend (Selected Fuel)</p>
+        <div class="chart-wrap"><canvas id="revenueChart"></canvas></div>
+      </article>
+      <article class="chart-card">
+        <p class="chart-title">Profit/Loss Trend (Selected Fuel)</p>
+        <div class="chart-wrap"><canvas id="profitChart"></canvas></div>
+      </article>
+      <article class="chart-card">
+        <p class="chart-title">Demand Trend (Selected Fuel)</p>
+        <div class="chart-wrap"><canvas id="demandChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="footnote" id="footnote">
+      Data cleaning rule: if ATF_DF NOC ex-depot or retail value is less than or equal to 10 for a fortnight while ATF_DP ex-depot is in NRs scale, values are treated as USD/litre and converted to NRs/litre using implied ATF_DP rate.
+    </section>
+  </main>
+
+  <script>
+    const CRORE_DIVISOR = 10000000;
+    const HARD_CODED_SOURCE = "Embedded snapshot (2026-04-03)";
+    const ATF_FIELDS = ["noc_ex_depot_price_wo_vat", "retail_price_per_liter"];
+
+    const HARD_CODED_ROWS = [
+      // Petrol
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Petrol", depot: "Barauni", category: "tax", variable_name: "total_government_tax", display_name: "Total Government Tax", value: 66.9839, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Petrol", depot: "Barauni", category: "noc_expense", variable_name: "total_noc_expenses", display_name: "Total NOC Expenses", value: 2.4227, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Petrol", depot: "Barauni", category: "cost_summary", variable_name: "total_cost_per_liter", display_name: "Total Cost to NOC per Liter/Cyl", value: 236.36, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Petrol", depot: "Barauni", category: "retail", variable_name: "retail_price_per_liter", display_name: "Retail Price per Liter/Cylinder (Average)", value: 202, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Petrol", depot: "Barauni", category: "demand", variable_name: "fortnightly_projected_demand", display_name: "Fortnightly Projected Demand", value: 33108, unit: "KL" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Petrol", depot: "Barauni", category: "cost_summary", variable_name: "noc_ex_depot_price_wo_vat", display_name: "NOC Ex-Depot Price (w/o VAT)", value: 172.2642, unit: "NRs_per_liter" },
+
+      // Diesel
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Diesel", depot: "Amj/Barauni", category: "tax", variable_name: "total_government_tax", display_name: "Total Government Tax", value: 49.2831, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Diesel", depot: "Amj/Barauni", category: "noc_expense", variable_name: "total_noc_expenses", display_name: "Total NOC Expenses", value: 2.3747, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Diesel", depot: "Amj/Barauni", category: "cost_summary", variable_name: "total_cost_per_liter", display_name: "Total Cost to NOC per Liter/Cyl", value: 302.54, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Diesel", depot: "Amj/Barauni", category: "retail", variable_name: "retail_price_per_liter", display_name: "Retail Price per Liter/Cylinder (Average)", value: 182, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Diesel", depot: "Amj/Barauni", category: "demand", variable_name: "fortnightly_projected_demand", display_name: "Fortnightly Projected Demand", value: 82277, unit: "KL" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Diesel", depot: "Amj/Barauni", category: "cost_summary", variable_name: "noc_ex_depot_price_wo_vat", display_name: "NOC Ex-Depot Price (w/o VAT)", value: 155.8878, unit: "NRs_per_liter" },
+
+      // Kerosene
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Kerosene", depot: "Barauni", category: "tax", variable_name: "total_government_tax", display_name: "Total Government Tax", value: 34.7831, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Kerosene", depot: "Barauni", category: "noc_expense", variable_name: "total_noc_expenses", display_name: "Total NOC Expenses", value: 2.0742, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Kerosene", depot: "Barauni", category: "cost_summary", variable_name: "total_cost_per_liter", display_name: "Total Cost to NOC per Liter/Cyl", value: 246.06, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Kerosene", depot: "Barauni", category: "retail", variable_name: "retail_price_per_liter", display_name: "Retail Price per Liter/Cylinder (Average)", value: 182, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Kerosene", depot: "Barauni", category: "demand", variable_name: "fortnightly_projected_demand", display_name: "Fortnightly Projected Demand", value: 865, unit: "KL" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "Kerosene", depot: "Barauni", category: "cost_summary", variable_name: "noc_ex_depot_price_wo_vat", display_name: "NOC Ex-Depot Price (w/o VAT)", value: 156.4332, unit: "NRs_per_liter" },
+
+      // ATF_DP
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DP", depot: "Barauni", category: "tax", variable_name: "total_government_tax", display_name: "Total Government Tax", value: 34.3996, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DP", depot: "Barauni", category: "noc_expense", variable_name: "total_noc_expenses", display_name: "Total NOC Expenses", value: 2.1193, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DP", depot: "Barauni", category: "cost_summary", variable_name: "total_cost_per_liter", display_name: "Total Cost to NOC per Liter/Cyl", value: 256.75, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DP", depot: "Barauni", category: "retail", variable_name: "retail_price_per_liter", display_name: "Retail Price per Liter/Cylinder (Average)", value: 251, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DP", depot: "Barauni", category: "demand", variable_name: "fortnightly_projected_demand", display_name: "Fortnightly Projected Demand", value: 2616, unit: "KL" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DP", depot: "Barauni", category: "cost_summary", variable_name: "noc_ex_depot_price_wo_vat", display_name: "NOC Ex-Depot Price (w/o VAT)", value: 222.1239, unit: "NRs_per_liter" },
+
+      // ATF_DF (intentionally USD-scale rows retained for correction rule)
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "tax", variable_name: "total_government_tax", display_name: "Total Government Tax", value: 41.0511, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "noc_expense", variable_name: "total_noc_expenses", display_name: "Total NOC Expenses", value: 2.1193, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "cost_summary", variable_name: "total_cost_per_liter", display_name: "Total Cost to NOC per Liter/Cyl", value: 263.4, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "retail", variable_name: "retail_price_per_liter", display_name: "Retail Price per Liter/Cylinder (Average)", value: 1.785, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "profit_loss", variable_name: "profit_loss_per_liter", display_name: "Profit/Loss per Liter/Cylinder", value: 6.92, unit: "NRs_per_liter" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "demand", variable_name: "fortnightly_projected_demand", display_name: "Fortnightly Projected Demand", value: 5892, unit: "KL" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "ATF_DF", depot: "Barauni", category: "cost_summary", variable_name: "noc_ex_depot_price_wo_vat", display_name: "NOC Ex-Depot Price (w/o VAT)", value: 1.785, unit: "NRs_per_liter" },
+
+      // LP_Gas
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "LP_Gas", depot: "Barauni", category: "tax", variable_name: "total_government_tax", display_name: "Total Government Tax", value: 324.95, unit: "NRs_per_cylinder" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "LP_Gas", depot: "Barauni", category: "noc_expense", variable_name: "total_noc_expenses", display_name: "Total NOC Expenses", value: 10.41, unit: "NRs_per_cylinder" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "LP_Gas", depot: "Barauni", category: "cost_summary", variable_name: "total_cost_per_liter", display_name: "Total Cost to NOC per Liter/Cyl", value: 2326.37, unit: "NRs_per_cylinder" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "LP_Gas", depot: "Barauni", category: "retail", variable_name: "retail_price_per_liter", display_name: "Retail Price per Liter/Cylinder (Average)", value: 1910, unit: "NRs_per_cylinder" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "LP_Gas", depot: "Barauni", category: "demand", variable_name: "fortnightly_projected_demand", display_name: "Fortnightly Projected Demand", value: 1522444, unit: "cylinders" },
+      { date: "2026-04-03", ioc_price_effective_date: "2026-04-01", fuel_type: "LP_Gas", depot: "Barauni", category: "cost_summary", variable_name: "noc_ex_depot_price_wo_vat", display_name: "NOC Ex-Depot Price (w/o VAT)", value: 1395.14, unit: "NRs_per_cylinder" }
+    ];
+
+    const state = {
+      records: new Map(),
+      dates: [],
+      fuels: [],
+      sourceCsv: "",
+      overrides: new Map(),
+      selectedDate: "",
+      selectedFuel: "",
+      quality: {
+        processedRows: 0,
+        missingValueCount: 0,
+        droppedRows: 0,
+        atfCorrections: []
+      },
+      charts: {
+        revenue: null,
+        profit: null,
+        demand: null
+      }
+    };
+
+    const el = {
+      errorBox: document.getElementById("errorBox"),
+      qualityPill: document.getElementById("qualityPill"),
+      atfPill: document.getElementById("atfPill"),
+      fortnightSelect: document.getElementById("fortnightSelect"),
+      fuelSelect: document.getElementById("fuelSelect"),
+      fyProjectedInput: document.getElementById("fyProjectedInput"),
+      fyCollectedInput: document.getElementById("fyCollectedInput"),
+      fortnightsRemainingInput: document.getElementById("fortnightsRemainingInput"),
+      resetSelectedBtn: document.getElementById("resetSelectedBtn"),
+      resetAllBtn: document.getElementById("resetAllBtn"),
+      taxInput: document.getElementById("taxInput"),
+      expenseInput: document.getElementById("expenseInput"),
+      extraInput: document.getElementById("extraInput"),
+      taxInputLabel: document.getElementById("taxInputLabel"),
+      expenseInputLabel: document.getElementById("expenseInputLabel"),
+      extraInputLabel: document.getElementById("extraInputLabel"),
+      taxValue: document.getElementById("taxValue"),
+      expenseValue: document.getElementById("expenseValue"),
+      extraValue: document.getElementById("extraValue"),
+      totalCostValue: document.getElementById("totalCostValue"),
+      retailValue: document.getElementById("retailValue"),
+      demandMeta: document.getElementById("demandMeta"),
+      demandValue: document.getElementById("demandValue"),
+      profitPerUnitMeta: document.getElementById("profitPerUnitMeta"),
+      profitPerUnitValue: document.getElementById("profitPerUnitValue"),
+      profitCroreValue: document.getElementById("profitCroreValue"),
+      govRevenueUnitMeta: document.getElementById("govRevenueUnitMeta"),
+      govRevenueUnitValue: document.getElementById("govRevenueUnitValue"),
+      govRevenueCroreValue: document.getElementById("govRevenueCroreValue"),
+      traceMeta: document.getElementById("traceMeta"),
+      traceBody: document.getElementById("traceBody"),
+      kpiFortnightProfit: document.getElementById("kpiFortnightProfit"),
+      kpiFortnightRevenue: document.getElementById("kpiFortnightRevenue"),
+      kpiCompleted: document.getElementById("kpiCompleted"),
+      kpiAvgFortnightRevenue: document.getElementById("kpiAvgFortnightRevenue"),
+      kpiUpdatedProjection: document.getElementById("kpiUpdatedProjection"),
+      kpiProjectionGap: document.getElementById("kpiProjectionGap"),
+      kpiProjectionGapNote: document.getElementById("kpiProjectionGapNote"),
+      footnote: document.getElementById("footnote")
+    };
+
+    function showError(message) {
+      el.errorBox.textContent = message;
+      el.errorBox.style.display = "block";
+    }
+
+    function parseNumeric(value) {
+      const normalized = String(value ?? "").replace(/,/g, "").trim();
+      if (normalized === "") return null;
+      const parsed = Number.parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function formatNumber(value, decimals = 2) {
+      return new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }).format(value);
+    }
+
+    function roundValue(value, decimals = 4) {
+      const factor = 10 ** decimals;
+      return Math.round(value * factor) / factor;
+    }
+
+    function formatCrore(value) {
+      const sign = value >= 0 ? "" : "-";
+      return `${sign}NRs ${formatNumber(Math.abs(value), 2)} Cr`;
+    }
+
+    function formatPerUnit(value, unitLabel) {
+      return `NRs ${formatNumber(value, 4)} / ${unitLabel}`;
+    }
+
+    function formatDemand(value, unitLabel) {
+      if (unitLabel === "litre") {
+        return `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)} litre`;
+      }
+      return `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value)} cylinder`;
+    }
+
+    function recordKey(date, fuel) {
+      return `${date}||${fuel}`;
+    }
+
+    function getMetricValue(record, variableName) {
+      const metric = record.metrics.get(variableName);
+      return metric ? metric.value : 0;
+    }
+
+    function getDemandUnit(record) {
+      const demandMetric = record.metrics.get("fortnightly_projected_demand");
+      const demandUnit = demandMetric ? String(demandMetric.unit || "").toLowerCase() : "";
+      if (demandUnit.includes("cylinder") || record.fuel === "LP_Gas") {
+        return "cylinder";
+      }
+      return "litre";
+    }
+
+    function buildBaseScenario(record) {
+      const tax = getMetricValue(record, "total_government_tax");
+      const nocExpense = getMetricValue(record, "total_noc_expenses");
+      const totalCostSource = getMetricValue(record, "total_cost_per_liter");
+      const retailPrice = getMetricValue(record, "retail_price_per_liter");
+      const profitMetric = record.metrics.get("profit_loss_per_liter");
+      const profitPerLiter = profitMetric ? profitMetric.value : null;
+      const demandRaw = getMetricValue(record, "fortnightly_projected_demand");
+      const unitLabel = getDemandUnit(record);
+      const demandQty = unitLabel === "litre" ? demandRaw * 1000 : demandRaw;
+      const extraCost = Math.max(0, totalCostSource - tax - nocExpense);
+      const resolvedRetail = (record.fuel === "ATF_DF" && Number.isFinite(totalCostSource) && Number.isFinite(profitPerLiter))
+        ? totalCostSource + profitPerLiter
+        : retailPrice;
+
+      return {
+        tax,
+        nocExpense,
+        extraCost,
+        retailPrice: resolvedRetail,
+        demandQty,
+        unitLabel
+      };
+    }
+
+    function getSelectedKey(date = state.selectedDate, fuel = state.selectedFuel) {
+      return recordKey(date, fuel);
+    }
+
+    function getScenario(date, fuel) {
+      const key = recordKey(date, fuel);
+      const record = state.records.get(key);
+      if (!record) return null;
+
+      const base = buildBaseScenario(record);
+      const override = state.overrides.get(key) || {};
+
+      const tax = Number.isFinite(override.tax) ? override.tax : base.tax;
+      const nocExpense = Number.isFinite(override.nocExpense) ? override.nocExpense : base.nocExpense;
+      const extraCost = Number.isFinite(override.extraCost) ? override.extraCost : base.extraCost;
+      const totalCost = tax + nocExpense + extraCost;
+      const profitPerUnit = base.retailPrice - totalCost;
+      const totalProfitCrore = (profitPerUnit * base.demandQty) / CRORE_DIVISOR;
+      const govtRevenuePerUnit = tax;
+      const govtRevenueCrore = (govtRevenuePerUnit * base.demandQty) / CRORE_DIVISOR;
+
+      return {
+        date,
+        fuel,
+        key,
+        tax,
+        nocExpense,
+        extraCost,
+        totalCost,
+        retailPrice: base.retailPrice,
+        demandQty: base.demandQty,
+        unitLabel: base.unitLabel,
+        profitPerUnit,
+        totalProfitCrore,
+        govtRevenuePerUnit,
+        govtRevenueCrore,
+        base
+      };
+    }
+
+    function createRecordIfMissing(date, fuel) {
+      const key = recordKey(date, fuel);
+      if (!state.records.has(key)) {
+        state.records.set(key, {
+          date,
+          fuel,
+          depot: "",
+          metrics: new Map()
+        });
+      }
+      return state.records.get(key);
+    }
+
+    function applyAtfCorrection() {
+      for (const date of state.dates) {
+        const atfDf = state.records.get(recordKey(date, "ATF_DF"));
+        const atfDp = state.records.get(recordKey(date, "ATF_DP"));
+        if (!atfDf || !atfDp) continue;
+
+        const atfDfExDepot = getMetricValue(atfDf, "noc_ex_depot_price_wo_vat");
+        const atfDpExDepot = getMetricValue(atfDp, "noc_ex_depot_price_wo_vat");
+
+        if (atfDfExDepot <= 0 || atfDfExDepot > 10 || atfDpExDepot < 100) {
+          continue;
+        }
+
+        const impliedRate = atfDpExDepot / atfDfExDepot;
+
+        for (const field of ATF_FIELDS) {
+          const metric = atfDf.metrics.get(field);
+          if (!metric) continue;
+          if (metric.value <= 10) {
+            const oldValue = metric.value;
+            const newValue = metric.value * impliedRate;
+            metric.value = newValue;
+            metric.correctedFrom = oldValue;
+            metric.correctionRate = impliedRate;
+
+            state.quality.atfCorrections.push({
+              date,
+              fuel: "ATF_DF",
+              field,
+              oldValue,
+              newValue,
+              impliedRate
+            });
+          }
+        }
+      }
+    }
+
+    function setQualityBadges() {
+      el.qualityPill.textContent = `Rows processed: ${state.quality.processedRows} | Missing values fixed: ${state.quality.missingValueCount} | Dropped rows: ${state.quality.droppedRows}`;
+
+      if (state.quality.atfCorrections.length > 0) {
+        const correction = state.quality.atfCorrections[0];
+        el.atfPill.textContent = `ATF_DF corrected (${state.quality.atfCorrections.length} fields) using implied NRs/USD rate ${formatNumber(correction.impliedRate, 4)}`;
+      } else {
+        el.atfPill.textContent = "ATF_DF correction rule checked: no conversion needed for this dataset.";
+      }
+    }
+
+    function formatDateLabel(dateStr) {
+      const d = new Date(`${dateStr}T00:00:00`);
+      if (Number.isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function populateSelectors() {
+      el.fortnightSelect.innerHTML = "";
+      for (const date of state.dates) {
+        const option = document.createElement("option");
+        option.value = date;
+        option.textContent = formatDateLabel(date);
+        el.fortnightSelect.appendChild(option);
+      }
+
+      el.fuelSelect.innerHTML = "";
+      for (const fuel of state.fuels) {
+        const option = document.createElement("option");
+        option.value = fuel;
+        option.textContent = fuel;
+        el.fuelSelect.appendChild(option);
+      }
+
+      state.selectedDate = state.dates[state.dates.length - 1] || "";
+      state.selectedFuel = state.fuels[0] || "";
+      el.fortnightSelect.value = state.selectedDate;
+      el.fuelSelect.value = state.selectedFuel;
+    }
+
+    function syncInputsFromScenario(scenario) {
+      el.taxInput.value = formatNumber(scenario.tax, 4);
+      el.expenseInput.value = formatNumber(scenario.nocExpense, 4);
+      el.extraInput.value = formatNumber(scenario.extraCost, 4);
+    }
+
+    function getInputNumber(inputEl, fallback) {
+      const parsed = parseNumeric(inputEl.value);
+      return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function saveOverrideFromInputs() {
+      const scenario = getScenario(state.selectedDate, state.selectedFuel);
+      if (!scenario) return;
+
+      const updated = {
+        tax: Math.max(0, getInputNumber(el.taxInput, scenario.tax)),
+        nocExpense: Math.max(0, getInputNumber(el.expenseInput, scenario.nocExpense)),
+        extraCost: Math.max(0, getInputNumber(el.extraInput, scenario.extraCost))
+      };
+      state.overrides.set(getSelectedKey(), updated);
+    }
+
+    function writeTraceRows(scenario) {
+      const rowData = [
+        {
+          step: "Tax per unit",
+          formula: "Custom input",
+          result: formatPerUnit(scenario.tax, scenario.unitLabel)
+        },
+        {
+          step: "NOC expense per unit",
+          formula: "Custom input",
+          result: formatPerUnit(scenario.nocExpense, scenario.unitLabel)
+        },
+        {
+          step: "Extra cost per unit",
+          formula: "Custom input",
+          result: formatPerUnit(scenario.extraCost, scenario.unitLabel)
+        },
+        {
+          step: "Total cost to NOC",
+          formula: "Tax + NOC expense + Extra cost",
+          result: formatPerUnit(scenario.totalCost, scenario.unitLabel)
+        },
+        {
+          step: "Retail price",
+          formula: "Cleaned dataset value",
+          result: formatPerUnit(scenario.retailPrice, scenario.unitLabel)
+        },
+        {
+          step: "Profit/Loss per unit",
+          formula: "Retail price - Total cost",
+          result: formatPerUnit(scenario.profitPerUnit, scenario.unitLabel)
+        },
+        {
+          step: "Total demand",
+          formula: "Fortnightly projected demand",
+          result: formatDemand(scenario.demandQty, scenario.unitLabel)
+        },
+        {
+          step: "Total Profit/Loss",
+          formula: "Profit/Loss per unit x demand / 1,00,00,000",
+          result: formatCrore(scenario.totalProfitCrore)
+        },
+        {
+          step: "Government revenue per unit",
+          formula: "Tax per unit",
+          result: formatPerUnit(scenario.govtRevenuePerUnit, scenario.unitLabel)
+        },
+        {
+          step: "Government revenue (Crore)",
+          formula: "Tax per unit x demand / 1,00,00,000",
+          result: formatCrore(scenario.govtRevenueCrore)
+        }
+      ];
+
+      el.traceBody.innerHTML = rowData.map((row) => {
+        return `<tr><td>${row.step}</td><td>${row.formula}</td><td>${row.result}</td></tr>`;
+      }).join("");
+    }
+
+    function updatePanels() {
+      const scenario = getScenario(state.selectedDate, state.selectedFuel);
+      if (!scenario) return;
+
+      const labelUnit = scenario.unitLabel;
+      el.taxInputLabel.textContent = `Tax per ${labelUnit}`;
+      el.expenseInputLabel.textContent = `NOC expense per ${labelUnit}`;
+      el.extraInputLabel.textContent = `Extra cost per ${labelUnit}`;
+
+      el.taxValue.textContent = formatPerUnit(scenario.tax, labelUnit);
+      el.expenseValue.textContent = formatPerUnit(scenario.nocExpense, labelUnit);
+      el.extraValue.textContent = formatPerUnit(scenario.extraCost, labelUnit);
+      el.totalCostValue.textContent = formatPerUnit(scenario.totalCost, labelUnit);
+      el.retailValue.textContent = formatPerUnit(scenario.retailPrice, labelUnit);
+
+      el.demandMeta.textContent = `Total demand (${labelUnit})`;
+      el.demandValue.textContent = formatDemand(scenario.demandQty, labelUnit);
+      el.profitPerUnitMeta.textContent = `Profit/Loss per ${labelUnit}`;
+      el.profitPerUnitValue.textContent = formatPerUnit(scenario.profitPerUnit, labelUnit);
+      el.profitPerUnitValue.className = `value ${scenario.profitPerUnit >= 0 ? "good" : "bad"}`;
+      el.profitCroreValue.textContent = formatCrore(scenario.totalProfitCrore);
+      el.profitCroreValue.className = `value ${scenario.totalProfitCrore >= 0 ? "good" : "bad"}`;
+
+      el.govRevenueUnitMeta.textContent = `Revenue per ${labelUnit}`;
+      el.govRevenueUnitValue.textContent = formatPerUnit(scenario.govtRevenuePerUnit, labelUnit);
+      el.govRevenueCroreValue.textContent = formatCrore(scenario.govtRevenueCrore);
+
+      el.traceMeta.textContent = `${state.selectedFuel} | ${formatDateLabel(state.selectedDate)}`;
+      writeTraceRows(scenario);
+    }
+
+    function aggregateFortnightTotals(date) {
+      let profitTotal = 0;
+      let revenueTotal = 0;
+
+      for (const fuel of state.fuels) {
+        const scenario = getScenario(date, fuel);
+        if (!scenario) continue;
+        profitTotal += scenario.totalProfitCrore;
+        revenueTotal += scenario.govtRevenueCrore;
+      }
+
+      return { profitTotal, revenueTotal };
+    }
+
+    function updateHeaderSummary() {
+      const completedFortnights = state.dates.length;
+      const selectedTotals = aggregateFortnightTotals(state.selectedDate);
+
+      let allFortnightRevenue = 0;
+      for (const date of state.dates) {
+        allFortnightRevenue += aggregateFortnightTotals(date).revenueTotal;
+      }
+
+      const avgFortnightRevenue = completedFortnights > 0 ? allFortnightRevenue / completedFortnights : 0;
+      const collectedFY = Math.max(0, getInputNumber(el.fyCollectedInput, 0));
+      const projectedFYTarget = Math.max(0, getInputNumber(el.fyProjectedInput, 0));
+      const remaining = Math.max(0, Math.round(getInputNumber(el.fortnightsRemainingInput, 0)));
+      const updatedProjection = collectedFY + avgFortnightRevenue * remaining;
+      const projectionGap = updatedProjection - projectedFYTarget;
+
+      el.kpiFortnightProfit.textContent = formatCrore(selectedTotals.profitTotal);
+      el.kpiFortnightProfit.className = `kpi-value ${selectedTotals.profitTotal >= 0 ? "good" : "bad"}`;
+
+      el.kpiFortnightRevenue.textContent = formatCrore(selectedTotals.revenueTotal);
+      el.kpiCompleted.textContent = String(completedFortnights);
+      el.kpiAvgFortnightRevenue.textContent = formatCrore(avgFortnightRevenue);
+      el.kpiUpdatedProjection.textContent = formatCrore(updatedProjection);
+      el.kpiProjectionGap.textContent = formatCrore(projectionGap);
+      el.kpiProjectionGap.className = `kpi-value ${projectionGap >= 0 ? "good" : "bad"}`;
+      el.kpiProjectionGapNote.textContent = projectionGap >= 0 ? "Positive means above target" : "Negative means below target";
+    }
+
+    function buildChartDefaults(yAxisLabel) {
+      return {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "",
+              data: [],
+              tension: 0.28,
+              borderWidth: 2,
+              fill: true,
+              pointRadius: 3,
+              pointHoverRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              mode: "index",
+              intersect: false
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                color: "rgba(31, 56, 62, 0.08)"
+              }
+            },
+            y: {
+              grid: {
+                color: "rgba(31, 56, 62, 0.08)"
+              },
+              title: {
+                display: true,
+                text: yAxisLabel,
+                color: "#3f555d",
+                font: { weight: "600" }
+              }
+            }
+          }
+        }
+      };
+    }
+
+    function initializeCharts() {
+      state.charts.revenue = new Chart(
+        document.getElementById("revenueChart"),
+        buildChartDefaults("Crore")
+      );
+      state.charts.profit = new Chart(
+        document.getElementById("profitChart"),
+        buildChartDefaults("Crore")
+      );
+      state.charts.demand = new Chart(
+        document.getElementById("demandChart"),
+        buildChartDefaults("Demand")
+      );
+
+      state.charts.revenue.data.datasets[0].borderColor = "#0f6f79";
+      state.charts.revenue.data.datasets[0].backgroundColor = "rgba(15, 111, 121, 0.16)";
+
+      state.charts.profit.data.datasets[0].borderColor = "#b4681d";
+      state.charts.profit.data.datasets[0].backgroundColor = "rgba(180, 104, 29, 0.16)";
+
+      state.charts.demand.data.datasets[0].borderColor = "#2c6b38";
+      state.charts.demand.data.datasets[0].backgroundColor = "rgba(44, 107, 56, 0.16)";
+    }
+
+    function updateCharts() {
+      const labels = state.dates.map(formatDateLabel);
+      const revenueData = [];
+      const profitData = [];
+      const demandData = [];
+      let unitLabel = "litre";
+
+      for (const date of state.dates) {
+        const scenario = getScenario(date, state.selectedFuel);
+        if (!scenario) continue;
+        unitLabel = scenario.unitLabel;
+        revenueData.push(roundValue(scenario.govtRevenueCrore, 4));
+        profitData.push(roundValue(scenario.totalProfitCrore, 4));
+
+        const demandScale = unitLabel === "litre" ? 1000000 : 1000;
+        demandData.push(roundValue(scenario.demandQty / demandScale, 4));
+      }
+
+      state.charts.revenue.data.labels = labels;
+      state.charts.revenue.data.datasets[0].data = revenueData;
+      state.charts.revenue.data.datasets[0].label = `${state.selectedFuel} revenue`;
+
+      state.charts.profit.data.labels = labels;
+      state.charts.profit.data.datasets[0].data = profitData;
+      state.charts.profit.data.datasets[0].label = `${state.selectedFuel} profit/loss`;
+
+      state.charts.demand.data.labels = labels;
+      state.charts.demand.data.datasets[0].data = demandData;
+      state.charts.demand.data.datasets[0].label = `${state.selectedFuel} demand`;
+      state.charts.demand.options.scales.y.title.text = unitLabel === "litre" ? "Million litre" : "Thousand cylinder";
+
+      state.charts.revenue.update();
+      state.charts.profit.update();
+      state.charts.demand.update();
+    }
+
+    function refreshAll() {
+      saveOverrideFromInputs();
+      updatePanels();
+      updateHeaderSummary();
+      updateCharts();
+    }
+
+    function setupEvents() {
+      el.fortnightSelect.addEventListener("change", () => {
+        state.selectedDate = el.fortnightSelect.value;
+        const scenario = getScenario(state.selectedDate, state.selectedFuel);
+        if (scenario) {
+          syncInputsFromScenario(scenario);
+        }
+        updatePanels();
+        updateHeaderSummary();
+      });
+
+      el.fuelSelect.addEventListener("change", () => {
+        state.selectedFuel = el.fuelSelect.value;
+        const scenario = getScenario(state.selectedDate, state.selectedFuel);
+        if (scenario) {
+          syncInputsFromScenario(scenario);
+        }
+        updatePanels();
+        updateCharts();
+      });
+
+      [el.taxInput, el.expenseInput, el.extraInput].forEach((input) => {
+        input.addEventListener("input", () => {
+          refreshAll();
+        });
+      });
+
+      [el.fyProjectedInput, el.fyCollectedInput, el.fortnightsRemainingInput].forEach((input) => {
+        input.addEventListener("input", () => {
+          updateHeaderSummary();
+        });
+      });
+
+      el.resetSelectedBtn.addEventListener("click", () => {
+        state.overrides.delete(getSelectedKey());
+        const scenario = getScenario(state.selectedDate, state.selectedFuel);
+        if (scenario) {
+          syncInputsFromScenario(scenario);
+        }
+        updatePanels();
+        updateHeaderSummary();
+        updateCharts();
+      });
+
+      el.resetAllBtn.addEventListener("click", () => {
+        state.overrides.clear();
+        const scenario = getScenario(state.selectedDate, state.selectedFuel);
+        if (scenario) {
+          syncInputsFromScenario(scenario);
+        }
+        updatePanels();
+        updateHeaderSummary();
+        updateCharts();
+      });
+    }
+
+    async function loadData() {
+      state.sourceCsv = HARD_CODED_SOURCE;
+
+      for (const row of HARD_CODED_ROWS) {
+        const date = String(row.date || "").trim();
+        const fuel = String(row.fuel_type || "").trim();
+        const variableName = String(row.variable_name || "").trim();
+
+        if (!date || !fuel || !variableName) {
+          state.quality.droppedRows += 1;
+          continue;
+        }
+
+        if (fuel === "All") {
+          continue;
+        }
+
+        const numericValue = parseNumeric(row.value);
+        if (!Number.isFinite(numericValue)) {
+          state.quality.missingValueCount += 1;
+        }
+
+        const record = createRecordIfMissing(date, fuel);
+        record.depot = String(row.depot || "").trim();
+        record.metrics.set(variableName, {
+          value: Number.isFinite(numericValue) ? numericValue : 0,
+          unit: String(row.unit || "").trim(),
+          displayName: String(row.display_name || variableName).trim(),
+          category: String(row.category || "").trim()
+        });
+        state.quality.processedRows += 1;
+      }
+
+      state.dates = Array.from(new Set(Array.from(state.records.values()).map((rec) => rec.date))).sort();
+      state.fuels = Array.from(new Set(Array.from(state.records.values()).map((rec) => rec.fuel))).sort((a, b) => {
+        const preferredOrder = ["Petrol", "Diesel", "Kerosene", "ATF_DP", "ATF_DF", "LP_Gas"];
+        const aIdx = preferredOrder.indexOf(a);
+        const bIdx = preferredOrder.indexOf(b);
+        if (aIdx === -1 && bIdx === -1) return a.localeCompare(b);
+        if (aIdx === -1) return 1;
+        if (bIdx === -1) return -1;
+        return aIdx - bIdx;
+      });
+
+      if (state.dates.length === 0 || state.fuels.length === 0) {
+        throw new Error("No valid fuel-fortnight records were found in hardcoded data.");
+      }
+
+      applyAtfCorrection();
+      setQualityBadges();
+    }
+
+    async function init() {
+      try {
+        await loadData();
+        populateSelectors();
+        initializeCharts();
+
+        const initialScenario = getScenario(state.selectedDate, state.selectedFuel);
+        if (!initialScenario) {
+          throw new Error("Could not initialize selected fuel and fortnight scenario.");
+        }
+
+        syncInputsFromScenario(initialScenario);
+        updatePanels();
+        updateHeaderSummary();
+        updateCharts();
+        setupEvents();
+
+        if (state.dates.length === 1) {
+          el.footnote.textContent += " Current file has one fortnight; trend charts are future-ready and will expand automatically when more fortnights are added.";
+        }
+
+        if (state.sourceCsv) {
+          el.footnote.textContent += ` Data source loaded: ${state.sourceCsv}.`;
+        }
+      } catch (error) {
+        showError(error.message);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
