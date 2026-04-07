@@ -4,24 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOC Petroleum Fiscal Analysis 2082/83</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #080f1e;
-  --surface: #0f1929;
-  --surface2: #132035;
-  --border: #1e3252;
-  --text: #e1e7f0;
-  --muted: #8892a4;
-  --accent: #dc2626;
+  --bg: #f3f6fb;
+  --surface: #ffffff;
+  --surface2: #f8fbff;
+  --border: #d7e1ee;
+  --text: #13243b;
+  --muted: #5f7086;
+  --accent: #c3262e;
   --green: #16a34a;
-  --yellow: #eab308;
+  --yellow: #b7791f;
   --blue: #3b82f6;
   --orange: #f97316;
   --purple: #a855f7;
   --teal: #14b8a6;
   --cyan: #06b6d4;
   --pink: #ec4899;
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 24px rgba(15, 23, 42, 0.08);
   --c-petrol: #3b82f6;
   --c-diesel: #f97316;
   --c-kerosene: #a855f7;
@@ -30,19 +35,31 @@
   --c-lpgas: #ec4899;
 }
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+html, body {
+  height: 100%;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(1000px 420px at 8% -5%, rgba(212, 230, 250, 0.45), transparent 55%),
+    radial-gradient(900px 420px at 92% -10%, rgba(255, 225, 225, 0.42), transparent 58%),
+    var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  overflow: hidden;
+}
+html { scroll-behavior: smooth; }
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #2a4a72; }
+::-webkit-scrollbar-thumb:hover { background: #9db3cb; }
 
 /* ── HEADER ── */
 #header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  background: linear-gradient(135deg, #0d1e3a 0%, var(--surface) 100%);
+  background: linear-gradient(135deg, #f9fbff 0%, #eef4fb 100%);
   border-bottom: 2px solid var(--accent);
+  box-shadow: var(--shadow-sm);
 }
 .header-top {
   display: flex; align-items: center; gap: 16px;
@@ -58,7 +75,7 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 }
 .rate-item {
   display: flex; flex-direction: column; align-items: flex-end;
-  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  background: var(--surface2); border: 1px solid var(--border);
   border-radius: 6px; padding: 5px 10px; cursor: pointer;
 }
 .rate-item label { font-size: 0.65rem; color: var(--muted); white-space: nowrap; cursor: pointer; }
@@ -77,7 +94,7 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
   transition: all 0.18s; white-space: nowrap;
 }
 .btn-outline { background: transparent; border-color: var(--border); color: var(--muted); }
-.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); background: #fff5f5; }
 .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn-primary:hover { background: #b91c1c; }
 .btn-success { background: var(--green); border-color: var(--green); color: #fff; }
@@ -92,7 +109,7 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 }
 .kpi-strip-item {
   flex: 1; min-width: 110px;
-  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  background: var(--surface2); border: 1px solid var(--border);
   border-radius: 6px; padding: 5px 10px;
 }
 .kpi-strip-item .k-label { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; }
@@ -112,13 +129,39 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 
 /* ── SIDEBAR ── */
 #sidebar {
-  width: 310px; min-width: 310px;
+  width: 220px; min-width: 220px;
   background: var(--surface);
   border-right: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   display: flex; flex-direction: column;
   height: 100%; overflow: hidden;
 }
 .sidebar-scroll { flex: 1; overflow-y: auto; padding: 12px; }
+
+#sidebar .main-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: none;
+  box-shadow: none;
+  padding: 12px;
+}
+
+#sidebar .main-tab {
+  padding: 10px 12px;
+  margin-bottom: 0;
+  border-bottom: none;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  background: var(--surface2);
+  text-align: left;
+}
+
+#sidebar .main-tab.active {
+  border-left-color: var(--accent);
+  border-bottom-color: transparent;
+  background: rgba(195,38,46,0.08);
+}
 
 .fuel-tabs {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 4px;
@@ -128,9 +171,9 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
   padding: 5px 4px; text-align: center; font-size: 0.7rem; font-weight: 600;
   border: 1px solid var(--border); border-radius: 5px;
   cursor: pointer; transition: all 0.15s; color: var(--muted);
-  background: transparent;
+  background: #fbfdff;
 }
-.fuel-tab.active { color: #fff; border-color: currentColor; }
+.fuel-tab.active { color: var(--text); border-color: currentColor; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4); }
 .fuel-tab[data-fuel="Petrol"].active { background: rgba(59,130,246,0.2); border-color: var(--c-petrol); color: var(--c-petrol); }
 .fuel-tab[data-fuel="Diesel"].active { background: rgba(249,115,22,0.2); border-color: var(--c-diesel); color: var(--c-diesel); }
 .fuel-tab[data-fuel="Kerosene"].active { background: rgba(168,85,247,0.2); border-color: var(--c-kerosene); color: var(--c-kerosene); }
@@ -143,7 +186,7 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 .acc-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 8px 11px; cursor: pointer; font-size: 0.75rem; font-weight: 600;
-  color: var(--muted); background: rgba(255,255,255,0.02);
+  color: var(--muted); background: var(--surface2);
   user-select: none; text-transform: uppercase; letter-spacing: 0.04em;
   border: none; width: 100%;
 }
@@ -153,18 +196,73 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 .acc-body { padding: 10px 11px; display: none; }
 .accordion.open .acc-body { display: block; }
 
+.panel-section {
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.panel-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-grid .panel-section {
+  margin-bottom: 0;
+}
+
+.panel-header {
+  padding: 8px 11px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--surface2);
+  border-bottom: 1px solid rgba(15,23,42,0.08);
+}
+
+.panel-body { padding: 10px 11px; }
+
+.fuel-graph-wrap {
+  margin-top: 8px;
+}
+
+.fuel-graph-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 220px !important;
+}
+
 /* Form controls */
 .field { margin-bottom: 7px; }
 .field label { display: flex; justify-content: space-between; align-items: center;
   font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
 .field label .unit-hint { font-size: 0.65rem; color: #566378; font-style: italic; }
 .field input[type="number"] {
-  width: 100%; padding: 5px 8px; background: var(--bg);
+  width: 100%; padding: 5px 8px; background: #ffffff;
   border: 1px solid var(--border); border-radius: 5px;
   color: var(--text); font-size: 0.8rem; outline: none;
   transition: border-color 0.15s;
 }
 .field input[type="number"]:focus { border-color: var(--accent); }
+.field select {
+  width: 100%; padding: 5px 8px; background: #ffffff;
+  border: 1px solid var(--border); border-radius: 5px;
+  color: var(--text); font-size: 0.8rem; outline: none;
+  transition: border-color 0.15s;
+}
+.field select:focus { border-color: var(--accent); }
 .computed-val {
   font-size: 0.72rem; color: var(--yellow); font-weight: 600; margin-top: 2px;
   padding: 3px 7px; background: rgba(234,179,8,0.08); border-radius: 4px;
@@ -173,7 +271,7 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 .subtotal-row {
   display: flex; justify-content: space-between; align-items: center;
   font-size: 0.72rem; color: var(--muted); padding: 3px 0;
-  border-top: 1px solid rgba(255,255,255,0.05); margin-top: 5px;
+  border-top: 1px solid rgba(15,23,42,0.08); margin-top: 5px;
 }
 .subtotal-row .st-val { color: var(--text); font-weight: 600; }
 .recalc-btn {
@@ -186,12 +284,12 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 
 /* Summary box */
 .summary-box {
-  background: var(--bg); border: 1px solid var(--border); border-radius: 7px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
   padding: 10px; margin-top: 4px;
 }
 .summary-box .sb-title { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
 .sb-row { display: flex; justify-content: space-between; align-items: center;
-  font-size: 0.75rem; padding: 2px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  font-size: 0.75rem; padding: 2px 0; border-bottom: 1px solid rgba(15,23,42,0.07); }
 .sb-row:last-child { border-bottom: none; }
 .sb-row .sb-lbl { color: var(--muted); }
 .sb-row .sb-v { font-weight: 600; }
@@ -210,11 +308,58 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 /* ── MAIN ── */
 #main {
   flex: 1; display: flex; flex-direction: column;
-  overflow: hidden; height: 100%;
+  overflow: hidden; height: 100%; min-height: 0;
+}
+
+.main-fuel-strip {
+  flex-shrink: 0;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.main-top-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  padding: 10px 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
+}
+
+#main .fuel-tabs {
+  padding: 0 0 8px;
+  grid-template-columns: repeat(6,1fr);
+}
+
+#main .sidebar-scroll {
+  padding: 0;
+  overflow-y: visible;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+}
+
+#main .rev-target-section {
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+  padding: 10px 0 0;
+}
+
+#main .sidebar-footer {
+  padding: 10px 0 0;
+  border-top: 1px solid var(--border);
 }
 .main-tabs {
   display: flex; gap: 0; border-bottom: 1px solid var(--border);
   background: var(--surface); padding: 0 16px;
+  box-shadow: var(--shadow-sm);
   flex-shrink: 0;
 }
 .main-tab {
@@ -225,19 +370,47 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 }
 .main-tab:hover { color: var(--text); }
 .main-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.main-content { flex: 1; overflow-y: auto; padding: 16px 20px; }
+.main-content { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 20px; }
+
+/* Default mode: full-page fuel panels */
+#main:not(.show-main-content) {
+  overflow-y: auto;
+}
+
+#main:not(.show-main-content) .main-content {
+  display: none;
+}
+
+/* Analysis mode: shown only after tab click */
+#main.show-main-content {
+  overflow: hidden;
+}
+
+#main.show-main-content .main-top-controls {
+  display: none;
+}
+
+#main.show-main-content .main-content {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
 
 /* ── CARDS & GRIDS ── */
 .section-title {
-  font-size: 0.72rem; color: var(--muted); text-transform: uppercase;
+  font-size: 0.72rem; color: #52647b; text-transform: uppercase;
   letter-spacing: 0.06em; margin-bottom: 10px; padding-bottom: 5px;
   border-bottom: 1px solid var(--border);
 }
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px,1fr)); gap: 10px; margin-bottom: 16px; }
 .kpi-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+  box-shadow: var(--shadow-sm);
   padding: 12px 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
+.kpi-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .kpi-card .kc-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
 .kpi-card .kc-val { font-size: 1.3rem; font-weight: 700; margin-top: 3px; }
 .kpi-card .kc-sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
@@ -247,17 +420,142 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sa
 .badge-yellow { background: rgba(234,179,8,0.15); color: var(--yellow); }
 .badge-blue { background: rgba(59,130,246,0.15); color: var(--blue); }
 
-.charts-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
-.charts-2col.charts-3col { grid-template-columns: 1fr 1fr 1fr; }
+.exec-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mini-fuel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mini-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  box-shadow: var(--shadow-sm);
+  padding: 11px 12px;
+}
+
+.mini-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mini-pill {
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+
+.mini-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  margin: 3px 0;
+}
+
+.mini-line b {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.mini-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.charts-2col { display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 16px; }
+.charts-2col.charts-3col { grid-template-columns: 1fr; }
 .chart-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: 9px;
+  box-shadow: var(--shadow-sm);
   padding: 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
+.chart-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .chart-card.full-w { grid-column: 1 / -1; }
 .chart-card h3 { font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 10px; }
 .chart-card h3 .sub { color: var(--muted); font-weight: 400; }
-.chart-card canvas { max-height: 260px; }
-.chart-card canvas.tall { max-height: 340px; }
+.chart-card > canvas {
+  display: block;
+  width: 100% !important;
+  height: 260px !important;
+}
+.chart-card > canvas.overview-lg { height: 360px !important; }
+.chart-card > canvas.tall { height: 340px !important; }
+
+.formula-legend {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.btn:focus-visible,
+.main-tab:focus-visible,
+.fuel-tab:focus-visible,
+.acc-header:focus-visible,
+.field input[type="number"]:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid rgba(195, 38, 46, 0.35);
+  outline-offset: 1px;
+}
+.formula-legend .fl-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.formula-legend .fl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+}
+.formula-legend .fl-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 9px 10px;
+}
+.formula-legend .fl-label {
+  font-size: 0.7rem;
+  color: var(--text);
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.formula-legend .fl-eq {
+  font-size: 0.66rem;
+  color: var(--muted);
+  margin-bottom: 3px;
+}
+.formula-legend .fl-val {
+  font-size: 0.72rem;
+  color: var(--yellow);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.formula-legend .fl-note {
+  margin-top: 10px;
+  font-size: 0.66rem;
+  color: var(--muted);
+}
 
 /* Tables */
 .tbl-wrap { overflow-x: auto; }
@@ -269,11 +567,11 @@ table.dtbl th {
   white-space: nowrap; position: sticky; top: 0;
 }
 table.dtbl th:first-child { text-align: left; }
-table.dtbl td { padding: 6px 10px; text-align: right; border-bottom: 1px solid rgba(30,50,82,0.5); }
+table.dtbl td { padding: 6px 10px; text-align: right; border-bottom: 1px solid rgba(15,23,42,0.1); }
 table.dtbl td:first-child { text-align: left; color: var(--text); }
-table.dtbl tr:hover td { background: rgba(220,38,38,0.04); }
+table.dtbl tr:hover td { background: rgba(195,38,46,0.06); }
 table.dtbl .total-row td { font-weight: 700; color: var(--text); border-top: 1px solid var(--border); background: var(--surface2); }
-table.dtbl .section-row td { color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(30,50,82,0.3); padding: 4px 10px; }
+table.dtbl .section-row td { color: var(--muted); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(15,23,42,0.06); padding: 4px 10px; }
 
 .pos { color: var(--green); font-weight: 700; }
 .neg { color: var(--accent); font-weight: 700; }
@@ -284,10 +582,10 @@ table.dtbl .section-row td { color: var(--muted); font-size: 0.68rem; text-trans
 
 /* Doughnut legend */
 .doughnut-wrap { display: flex; gap: 16px; align-items: center; }
-.doughnut-wrap canvas { max-width: 200px; max-height: 200px; }
+.doughnut-wrap canvas { width: 200px !important; height: 200px !important; }
 .doughnut-legend { flex: 1; }
 .dl-item { display: flex; justify-content: space-between; align-items: center;
-  font-size: 0.75rem; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  font-size: 0.75rem; padding: 3px 0; border-bottom: 1px solid rgba(15,23,42,0.08); }
 .dl-item .dl-name { display: flex; align-items: center; }
 .dl-item .dl-val { font-weight: 600; }
 
@@ -304,6 +602,39 @@ body.presentation-mode #sidebar { width: 0; min-width: 0; overflow: hidden; }
 body.presentation-mode .fuel-tabs,
 body.presentation-mode .sidebar-scroll,
 body.presentation-mode .sidebar-footer { display: none; }
+body.presentation-mode .main-top-controls { display: none; }
+body.presentation-mode .main-tabs { display: none; }
+
+.presentation-stack {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.presentation-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
+}
+
+.presentation-body {
+  margin-top: 8px;
+}
+
+.presentation-chart-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+body.presentation-mode .presentation-body .tbl-wrap {
+  max-height: none !important;
+  overflow: visible !important;
+}
 
 /* Tag */
 .tag {
@@ -316,6 +647,7 @@ body.presentation-mode .sidebar-footer { display: none; }
 #toast {
   position: fixed; bottom: 20px; right: 20px; z-index: 999;
   background: var(--surface2); border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
   border-radius: 8px; padding: 10px 16px; font-size: 0.8rem;
   color: var(--text); opacity: 0; pointer-events: none;
   transition: opacity 0.3s; max-width: 320px;
@@ -325,11 +657,18 @@ body.presentation-mode .sidebar-footer { display: none; }
 /* Responsive */
 @media (max-width: 900px) {
   #app-body { flex-direction: column; height: auto; overflow: visible; }
-  #sidebar { width: 100%; min-width: 0; height: auto; }
+  #sidebar { width: 100%; min-width: 0; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
   #main { height: auto; }
+  #sidebar .main-tabs { flex-direction: row; flex-wrap: wrap; }
+  .main-fuel-strip { padding: 8px 10px; }
+  #main .fuel-tabs { grid-template-columns: repeat(3,1fr); }
+  .main-top-controls { flex: 0 0 auto; max-height: none; min-height: 0; }
   .charts-2col { grid-template-columns: 1fr; }
   .compare-grid { grid-template-columns: 1fr; }
   .doughnut-wrap { flex-direction: column; }
+}
+@media (max-width: 700px) {
+  .panel-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 600px) {
   .header-rates { flex-wrap: wrap; }
@@ -340,7 +679,14 @@ body.presentation-mode .sidebar-footer { display: none; }
 .info-pill {
   display: inline-flex; align-items: center; gap: 4px;
   font-size: 0.68rem; padding: 2px 8px; border-radius: 10px;
-  background: rgba(255,255,255,0.05); color: var(--muted);
+  background: var(--surface2); color: var(--muted);
+}
+
+.data-status {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.35;
 }
 </style>
 </head>
@@ -352,12 +698,12 @@ body.presentation-mode .sidebar-footer { display: none; }
     <div class="header-flag">🇳🇵</div>
     <div class="header-title">
       <h1><span class="noc-red">Nepal Oil Corporation</span> — Petroleum Fiscal Analysis 2082/83</h1>
-      <p>IOC Price 2082/12/18 · NOC Revision 2082/12/20 (2026-04-03) · All computations in NPR</p>
+      <p id="hdr-subtitle">IOC Price 2082/12/18 · NOC Revision 2082/12/20 (2026-04-03) · All computations in NPR</p>
     </div>
     <div class="header-rates">
       <div class="rate-item" title="Click to edit">
         <label>1 IRs =</label>
-        <input type="number" id="hdr-irs" value="1.6024" step="0.0001" min="1" max="3">
+        <input type="number" id="hdr-irs" value="1.60153" step="0.00001" min="1" max="3">
         <span style="font-size:0.62rem;color:var(--muted);">NPR</span>
       </div>
       <div class="rate-item" title="Click to edit">
@@ -380,7 +726,7 @@ body.presentation-mode .sidebar-footer { display: none; }
     <div class="kpi-strip-item"><div class="k-label">Total P/L (fortnight)</div><div class="k-val k-neg" id="ks-total-pl">—</div></div>
     <div class="kpi-strip-item"><div class="k-label">Govt Revenue (fortnight)</div><div class="k-val k-info" id="ks-govt-rev">—</div></div>
     <div class="kpi-strip-item"><div class="k-label">Biggest Loss Fuel</div><div class="k-val k-neg" id="ks-biggest-loss">—</div></div>
-    <div class="kpi-strip-item"><div class="k-label">Annual Projection</div><div class="k-val" id="ks-annual-proj">—</div></div>
+    <div class="kpi-strip-item"><div class="k-label">Updated FY Projection</div><div class="k-val" id="ks-annual-proj">—</div></div>
     <div class="kpi-strip-item"><div class="k-label">Revenue Gap</div><div class="k-val" id="ks-rev-gap">—</div></div>
     <div class="kpi-strip-item"><div class="k-label">Net Flow (NOC)</div><div class="k-val" id="ks-net-flow">—</div></div>
   </div>
@@ -391,52 +737,66 @@ body.presentation-mode .sidebar-footer { display: none; }
 
   <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="fuel-tabs" id="fuel-tabs">
-      <button class="fuel-tab active" data-fuel="Petrol" onclick="setFuelTab('Petrol')">Petrol</button>
-      <button class="fuel-tab" data-fuel="Diesel" onclick="setFuelTab('Diesel')">Diesel</button>
-      <button class="fuel-tab" data-fuel="Kerosene" onclick="setFuelTab('Kerosene')">Kerosene</button>
-      <button class="fuel-tab" data-fuel="ATF_DP" onclick="setFuelTab('ATF_DP')">ATF-DP</button>
-      <button class="fuel-tab" data-fuel="ATF_DF" onclick="setFuelTab('ATF_DF')">ATF-DF</button>
-      <button class="fuel-tab" data-fuel="LP_Gas" onclick="setFuelTab('LP_Gas')">LP Gas</button>
-    </div>
-
-    <div class="sidebar-scroll" id="sidebar-scroll">
-      <!-- Per-fuel accordion panels — generated by JS -->
-      <div id="fuel-panels"></div>
-
-      <!-- Revenue Target -->
-      <div class="rev-target-section">
-        <h3>Revenue Target (Annual)</h3>
-        <div class="field">
-          <label>Annual Target <span class="unit-hint">Crore NPR</span></label>
-          <input type="number" id="rt-annual" value="18500" step="100" min="0">
-        </div>
-        <div class="field">
-          <label>Collected So Far <span class="unit-hint">Crore NPR</span></label>
-          <input type="number" id="rt-collected" value="13546" step="100" min="0">
-        </div>
-        <div class="field">
-          <label>Fortnights Remaining</label>
-          <input type="number" id="rt-remaining" value="7" step="1" min="1" max="26">
-        </div>
-      </div>
-    </div>
-
-    <div class="sidebar-footer">
-      <button class="btn btn-outline btn-sm" onclick="resetAll()">Reset All</button>
-      <button class="btn btn-outline btn-sm" onclick="exportCSV()">Export CSV</button>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div id="main">
     <div class="main-tabs">
-      <button class="main-tab active" data-tab="overview" onclick="setMainTab('overview')">Overview</button>
+      <button class="main-tab" data-tab="overview" onclick="setMainTab('overview')">Overview</button>
       <button class="main-tab" data-tab="pricebuild" onclick="setMainTab('pricebuild')">Price Build-Up</button>
       <button class="main-tab" data-tab="taxanalysis" onclick="setMainTab('taxanalysis')">Tax Analysis</button>
       <button class="main-tab" data-tab="revtarget" onclick="setMainTab('revtarget')">Revenue Target</button>
       <button class="main-tab" data-tab="scenarios" onclick="setMainTab('scenarios')">Scenarios</button>
     </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main">
+    <div class="main-fuel-strip">
+      <div class="fuel-tabs" id="fuel-tabs">
+        <button class="fuel-tab active" data-fuel="Petrol" onclick="setFuelTab('Petrol')">Petrol</button>
+        <button class="fuel-tab" data-fuel="Diesel" onclick="setFuelTab('Diesel')">Diesel</button>
+        <button class="fuel-tab" data-fuel="Kerosene" onclick="setFuelTab('Kerosene')">Kerosene</button>
+        <button class="fuel-tab" data-fuel="ATF_DP" onclick="setFuelTab('ATF_DP')">ATF-DP</button>
+        <button class="fuel-tab" data-fuel="ATF_DF" onclick="setFuelTab('ATF_DF')">ATF-DF</button>
+        <button class="fuel-tab" data-fuel="LP_Gas" onclick="setFuelTab('LP_Gas')">LP Gas</button>
+      </div>
+    </div>
+
+    <div class="main-top-controls">
+      <div class="sidebar-scroll" id="sidebar-scroll">
+        <!-- Per-fuel accordion panels — generated by JS -->
+        <div id="fuel-panels"></div>
+
+        <!-- Revenue Target -->
+        <div class="rev-target-section">
+          <h3>Fortnight + Revenue Controls</h3>
+          <div class="field">
+            <label>Fortnight <span class="unit-hint">from dataset</span></label>
+            <select id="sel-fortnight"></select>
+          </div>
+          <div class="field">
+            <label>Fuel Dropdown <span class="unit-hint">syncs with tabs</span></label>
+            <select id="sel-fuel"></select>
+          </div>
+          <div class="field">
+            <label>Annual Target <span class="unit-hint">Crore NPR</span></label>
+            <input type="number" id="rt-annual" value="18500" step="100" min="0">
+          </div>
+          <div class="field">
+            <label>Collected So Far <span class="unit-hint">Crore NPR</span></label>
+            <input type="number" id="rt-collected" value="13546" step="100" min="0">
+          </div>
+          <div class="field">
+            <label>Fortnights Remaining</label>
+            <input type="number" id="rt-remaining" value="7" step="1" min="0" max="26">
+          </div>
+          <div class="data-status" id="data-status">Loading dataset metadata...</div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-outline btn-sm" onclick="resetAll()">Reset All</button>
+        <button class="btn btn-outline btn-sm" onclick="exportCSV()">Export CSV</button>
+      </div>
+    </div>
+
     <div class="main-content" id="main-content">
       <!-- rendered by JS -->
     </div>
@@ -453,7 +813,7 @@ body.presentation-mode .sidebar-footer { display: none; }
 // 1. BASELINE DATA
 // ══════════════════════════════════════════════════════
 const DEFAULTS = {
-  irsRate: 1.6024,
+  irsRate: 1.60153,
   usdRate: 151.49,
   vatRate: 13,          // %
   annualTarget: 18500,
@@ -461,7 +821,7 @@ const DEFAULTS = {
   remaining: 7
 };
 
-// Per-KL for liquids, per-cylinder for LP_Gas
+// Internally per-KL for liquids, per-cylinder for LP_Gas
 const BASE_DATA = {
   Petrol: {
     label: 'Petrol', color: '#3b82f6', unitFactor: 1000,
@@ -525,7 +885,7 @@ const BASE_DATA = {
     vat: 35141.65,
     admin: 608.02, insurance: 128.10, tech_loss: 1383.15,
     transport: 6728.64, dealer: 0,
-    retailPrice: 270.41, demand: 5892, demandUnit: 'KL',
+    retailPrice: 270.32, demand: 5892, demandUnit: 'KL',
     vatFormula: 'exclusive'  // vat = retail*1000 * rate (straight, not inclusive)
   },
   LP_Gas: {
@@ -557,23 +917,702 @@ const TAX_LABELS = {
   throughput: 'Fuel Throughput Charge'
 };
 
-// State — current editable values (cloned from BASE_DATA)
+const DATASET_CANDIDATES = ['noc_pricing_dashboard.csv', 'noc_fuel_pricing_dashboard.csv'];
+const REQUIRED_METRICS = [
+  'ex_depot_price_ioc_current',
+  'custom_duty',
+  'cargo_vehicle_charge',
+  'custom_service_charge',
+  'road_maintenance_charge',
+  'pollution_charge',
+  'green_tax',
+  'psf_transfer',
+  'infrastructure_development_tax',
+  'fuel_throughput_charge',
+  'vat_amount',
+  'administration_cost',
+  'insurance_premium',
+  'technical_loss',
+  'transportation_cost',
+  'dealer_expenses',
+  'retail_price_per_liter',
+  'fortnightly_projected_demand'
+];
+
+const OPTIONAL_METRICS = [
+  'ex_depot_price_nrs',
+  'vat_13pct',
+  'total_cost_with_vat_per_kl',
+  'total_cost_per_liter',
+  'profit_loss_per_liter'
+];
+
+const STRICT_DATA_MODE = true;
+const MAX_WARNING_MESSAGES = 8;
+const REQUIRED_METRIC_SET = new Set(REQUIRED_METRICS);
+const OPTIONAL_METRIC_SET = new Set(OPTIONAL_METRICS);
+const ACCEPTED_METRIC_SET = new Set([...REQUIRED_METRICS, ...OPTIONAL_METRICS]);
+const IRS_METRICS = new Set(['ex_depot_price_ioc_current']);
+const DEMAND_METRICS = new Set(['fortnightly_projected_demand']);
+
+const SANITY_LIMITS = {
+  perUnitMax: 20000,
+  demandMax: 2000000000
+};
+
+const CSV_TO_STATE_FIELD = {
+  custom_duty: 'custom_duty',
+  cargo_vehicle_charge: 'cargo',
+  custom_service_charge: 'custom_svc',
+  road_maintenance_charge: 'road_maint',
+  pollution_charge: 'pollution',
+  green_tax: 'green_tax',
+  psf_transfer: 'psf',
+  infrastructure_development_tax: 'idt',
+  fuel_throughput_charge: 'throughput',
+  administration_cost: 'admin',
+  insurance_premium: 'insurance',
+  technical_loss: 'tech_loss',
+  transportation_cost: 'transport',
+  dealer_expenses: 'dealer'
+};
+
+const DATA_MODEL = {
+  source: 'Embedded baseline',
+  dates: [],
+  byDate: {},
+  impliedIrsRate: null,
+  impliedIrsByDate: {},
+  quality: {
+    processedRows: 0,
+    optionalRows: 0,
+    droppedRows: 0,
+    ignoredRows: 0,
+    missingValues: 0,
+    invalidValues: 0,
+    duplicateRows: 0,
+    fallbackFuelStates: 0,
+    strictMode: STRICT_DATA_MODE,
+    warnings: []
+  }
+};
+
+// State — current editable values by selected fortnight
 let STATE = {};
+let stateByDate = {};
+let activeFortnight = '';
 let savedScenario = null;
 let activeFuelTab = 'Petrol';
-let activeMainTab = 'overview';
+let activeMainTab = '';
 let charts = {};
+let prePresentationState = {
+  showMainContent: false,
+  activeMainTab: ''
+};
 
-function cloneBase() {
+function cloneStateMap(source) {
   const s = {};
   FUEL_KEYS.forEach(k => {
-    s[k] = { ...BASE_DATA[k] };
+    s[k] = { ...(source[k] || BASE_DATA[k]) };
   });
   return s;
 }
 
+function cloneBase() {
+  return cloneStateMap(BASE_DATA);
+}
+
+function formatDateLabel(dateStr) {
+  const d = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function parseNum(v) {
+  const n = Number.parseFloat(String(v ?? '').replace(/,/g, '').trim());
+  return Number.isFinite(n) ? n : null;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(Boolean);
+  if (!lines.length) return rows;
+
+  function splitCsv(line) {
+    const out = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i += 1) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          cur += '"';
+          i += 1;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (ch === ',' && !inQuotes) {
+        out.push(cur);
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    out.push(cur);
+    return out;
+  }
+
+  const headers = splitCsv(lines[0]).map(h => h.trim());
+  for (let i = 1; i < lines.length; i += 1) {
+    const parts = splitCsv(lines[i]);
+    if (!parts.length || parts.every(p => p.trim() === '')) continue;
+    const row = {};
+    headers.forEach((h, idx) => {
+      row[h] = (parts[idx] || '').trim();
+    });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function normalizeUnit(unit) {
+  return String(unit || '').trim().toLowerCase().replace(/\s+/g, '_');
+}
+
+function pushQualityWarning(quality, message) {
+  if (quality.warnings.includes(message)) return;
+  if (quality.warnings.length < MAX_WARNING_MESSAGES) {
+    quality.warnings.push(message);
+  }
+}
+
+function isMetricUnitCompatible(metricName, fuelKey, unitRaw) {
+  const u = normalizeUnit(unitRaw);
+  const isLPG = fuelKey === 'LP_Gas';
+  if (!u) return false;
+
+  if (DEMAND_METRICS.has(metricName)) {
+    if (isLPG) return u.includes('cyl');
+    return u.includes('kl') || u.includes('liter') || u.includes('litre');
+  }
+
+  const isIrsMetric = IRS_METRICS.has(metricName);
+  const hasCurrency = isIrsMetric
+    ? u.includes('irs')
+    : (u.includes('nrs') || u.includes('npr'));
+
+  if (!hasCurrency) return false;
+  if (isLPG) return u.includes('cyl');
+  return u.includes('liter') || u.includes('litre') || u.includes('kl');
+}
+
+function isMetricValueSane(metricName, fuelKey, value) {
+  if (!Number.isFinite(value) || value < 0) return false;
+  if (DEMAND_METRICS.has(metricName)) return value <= SANITY_LIMITS.demandMax;
+
+  if (metricName === 'retail_price_per_liter') {
+    if (fuelKey === 'LP_Gas') {
+      return value >= 100 && value <= SANITY_LIMITS.perUnitMax;
+    }
+    // Liquid fuel retail values below NPR 20/liter are treated as invalid data for strict mode.
+    return value >= 20 && value <= SANITY_LIMITS.perUnitMax;
+  }
+
+  return value <= SANITY_LIMITS.perUnitMax;
+}
+
+function deriveImpliedIrsRates(rows) {
+  const pairMap = new Map();
+
+  rows.forEach(row => {
+    const date = String(row.date || '').trim();
+    const fuelKey = String(row.fuel_type || '').trim();
+    const metricName = String(row.variable_name || '').trim();
+
+    if (!date || !fuelKey || fuelKey === 'All' || !FUEL_KEYS.includes(fuelKey)) return;
+    if (metricName !== 'ex_depot_price_ioc_current' && metricName !== 'ex_depot_price_nrs') return;
+
+    const numeric = parseNum(row.value);
+    if (!Number.isFinite(numeric) || numeric <= 0) return;
+    if (!isMetricUnitCompatible(metricName, fuelKey, row.unit)) return;
+
+    const key = `${date}||${fuelKey}`;
+    if (!pairMap.has(key)) {
+      pairMap.set(key, {
+        date,
+        fuelKey,
+        irs: null,
+        nrs: null
+      });
+    }
+    const pair = pairMap.get(key);
+    if (metricName === 'ex_depot_price_ioc_current' && !Number.isFinite(pair.irs)) pair.irs = numeric;
+    if (metricName === 'ex_depot_price_nrs' && !Number.isFinite(pair.nrs)) pair.nrs = numeric;
+  });
+
+  const ratiosByDate = {};
+  pairMap.forEach(pair => {
+    if (!Number.isFinite(pair.irs) || !Number.isFinite(pair.nrs) || pair.irs <= 0) return;
+    const ratio = pair.nrs / pair.irs;
+    if (!Number.isFinite(ratio) || ratio <= 0 || ratio > 10) return;
+    if (!ratiosByDate[pair.date]) ratiosByDate[pair.date] = [];
+    ratiosByDate[pair.date].push(ratio);
+  });
+
+  const impliedIrsByDate = {};
+  Object.keys(ratiosByDate).forEach(date => {
+    const values = ratiosByDate[date];
+    if (!values.length) return;
+    impliedIrsByDate[date] = values.reduce((sum, v) => sum + v, 0) / values.length;
+  });
+
+  const allRates = Object.values(impliedIrsByDate);
+  const impliedIrsRate = allRates.length
+    ? allRates.reduce((sum, v) => sum + v, 0) / allRates.length
+    : null;
+
+  return { impliedIrsRate, impliedIrsByDate };
+}
+
+function getImpliedIrsRateForDate(date) {
+  return DEFAULTS.irsRate;
+}
+
+function scalePerUnitToInternal(fuelKey, value, unit) {
+  if (!Number.isFinite(value)) return 0;
+  if (fuelKey === 'LP_Gas') return value;
+  const u = String(unit || '').toLowerCase();
+  if (u.includes('per_liter') || u.includes('per_litre')) return value * 1000;
+  return value;
+}
+
+function scaleDemandToInternal(fuelKey, value, unit) {
+  if (!Number.isFinite(value)) return 0;
+  const u = String(unit || '').toLowerCase();
+  if (fuelKey === 'LP_Gas') return value;
+  if (u.includes('kl')) return value;
+  if (u.includes('liter') || u.includes('litre')) return value / 1000;
+  return value;
+}
+
+const PER_UNIT_EDIT_FIELDS = new Set([
+  'exDepotIrs',
+  ...TAX_FIELDS,
+  'vat',
+  'admin',
+  'insurance',
+  'tech_loss',
+  'transport',
+  'dealer'
+]);
+
+function toDisplayPerUnit(fuelKey, value) {
+  if (!Number.isFinite(value)) return 0;
+  return fuelKey === 'LP_Gas' ? value : value / 1000;
+}
+
+function fromDisplayPerUnit(fuelKey, value) {
+  if (!Number.isFinite(value)) return 0;
+  return fuelKey === 'LP_Gas' ? value : value * 1000;
+}
+
+function toDisplayDemand(fuelKey, value) {
+  if (!Number.isFinite(value)) return 0;
+  return fuelKey === 'LP_Gas' ? value : value * 1000;
+}
+
+function fromDisplayDemand(fuelKey, value) {
+  if (!Number.isFinite(value)) return 0;
+  return fuelKey === 'LP_Gas' ? value : value / 1000;
+}
+
+function getPerUnitHint(fuelKey) {
+  return fuelKey === 'LP_Gas' ? 'NPR/cylinder' : 'NPR/liter';
+}
+
+function getPerUnitHintIrs(fuelKey) {
+  return fuelKey === 'LP_Gas' ? 'IRs/cylinder' : 'IRs/liter';
+}
+
+function getDemandDisplayUnit(fuelKey) {
+  return fuelKey === 'LP_Gas' ? 'cylinders' : 'liters';
+}
+
+function createDateStateFromMetricMap(metricMap, fuelKey, quality, date) {
+  const base = BASE_DATA[fuelKey];
+  const stateFuel = { ...base };
+  let hasCriticalIssue = false;
+  const issueMetrics = [];
+
+  function markIssue(metricName, reason) {
+    hasCriticalIssue = true;
+    issueMetrics.push(`${metricName}:${reason}`);
+  }
+
+  function clearIssuesStartingWith(prefix) {
+    for (let i = issueMetrics.length - 1; i >= 0; i -= 1) {
+      if (issueMetrics[i].startsWith(prefix)) {
+        issueMetrics.splice(i, 1);
+      }
+    }
+    hasCriticalIssue = issueMetrics.length > 0;
+  }
+
+  function readMetric(name, fallbackValue) {
+    const metric = metricMap.get(name);
+    if (!metric) {
+      quality.missingValues += 1;
+      markIssue(name, 'missing');
+      return fallbackValue;
+    }
+
+    const numeric = parseNum(metric.value);
+    if (!Number.isFinite(numeric)) {
+      quality.invalidValues += 1;
+      markIssue(name, 'not_numeric');
+      return fallbackValue;
+    }
+
+    if (!isMetricValueSane(name, fuelKey, numeric)) {
+      quality.invalidValues += 1;
+      markIssue(name, 'out_of_range');
+      return fallbackValue;
+    }
+
+    if (!isMetricUnitCompatible(name, fuelKey, metric.unit)) {
+      quality.invalidValues += 1;
+      markIssue(name, `invalid_unit:${normalizeUnit(metric.unit || 'blank')}`);
+      return fallbackValue;
+    }
+
+    return numeric;
+  }
+
+  function readOptionalPerUnit(name) {
+    const metric = metricMap.get(name);
+    if (!metric) return null;
+    const numeric = parseNum(metric.value);
+    if (!Number.isFinite(numeric)) return null;
+    if (!isMetricUnitCompatible(name, fuelKey, metric.unit)) return null;
+    return numeric;
+  }
+
+  const exDepot = readMetric('ex_depot_price_ioc_current', base.exDepotIrs / (fuelKey === 'LP_Gas' ? 1 : 1000));
+  stateFuel.exDepotIrs = scalePerUnitToInternal(fuelKey, exDepot, metricMap.get('ex_depot_price_ioc_current')?.unit);
+
+  Object.keys(CSV_TO_STATE_FIELD).forEach(csvField => {
+    const targetField = CSV_TO_STATE_FIELD[csvField];
+    const fallbackPerUnit = base[targetField] / (fuelKey === 'LP_Gas' ? 1 : 1000);
+    const numeric = readMetric(csvField, fallbackPerUnit);
+    stateFuel[targetField] = scalePerUnitToInternal(fuelKey, numeric, metricMap.get(csvField)?.unit);
+  });
+
+  const vatFallback = base.vat / (fuelKey === 'LP_Gas' ? 1 : 1000);
+  const vatValue = readMetric('vat_amount', vatFallback);
+  stateFuel.vat = scalePerUnitToInternal(fuelKey, vatValue, metricMap.get('vat_amount')?.unit);
+
+  const retailFallback = base.retailPrice;
+  stateFuel.retailPrice = readMetric('retail_price_per_liter', retailFallback);
+
+  if (fuelKey === 'ATF_DF') {
+    const altVatPerLiter = readOptionalPerUnit('vat_13pct');
+    if (Number.isFinite(altVatPerLiter) && altVatPerLiter > 0) {
+      stateFuel.vat = scalePerUnitToInternal(fuelKey, altVatPerLiter, metricMap.get('vat_13pct')?.unit);
+    }
+
+    let hasRetailIssue = issueMetrics.some(issue => issue.startsWith('retail_price_per_liter:'));
+    const totalCostPerLiter = readOptionalPerUnit('total_cost_with_vat_per_kl')
+      ?? readOptionalPerUnit('total_cost_per_liter');
+    const profitPerLiter = readOptionalPerUnit('profit_loss_per_liter');
+    if (Number.isFinite(totalCostPerLiter) && Number.isFinite(profitPerLiter)) {
+      const derivedRetail = totalCostPerLiter + profitPerLiter;
+      if (isMetricValueSane('retail_price_per_liter', fuelKey, derivedRetail)) {
+        const prevRetail = stateFuel.retailPrice;
+        stateFuel.retailPrice = derivedRetail;
+        clearIssuesStartingWith('retail_price_per_liter:');
+        if (hasRetailIssue) {
+          pushQualityWarning(
+            quality,
+            `${date} ${base.label}: retail derived from total_cost_per_liter + profit_loss_per_liter due invalid retail_price_per_liter`
+          );
+        } else if (Math.abs((Number(prevRetail) || 0) - derivedRetail) > 0.01) {
+          pushQualityWarning(
+            quality,
+            `${date} ${base.label}: retail harmonized to total_cost_per_liter + profit_loss_per_liter`
+          );
+        }
+        hasRetailIssue = issueMetrics.some(issue => issue.startsWith('retail_price_per_liter:'));
+      }
+    }
+
+    if (hasRetailIssue) {
+      const rawRetail = parseNum(metricMap.get('retail_price_per_liter')?.value);
+      if (Number.isFinite(rawRetail) && rawRetail > 0 && rawRetail < 10) {
+        const usdConvertedRetail = rawRetail * DEFAULTS.usdRate;
+        if (isMetricValueSane('retail_price_per_liter', fuelKey, usdConvertedRetail)) {
+          stateFuel.retailPrice = usdConvertedRetail;
+          clearIssuesStartingWith('retail_price_per_liter:');
+          hasRetailIssue = false;
+          pushQualityWarning(
+            quality,
+            `${date} ${base.label}: retail interpreted as USD/liter and converted to NPR using USD rate ${DEFAULTS.usdRate}`
+          );
+        }
+      }
+    }
+
+  }
+
+  const demandFallback = base.demand;
+  const demandValue = readMetric('fortnightly_projected_demand', demandFallback);
+  const demandUnit = metricMap.get('fortnightly_projected_demand')?.unit || base.demandUnit;
+  stateFuel.demand = scaleDemandToInternal(fuelKey, demandValue, demandUnit);
+  stateFuel.demandUnit = fuelKey === 'LP_Gas' ? 'cylinders' : 'KL';
+  stateFuel.vatFormula = fuelKey === 'ATF_DF' ? 'exclusive' : 'inclusive';
+
+  if (STRICT_DATA_MODE && hasCriticalIssue) {
+    quality.fallbackFuelStates += 1;
+    const issuePreview = issueMetrics.slice(0, 3).join(', ');
+    const suffix = issueMetrics.length > 3 ? ', ...' : '';
+    pushQualityWarning(
+      quality,
+      `${date} ${base.label}: invalid/incomplete source metrics; hardcoded baseline applied (${issuePreview}${suffix})`
+    );
+    return { ...base };
+  }
+
+  return stateFuel;
+}
+
+async function loadDataModel() {
+  const quality = {
+    processedRows: 0,
+    optionalRows: 0,
+    droppedRows: 0,
+    ignoredRows: 0,
+    missingValues: 0,
+    invalidValues: 0,
+    duplicateRows: 0,
+    fallbackFuelStates: 0,
+    strictMode: STRICT_DATA_MODE,
+    warnings: []
+  };
+
+  let rawText = '';
+  let source = '';
+
+  for (const fileName of DATASET_CANDIDATES) {
+    try {
+      const resp = await fetch(fileName, { cache: 'no-store' });
+      if (resp.ok) {
+        rawText = await resp.text();
+        source = fileName;
+        break;
+      }
+    } catch (err) {
+      // Try next candidate.
+    }
+  }
+
+  if (!rawText) {
+    DATA_MODEL.source = 'Embedded baseline (CSV unavailable)';
+    DATA_MODEL.dates = ['2026-04-03'];
+    DATA_MODEL.byDate = { '2026-04-03': cloneBase() };
+    DATA_MODEL.impliedIrsRate = null;
+    DATA_MODEL.impliedIrsByDate = {};
+    DATA_MODEL.quality = {
+      ...quality,
+      warnings: ['CSV file not found or blocked by browser; using baseline values.']
+    };
+    return;
+  }
+
+  const rows = parseCsv(rawText);
+  const impliedRates = deriveImpliedIrsRates(rows);
+  const recordMap = new Map();
+
+  rows.forEach(row => {
+    const date = String(row.date || '').trim();
+    const fuel = String(row.fuel_type || '').trim();
+    const variable = String(row.variable_name || '').trim();
+    if (!date || !fuel || !variable || fuel === 'All' || !FUEL_KEYS.includes(fuel)) {
+      quality.droppedRows += 1;
+      return;
+    }
+
+    if (!ACCEPTED_METRIC_SET.has(variable)) {
+      quality.ignoredRows += 1;
+      return;
+    }
+
+    const isRequiredMetric = REQUIRED_METRIC_SET.has(variable);
+
+    const numericValue = parseNum(row.value);
+    if (!Number.isFinite(numericValue)) {
+      quality.invalidValues += 1;
+      quality.droppedRows += 1;
+      pushQualityWarning(quality, `${date} ${fuel}: dropped non-numeric ${variable}`);
+      return;
+    }
+
+    const key = `${date}||${fuel}`;
+    if (!recordMap.has(key)) recordMap.set(key, new Map());
+
+    const metricMap = recordMap.get(key);
+    if (metricMap.has(variable)) {
+      quality.duplicateRows += 1;
+      const existing = metricMap.get(variable);
+      const conflict = existing.value !== numericValue || normalizeUnit(existing.unit) !== normalizeUnit(row.unit);
+      if (conflict) {
+        pushQualityWarning(quality, `${date} ${fuel}: duplicate ${variable} had conflicting values; first value kept`);
+      }
+      return;
+    }
+
+    metricMap.set(variable, {
+      value: numericValue,
+      unit: row.unit,
+      category: row.category
+    });
+    if (isRequiredMetric) {
+      quality.processedRows += 1;
+    } else {
+      quality.optionalRows += 1;
+    }
+  });
+
+  const dates = Array.from(new Set(Array.from(recordMap.keys()).map(k => k.split('||')[0]))).sort();
+  if (!dates.length) {
+    DATA_MODEL.source = 'Embedded baseline (CSV invalid)';
+    DATA_MODEL.dates = ['2026-04-03'];
+    DATA_MODEL.byDate = { '2026-04-03': cloneBase() };
+    DATA_MODEL.impliedIrsRate = null;
+    DATA_MODEL.impliedIrsByDate = {};
+    DATA_MODEL.quality = {
+      ...quality,
+      warnings: ['CSV parsed but no usable date/fuel records were found; fallback applied.']
+    };
+    return;
+  }
+
+  const byDate = {};
+  dates.forEach(date => {
+    const dateState = {};
+    FUEL_KEYS.forEach(fuelKey => {
+      const mKey = `${date}||${fuelKey}`;
+      const metricMap = recordMap.get(mKey) || new Map();
+      dateState[fuelKey] = createDateStateFromMetricMap(metricMap, fuelKey, quality, date);
+    });
+    byDate[date] = dateState;
+  });
+
+  if (quality.fallbackFuelStates > 0) {
+    DATA_MODEL.source = `${source} (validated with hardcoded fallback)`;
+  } else {
+    DATA_MODEL.source = `${source} (strict validated)`;
+  }
+  DATA_MODEL.dates = dates;
+  DATA_MODEL.byDate = byDate;
+  DATA_MODEL.impliedIrsRate = impliedRates.impliedIrsRate;
+  DATA_MODEL.impliedIrsByDate = impliedRates.impliedIrsByDate;
+  DATA_MODEL.quality = quality;
+}
+
+function updateDatasetStatus() {
+  const statusEl = document.getElementById('data-status');
+  const inrRate = getImpliedIrsRateForDate(activeFortnight);
+  const rateTxt = Number.isFinite(inrRate) ? ` | IRs->NPR: ${inrRate.toFixed(5)}` : '';
+  if (statusEl) {
+    const q = DATA_MODEL.quality;
+    const warningTxt = q.warnings.length ? ` | ${q.warnings[0]}` : '';
+    statusEl.textContent = `Source: ${DATA_MODEL.source} | Fortnights: ${DATA_MODEL.dates.length} | Required rows: ${q.processedRows} | Optional rows: ${q.optionalRows} | Ignored rows: ${q.ignoredRows} | Missing: ${q.missingValues} | Invalid: ${q.invalidValues} | Fallback fuels: ${q.fallbackFuelStates}${rateTxt}${warningTxt}`;
+  }
+  const subTitle = document.getElementById('hdr-subtitle');
+  if (subTitle) {
+    const rateLabel = Number.isFinite(inrRate) ? ` · 1 IRs=${inrRate.toFixed(5)} NPR` : '';
+    subTitle.textContent = `Dataset: ${DATA_MODEL.source} · Strict validation: ${STRICT_DATA_MODE ? 'ON' : 'OFF'} · Hardcoded formula engine · Fortnights loaded: ${DATA_MODEL.dates.length}${rateLabel}`;
+  }
+}
+
+function populateSelectors() {
+  const ftnSel = document.getElementById('sel-fortnight');
+  const fuelSel = document.getElementById('sel-fuel');
+  if (ftnSel) {
+    ftnSel.innerHTML = '';
+    DATA_MODEL.dates.forEach(date => {
+      const opt = document.createElement('option');
+      opt.value = date;
+      opt.textContent = formatDateLabel(date);
+      ftnSel.appendChild(opt);
+    });
+  }
+  if (fuelSel) {
+    fuelSel.innerHTML = '';
+    FUEL_KEYS.forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = BASE_DATA[key].label;
+      fuelSel.appendChild(opt);
+    });
+  }
+}
+
+function initDateStates() {
+  stateByDate = {};
+  DATA_MODEL.dates.forEach(date => {
+    stateByDate[date] = cloneStateMap(DATA_MODEL.byDate[date]);
+  });
+}
+
+function syncSelectors() {
+  const ftnSel = document.getElementById('sel-fortnight');
+  if (ftnSel && activeFortnight) ftnSel.value = activeFortnight;
+  const fuelSel = document.getElementById('sel-fuel');
+  if (fuelSel && activeFuelTab) fuelSel.value = activeFuelTab;
+}
+
+function setFortnight(date) {
+  if (!date || !stateByDate[date]) return;
+  if (activeFortnight && stateByDate[activeFortnight]) {
+    stateByDate[activeFortnight] = cloneStateMap(STATE);
+  }
+  activeFortnight = date;
+  applyImpliedIrsRate(date, false);
+  STATE = cloneStateMap(stateByDate[date]);
+  buildFuelPanels();
+  setFuelTab(activeFuelTab, true);
+  syncSelectors();
+  updateDatasetStatus();
+  fullUpdate();
+}
+
 function initState() {
-  STATE = cloneBase();
+  if (DATA_MODEL.dates.length && !activeFortnight) {
+    activeFortnight = DATA_MODEL.dates[DATA_MODEL.dates.length - 1];
+  }
+  if (activeFortnight && stateByDate[activeFortnight]) {
+    STATE = cloneStateMap(stateByDate[activeFortnight]);
+  } else {
+    STATE = cloneBase();
+  }
+}
+
+function applyImpliedIrsRate(date, force = false) {
+  const impliedRate = getImpliedIrsRateForDate(date);
+  if (!Number.isFinite(impliedRate) || impliedRate <= 0) return;
+
+  const rounded = Number(impliedRate.toFixed(5));
+  const previousDefault = DEFAULTS.irsRate;
+  DEFAULTS.irsRate = rounded;
+
+  const input = document.getElementById('hdr-irs');
+  if (!input) return;
+
+  const current = parseNum(input.value);
+  const nearPreviousDefault = Number.isFinite(current) && Math.abs(current - previousDefault) < 0.000015;
+  if (force || !Number.isFinite(current) || nearPreviousDefault) {
+    input.value = rounded.toFixed(5);
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -587,54 +1626,49 @@ function getGlobalRates() {
   };
 }
 
-function computeFuel(key) {
-  const d = STATE[key];
-  const { irsRate, vatRate } = getGlobalRates();
+function computeFuel(key, stateMap = STATE, rates = getGlobalRates()) {
+  const d = stateMap[key] || BASE_DATA[key];
+  const { irsRate } = rates;
   const f = d.unitFactor; // 1000 for liquids, 1 for LP_Gas
+  const demand = Math.max(0, Number(d.demand) || 0);
 
   // Step 1: Ex-depot in NPR
-  const exDepotNpr = d.exDepotIrs * irsRate;
+  const exDepotNpr = (Number(d.exDepotIrs) || 0) * irsRate;
 
   // Step 2: Specific taxes (everything except VAT)
-  const specificTaxBulk = TAX_FIELDS.reduce((sum, t) => sum + (d[t] || 0), 0);
+  const specificTaxBulk = TAX_FIELDS.reduce((sum, t) => sum + (Number(d[t]) || 0), 0);
 
   // Step 3: NOC expenses
-  const nocExpenses = (d.admin || 0) + (d.insurance || 0) + (d.tech_loss || 0);
+  const nocExpenses = (Number(d.admin) || 0) + (Number(d.insurance) || 0) + (Number(d.tech_loss) || 0);
 
   // Step 4: Landed cost
-  const landedCost = exDepotNpr + specificTaxBulk + nocExpenses + (d.transport || 0);
+  const landedCost = exDepotNpr + specificTaxBulk + nocExpenses + (Number(d.transport) || 0);
 
   // Step 5: Total cost without VAT
-  const totalCostWithoutVat = landedCost + (d.dealer || 0);
+  const totalCostWithoutVat = landedCost + (Number(d.dealer) || 0);
 
   // Step 6: VAT
-  const vat = d.vat;
+  const vat = Number(d.vat) || 0;
 
   // Step 7: Total cost with VAT
-  let totalCostWithVat;
-  if (key === 'ATF_DF') {
-    // ATF_DF: VAT is already included as straight addition (exclusive)
-    totalCostWithVat = totalCostWithoutVat + vat;
-  } else {
-    totalCostWithVat = totalCostWithoutVat + vat;
-  }
+  const totalCostWithVat = totalCostWithoutVat + vat;
 
   // Step 8: Cost per unit
-  const costPerUnit = totalCostWithVat / f;
+  const costPerUnit = f > 0 ? totalCostWithVat / f : 0;
 
   // Step 9: Profit per unit
-  const profitPerUnit = d.retailPrice - costPerUnit;
+  const profitPerUnit = (Number(d.retailPrice) || 0) - costPerUnit;
 
   // Step 10: Total crore
   let totalProfitCrore, totalGovtRevCrore;
   if (key === 'LP_Gas') {
-    totalProfitCrore = (profitPerUnit * d.demand) / 1e7;
+    totalProfitCrore = (profitPerUnit * demand) / 1e7;
     const govtRevPerUnit = (specificTaxBulk + vat) / f;
-    totalGovtRevCrore = (govtRevPerUnit * d.demand) / 1e7;
+    totalGovtRevCrore = (govtRevPerUnit * demand) / 1e7;
   } else {
-    totalProfitCrore = (profitPerUnit * d.demand * 1000) / 1e7;
+    totalProfitCrore = (profitPerUnit * demand * 1000) / 1e7;
     const govtRevPerUnit = (specificTaxBulk + vat) / f;
-    totalGovtRevCrore = (govtRevPerUnit * d.demand * 1000) / 1e7;
+    totalGovtRevCrore = (govtRevPerUnit * demand * 1000) / 1e7;
   }
 
   const govtRevPerUnit = (specificTaxBulk + vat) / f;
@@ -646,35 +1680,78 @@ function computeFuel(key) {
     specificTaxBulk, vat, nocExpenses,
     transport: d.transport, dealer: d.dealer,
     landedCost, totalCostWithoutVat, totalCostWithVat,
-    costPerUnit, retailPrice: d.retailPrice,
+    costPerUnit, retailPrice: Number(d.retailPrice) || 0,
     profitPerUnit, totalProfitCrore,
     govtRevPerUnit, totalGovtRevCrore,
-    demand: d.demand, demandUnit: d.demandUnit,
+    demand, demandUnit: d.demandUnit,
     taxes: TAX_FIELDS.reduce((o,t) => { o[t] = d[t]; return o; }, {}),
     admin: d.admin, insurance: d.insurance, tech_loss: d.tech_loss,
     vatFormula: d.vatFormula
   };
 }
 
-function computeAll() {
-  return FUEL_KEYS.map(k => computeFuel(k));
+function computeAll(stateMap = STATE, rates = getGlobalRates()) {
+  return FUEL_KEYS.map(k => computeFuel(k, stateMap, rates));
+}
+
+function getAvailableDates() {
+  if (DATA_MODEL.dates.length) return DATA_MODEL.dates;
+  if (activeFortnight) return [activeFortnight];
+  return ['2026-04-03'];
+}
+
+function computeAllForDate(date, rates = getGlobalRates()) {
+  const sourceState = stateByDate[date] || DATA_MODEL.byDate[date] || cloneBase();
+  return computeAll(sourceState, rates);
 }
 
 function computeAggregate(results) {
+  const rates = getGlobalRates();
   const totalPL = results.reduce((s, r) => s + r.totalProfitCrore, 0);
   const totalGovt = results.reduce((s, r) => s + r.totalGovtRevCrore, 0);
-  const biggestLoss = results.reduce((a, b) => a.totalProfitCrore < b.totalProfitCrore ? a : b);
-  const annualProj = totalPL * 26; // 26 fortnights
-  const govtAnnual = totalGovt * 26;
+  const biggestLoss = results.length
+    ? results.reduce((a, b) => (a.totalProfitCrore < b.totalProfitCrore ? a : b), results[0])
+    : { label: 'N/A', totalProfitCrore: 0 };
 
-  const rtAnnual = parseFloat(document.getElementById('rt-annual').value) || DEFAULTS.annualTarget;
-  const rtCollected = parseFloat(document.getElementById('rt-collected').value) || DEFAULTS.collected;
-  const rtRemaining = parseFloat(document.getElementById('rt-remaining').value) || DEFAULTS.remaining;
+  const rtAnnual = Math.max(0, parseFloat(document.getElementById('rt-annual').value) || DEFAULTS.annualTarget);
+  const rtCollected = Math.max(0, parseFloat(document.getElementById('rt-collected').value) || DEFAULTS.collected);
+  const rtRemaining = Math.max(0, parseFloat(document.getElementById('rt-remaining').value) || DEFAULTS.remaining);
 
-  const revenueGap = rtAnnual - rtCollected - (totalGovt * rtRemaining);
+  const dates = getAvailableDates();
+  const revenueByDate = dates.map(date => {
+    const dateResults = computeAllForDate(date, rates);
+    return dateResults.reduce((s, r) => s + r.totalGovtRevCrore, 0);
+  });
+  const completedFortnights = revenueByDate.length;
+  const avgFortnightRevenue = completedFortnights
+    ? revenueByDate.reduce((s, v) => s + v, 0) / completedFortnights
+    : totalGovt;
+
+  const projectedFromNow = avgFortnightRevenue * rtRemaining;
+  const projectedTotal = rtCollected + projectedFromNow;
+  const revenueGap = rtAnnual - projectedTotal;
+  const annualProj = projectedTotal;
+  const govtAnnual = avgFortnightRevenue * 26;
+
   const netFlow = totalPL + totalGovt;
 
-  return { totalPL, totalGovt, biggestLoss, annualProj, govtAnnual, revenueGap, netFlow, rtAnnual, rtCollected, rtRemaining };
+  return {
+    totalPL,
+    totalGovt,
+    biggestLoss,
+    annualProj,
+    govtAnnual,
+    revenueGap,
+    netFlow,
+    rtAnnual,
+    rtCollected,
+    rtRemaining,
+    completedFortnights,
+    avgFortnightRevenue,
+    projectedFromNow,
+    projectedTotal,
+    revenueByDate
+  };
 }
 
 // ══════════════════════════════════════════════════════
@@ -686,119 +1763,140 @@ function buildFuelPanels() {
   FUEL_KEYS.forEach(key => {
     const d = STATE[key];
     const isLPG = key === 'LP_Gas';
-    const unitHint = isLPG ? 'NPR/cyl' : 'NPR/KL';
-    const unitHintIrs = isLPG ? 'IRs/cyl' : 'IRs/KL';
+    const unitHint = getPerUnitHint(key);
+    const unitHintIrs = getPerUnitHintIrs(key);
+    const displayUnit = isLPG ? 'cylinder' : 'liter';
 
     const panel = document.createElement('div');
     panel.id = `panel-${key}`;
     panel.style.display = activeFuelTab === key ? 'block' : 'none';
 
     panel.innerHTML = `
-      <!-- Import Cost -->
-      <div class="accordion open" id="acc-${key}-import">
-        <button class="acc-header" onclick="toggleAcc('${key}-import')">
-          Import Cost <span class="acc-arrow">▼</span>
-        </button>
-        <div class="acc-body">
-          <div class="field">
-            <label>Ex-Depot (IOC) <span class="unit-hint">${unitHintIrs}</span></label>
-            <input type="number" id="inp-${key}-exDepotIrs" value="${d.exDepotIrs}"
-              step="${isLPG ? '0.01' : '1'}" min="0"
-              oninput="onFieldChange('${key}','exDepotIrs',this.value)">
+      <div class="panel-grid">
+        <div class="panel-column panel-column-left">
+          <!-- 1. Government Tax Panel -->
+          <div class="panel-section" id="sec-${key}-govtax">
+          <div class="panel-header">1. Government Tax Panel</div>
+          <div class="panel-body">
+            ${TAX_FIELDS.map(t => `
+            <div class="field">
+              <label>${TAX_LABELS[t]} <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-${t}" value="${toDisplayPerUnit(key, d[t])}"
+                step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','${t}',this.value)">
+            </div>`).join('')}
+            <div class="subtotal-row"><span>Total tax per ${displayUnit} (excl. VAT)</span><span class="st-val" id="pt-${key}-tax-total">—</span></div>
           </div>
-          <div class="computed-val" id="cv-${key}-exDepotNpr">NPR: —</div>
-        </div>
-      </div>
+          </div>
 
-      <!-- Tax Components -->
-      <div class="accordion open" id="acc-${key}-tax">
-        <button class="acc-header" onclick="toggleAcc('${key}-tax')">
-          Tax Components <span class="acc-arrow">▼</span>
-        </button>
-        <div class="acc-body">
-          ${TAX_FIELDS.map(t => `
-          <div class="field">
-            <label>${TAX_LABELS[t]} <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-${t}" value="${d[t]}"
-              step="${isLPG ? '0.01' : '1'}" min="0"
-              oninput="onFieldChange('${key}','${t}',this.value)">
-          </div>`).join('')}
-          <div class="field">
-            <label>VAT <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-vat" value="${d.vat}"
-              step="${isLPG ? '0.01' : '1'}" min="0"
-              oninput="onFieldChange('${key}','vat',this.value)">
+          <!-- 2. NOC Expenses Panel -->
+          <div class="panel-section" id="sec-${key}-noc-exp">
+          <div class="panel-header">2. NOC Expenses Panel</div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Administration <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-admin" value="${toDisplayPerUnit(key, d.admin)}" step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','admin',this.value)">
+            </div>
+            <div class="field">
+              <label>Insurance <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-insurance" value="${toDisplayPerUnit(key, d.insurance)}" step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','insurance',this.value)">
+            </div>
+            <div class="field">
+              <label>Technical Loss <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-tech_loss" value="${toDisplayPerUnit(key, d.tech_loss)}" step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','tech_loss',this.value)">
+            </div>
+            <div class="subtotal-row"><span>Total NOC expense per ${displayUnit}</span><span class="st-val" id="pt-${key}-noc-total">—</span></div>
           </div>
-          <button class="recalc-btn" onclick="recalcVat('${key}')">↻ Recalc VAT from Retail Price</button>
-          <div class="subtotal-row"><span>Specific Taxes</span><span class="st-val" id="st-${key}-spec">—</span></div>
-          <div class="subtotal-row"><span>VAT</span><span class="st-val" id="st-${key}-vat">—</span></div>
-          <div class="subtotal-row"><span>Total Tax Burden</span><span class="st-val" id="st-${key}-total">—</span></div>
-        </div>
-      </div>
+          </div>
 
-      <!-- NOC Operations -->
-      <div class="accordion open" id="acc-${key}-noc">
-        <button class="acc-header" onclick="toggleAcc('${key}-noc')">
-          NOC Operations <span class="acc-arrow">▼</span>
-        </button>
-        <div class="acc-body">
-          <div class="field">
-            <label>Administration <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-admin" value="${d.admin}" step="0.01" min="0"
-              oninput="onFieldChange('${key}','admin',this.value)">
+          <!-- 3. Extra Cost to NOC with VAT -->
+          <div class="panel-section" id="sec-${key}-extra-vat">
+          <div class="panel-header">3. Extra Cost to NOC with VAT</div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Ex-Depot (IOC) <span class="unit-hint">${unitHintIrs}</span></label>
+              <input type="number" id="inp-${key}-exDepotIrs" value="${toDisplayPerUnit(key, d.exDepotIrs)}"
+                step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','exDepotIrs',this.value)">
+            </div>
+            <div class="computed-val" id="cv-${key}-exDepotNpr">NPR: —</div>
+            <div class="field">
+              <label>Transportation <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-transport" value="${toDisplayPerUnit(key, d.transport)}" step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','transport',this.value)">
+            </div>
+            <div class="field">
+              <label>Dealer Expenses <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-dealer" value="${toDisplayPerUnit(key, d.dealer)}" step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','dealer',this.value)">
+            </div>
+            <div class="field">
+              <label>VAT <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-vat" value="${toDisplayPerUnit(key, d.vat)}"
+                step="${isLPG ? '0.01' : '0.001'}" min="0"
+                oninput="onFieldChange('${key}','vat',this.value)">
+            </div>
+            <button class="recalc-btn" onclick="recalcVat('${key}')">↻ Recalc VAT from Retail Price</button>
+            <div class="subtotal-row"><span>Extra cost (import + transport + dealer + VAT) per ${displayUnit}</span><span class="st-val" id="pt-${key}-extra-total">—</span></div>
           </div>
-          <div class="field">
-            <label>Insurance <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-insurance" value="${d.insurance}" step="0.01" min="0"
-              oninput="onFieldChange('${key}','insurance',this.value)">
           </div>
-          <div class="field">
-            <label>Technical Loss <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-tech_loss" value="${d.tech_loss}" step="0.01" min="0"
-              oninput="onFieldChange('${key}','tech_loss',this.value)">
-          </div>
-          <div class="field">
-            <label>Transportation <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-transport" value="${d.transport}" step="0.01" min="0"
-              oninput="onFieldChange('${key}','transport',this.value)">
-          </div>
-          <div class="field">
-            <label>Dealer Expenses <span class="unit-hint">${unitHint}</span></label>
-            <input type="number" id="inp-${key}-dealer" value="${d.dealer}" step="0.01" min="0"
-              oninput="onFieldChange('${key}','dealer',this.value)">
-          </div>
-        </div>
-      </div>
 
-      <!-- Retail Price & Demand -->
-      <div class="accordion open" id="acc-${key}-retail">
-        <button class="acc-header" onclick="toggleAcc('${key}-retail')">
-          Retail Price &amp; Demand <span class="acc-arrow">▼</span>
-        </button>
-        <div class="acc-body">
-          <div class="field">
-            <label>Retail Price <span class="unit-hint">${isLPG ? 'NPR/cyl' : 'NPR/liter'}</span></label>
-            <input type="number" id="inp-${key}-retailPrice" value="${d.retailPrice}"
-              step="${isLPG ? '10' : '0.01'}" min="0"
-              oninput="onFieldChange('${key}','retailPrice',this.value)">
-          </div>
-          <div class="field">
-            <label>Demand <span class="unit-hint">${d.demandUnit}</span></label>
-            <input type="number" id="inp-${key}-demand" value="${d.demand}" step="1" min="0"
-              oninput="onFieldChange('${key}','demand',this.value)">
+          <!-- 4. Total Cost to NOC -->
+          <div class="panel-section" id="sec-${key}-total-cost">
+          <div class="panel-header">4. Total Cost to NOC</div>
+          <div class="panel-body">
+            <div class="subtotal-row"><span>Tax + NOC Expense + Extra Cost</span><span class="st-val" id="pt-${key}-cost-total">—</span></div>
+            <div class="subtotal-row"><span>Computed total cost per ${displayUnit}</span><span class="st-val" id="pt-${key}-cost-check">—</span></div>
           </div>
         </div>
-      </div>
 
-      <!-- Summary -->
-      <div class="summary-box" id="sb-${key}">
-        <div class="sb-title">Summary — ${d.label}</div>
-        <div class="sb-row"><span class="sb-lbl">Total Cost</span><span class="sb-v" id="sbs-${key}-cost">—</span></div>
-        <div class="sb-row"><span class="sb-lbl">Retail Price</span><span class="sb-v" id="sbs-${key}-retail">—</span></div>
-        <div class="sb-row"><span class="sb-lbl">Profit/Loss per Unit</span><span class="sb-v" id="sbs-${key}-pl">—</span></div>
-        <div class="sb-row"><span class="sb-lbl">Tax per Unit</span><span class="sb-v" id="sbs-${key}-tax">—</span></div>
-        <div class="sb-row"><span class="sb-lbl">Fortnight P/L</span><span class="sb-v" id="sbs-${key}-fpl">—</span></div>
-        <div class="sb-row"><span class="sb-lbl">Govt Revenue</span><span class="sb-v" id="sbs-${key}-grev">—</span></div>
+        </div>
+        <div class="panel-column panel-column-right">
+
+        <!-- 5. Retail Price Panel -->
+        <div class="panel-section" id="sec-${key}-retail">
+          <div class="panel-header">5. Retail Price Panel</div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Retail Price <span class="unit-hint">${unitHint}</span></label>
+              <input type="number" id="inp-${key}-retailPrice" value="${d.retailPrice}"
+                step="${isLPG ? '10' : '0.01'}" min="0"
+                oninput="onFieldChange('${key}','retailPrice',this.value)">
+            </div>
+            <div class="subtotal-row"><span>Average retail price per ${displayUnit}</span><span class="st-val" id="pt-${key}-retail-avg">—</span></div>
+          </div>
+        </div>
+
+        <!-- 6. Fortnightly Panel -->
+        <div class="panel-section" id="sec-${key}-fortnightly">
+          <div class="panel-header">6. Fortnightly Panel</div>
+          <div class="panel-body">
+            <div class="field">
+              <label>Total Demand <span class="unit-hint">${getDemandDisplayUnit(key)}</span></label>
+              <input type="number" id="inp-${key}-demand" value="${toDisplayDemand(key, d.demand)}" step="1" min="0"
+                oninput="onFieldChange('${key}','demand',this.value)">
+            </div>
+            <div class="subtotal-row"><span>Total demand</span><span class="st-val" id="pt-${key}-demand">—</span></div>
+            <div class="subtotal-row"><span>Profit/Loss per ${displayUnit}</span><span class="st-val" id="pt-${key}-pl-unit">—</span></div>
+            <div class="subtotal-row"><span>Total Profit/Loss (Cr)</span><span class="st-val" id="pt-${key}-pl-crore">—</span></div>
+            <div class="fuel-graph-wrap">
+              <canvas id="fuel-graph-${key}"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. Government Revenue Panel -->
+        <div class="panel-section" id="sec-${key}-gov-rev">
+          <div class="panel-header">7. Government Revenue Panel</div>
+          <div class="panel-body">
+            <div class="subtotal-row"><span>Revenue per ${displayUnit} (tax + VAT)</span><span class="st-val" id="pt-${key}-rev-unit">—</span></div>
+            <div class="subtotal-row"><span>Total revenue (Cr)</span><span class="st-val" id="pt-${key}-rev-crore">—</span></div>
+          </div>
+        </div>
+        </div>
       </div>
     `;
     container.appendChild(panel);
@@ -808,39 +1906,113 @@ function buildFuelPanels() {
 function updateSidebarSummaries(results) {
   results.forEach(r => {
     const k = r.key;
-    const isLPG = k === 'LP_Gas';
     const ul = r.unitLabel;
-
-    // Ex-depot NPR display
-    const cvEl = document.getElementById(`cv-${k}-exDepotNpr`);
-    if (cvEl) cvEl.textContent = `NPR: ${fmt(r.exDepotNpr)} / ${isLPG ? 'cyl' : 'KL'}`;
-
-    // Tax subtotals
-    const stSpec = document.getElementById(`st-${k}-spec`);
-    const stVat = document.getElementById(`st-${k}-vat`);
-    const stTotal = document.getElementById(`st-${k}-total`);
-    if (stSpec) stSpec.textContent = fmtN(r.specificTaxBulk);
-    if (stVat) stVat.textContent = fmtN(r.vat);
-    if (stTotal) stTotal.textContent = fmtN(r.specificTaxBulk + r.vat);
-
-    // Summary box
+    const demandUnit = getDemandDisplayUnit(k);
+    const taxPerUnit = toDisplayPerUnit(k, r.specificTaxBulk);
+    const nocPerUnit = toDisplayPerUnit(k, r.nocExpenses);
+    const extraPerUnit = toDisplayPerUnit(k, r.exDepotNpr + r.transport + r.dealer + r.vat);
+    const totalCostPerUnit = taxPerUnit + nocPerUnit + extraPerUnit;
+    const demandTotal = toDisplayDemand(k, r.demand);
     const sign = r.profitPerUnit >= 0 ? '+' : '';
     const plClass = r.profitPerUnit >= 0 ? 'pos' : 'neg';
     const fplClass = r.totalProfitCrore >= 0 ? 'pos' : 'neg';
 
-    const costEl = document.getElementById(`sbs-${k}-cost`);
-    const retailEl = document.getElementById(`sbs-${k}-retail`);
-    const plEl = document.getElementById(`sbs-${k}-pl`);
-    const taxEl = document.getElementById(`sbs-${k}-tax`);
-    const fplEl = document.getElementById(`sbs-${k}-fpl`);
-    const grevEl = document.getElementById(`sbs-${k}-grev`);
+    // Ex-depot NPR display
+    const cvEl = document.getElementById(`cv-${k}-exDepotNpr`);
+    if (cvEl) cvEl.textContent = `NPR: ${fmt(toDisplayPerUnit(k, r.exDepotNpr))} / ${ul}`;
 
-    if (costEl) costEl.textContent = `NPR ${fmt(r.costPerUnit)}/${ul}`;
+    const taxEl = document.getElementById(`pt-${k}-tax-total`);
+    const nocEl = document.getElementById(`pt-${k}-noc-total`);
+    const extraEl = document.getElementById(`pt-${k}-extra-total`);
+    const costEl = document.getElementById(`pt-${k}-cost-total`);
+    const costCheckEl = document.getElementById(`pt-${k}-cost-check`);
+    const retailEl = document.getElementById(`pt-${k}-retail-avg`);
+    const demandEl = document.getElementById(`pt-${k}-demand`);
+    const plUnitEl = document.getElementById(`pt-${k}-pl-unit`);
+    const plCroreEl = document.getElementById(`pt-${k}-pl-crore`);
+    const revUnitEl = document.getElementById(`pt-${k}-rev-unit`);
+    const revCroreEl = document.getElementById(`pt-${k}-rev-crore`);
+
+    if (taxEl) taxEl.textContent = `NPR ${fmt(taxPerUnit)}/${ul}`;
+    if (nocEl) nocEl.textContent = `NPR ${fmt(nocPerUnit)}/${ul}`;
+    if (extraEl) extraEl.textContent = `NPR ${fmt(extraPerUnit)}/${ul}`;
+    if (costEl) costEl.textContent = `NPR ${fmt(totalCostPerUnit)}/${ul}`;
+    if (costCheckEl) costCheckEl.textContent = `NPR ${fmt(r.costPerUnit)}/${ul}`;
     if (retailEl) retailEl.textContent = `NPR ${fmt(r.retailPrice)}/${ul}`;
-    if (plEl) { plEl.textContent = `${sign}${fmt(r.profitPerUnit)} NPR`; plEl.className = `sb-v ${plClass}`; }
-    if (taxEl) taxEl.textContent = `NPR ${fmt(r.govtRevPerUnit)}/${ul}`;
-    if (fplEl) { fplEl.textContent = `${sign}${fmt(r.totalProfitCrore)} Cr`; fplEl.className = `sb-v ${fplClass}`; }
-    if (grevEl) grevEl.textContent = `${fmt(r.totalGovtRevCrore)} Cr`;
+    if (demandEl) demandEl.textContent = `${fmtD(demandTotal)} ${demandUnit}`;
+
+    if (plUnitEl) {
+      plUnitEl.textContent = `${sign}${fmt(r.profitPerUnit)} NPR/${ul}`;
+      plUnitEl.className = `st-val ${plClass}`;
+    }
+    if (plCroreEl) {
+      plCroreEl.textContent = `${sign}${fmt(r.totalProfitCrore)} Cr`;
+      plCroreEl.className = `st-val ${fplClass}`;
+    }
+    if (revUnitEl) revUnitEl.textContent = `NPR ${fmt(r.govtRevPerUnit)}/${ul}`;
+    if (revCroreEl) revCroreEl.textContent = `${fmt(r.totalGovtRevCrore)} Cr`;
+
+    updateFuelAnalysisChart(r);
+  });
+}
+
+function updateFuelAnalysisChart(r) {
+  const panelEl = document.getElementById(`panel-${r.key}`);
+  if (!panelEl || panelEl.style.display === 'none') return;
+
+  const canvasId = `fuel-graph-${r.key}`;
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const chartId = `fuel-graph-${r.key}`;
+  const taxPerUnit = toDisplayPerUnit(r.key, r.specificTaxBulk);
+  const nocPerUnit = toDisplayPerUnit(r.key, r.nocExpenses);
+  const extraPerUnit = toDisplayPerUnit(r.key, r.exDepotNpr + r.transport + r.dealer + r.vat);
+  const costPerUnit = r.costPerUnit;
+  const retailPerUnit = r.retailPrice;
+  const plPerUnit = r.profitPerUnit;
+
+  const values = [taxPerUnit, nocPerUnit, extraPerUnit, costPerUnit, retailPerUnit, plPerUnit];
+  const colors = [
+    'rgba(234,179,8,0.78)',
+    'rgba(16,185,129,0.78)',
+    'rgba(59,130,246,0.78)',
+    'rgba(220,38,38,0.78)',
+    'rgba(168,85,247,0.78)',
+    plPerUnit >= 0 ? 'rgba(22,163,74,0.78)' : 'rgba(239,68,68,0.78)'
+  ];
+
+  destroyChart(chartId);
+  charts[chartId] = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels: ['Tax', 'NOC Exp', 'Extra', 'Total Cost', 'Retail', 'P/L'],
+      datasets: [{
+        label: `${r.label} per ${r.unitLabel}`,
+        data: values,
+        backgroundColor: colors,
+        borderColor: colors.map(c => c.replace('0.78', '1')),
+        borderWidth: 1,
+        borderRadius: 5
+      }]
+    },
+    options: {
+      ...chartOpts(`NPR/${r.unitLabel}`),
+      plugins: {
+        ...chartOpts(`NPR/${r.unitLabel}`).plugins,
+        legend: {
+          display: true,
+          labels: { color: '#5f7086', font: { size: 10 } }
+        }
+      },
+      scales: {
+        x: { ...darkAxis() },
+        y: {
+          ...darkAxis(),
+          title: { display: true, text: `NPR/${r.unitLabel}`, color: '#5f7086', font: { size: 10 } }
+        }
+      }
+    }
   });
 }
 
@@ -850,42 +2022,201 @@ function updateSidebarSummaries(results) {
 
 function renderMainContent(results, agg) {
   switch (activeMainTab) {
+    case 'presentation': renderPresentationContent(results, agg); break;
     case 'overview':    renderOverview(results, agg); break;
     case 'pricebuild':  renderPriceBuild(results); break;
     case 'taxanalysis': renderTaxAnalysis(results); break;
     case 'revtarget':   renderRevTarget(results, agg); break;
     case 'scenarios':   renderScenarios(results); break;
+    default: {
+      const mc = document.getElementById('main-content');
+      if (mc) mc.innerHTML = '';
+      break;
+    }
   }
 }
 
+function moveCurrentMainContentIntoBlock(title) {
+  const mc = document.getElementById('main-content');
+  const block = document.createElement('div');
+  block.className = 'presentation-block';
+  block.innerHTML = `<div class="section-title">${title}</div>`;
+
+  const body = document.createElement('div');
+  body.className = 'presentation-body';
+  while (mc.firstChild) {
+    body.appendChild(mc.firstChild);
+  }
+
+  block.appendChild(body);
+  return block;
+}
+
+function renderPresentationContent(results, agg) {
+  const mc = document.getElementById('main-content');
+  const sections = [
+    { title: 'Overview', render: () => renderOverview(results, agg) },
+    { title: 'Price Build-Up', render: () => renderPriceBuild(results) },
+    { title: 'Tax Analysis', render: () => renderTaxAnalysis(results) },
+    { title: 'Revenue Target', render: () => renderRevTarget(results, agg) }
+  ];
+
+  destroyAllCharts();
+  const snapshots = [];
+  sections.forEach(section => {
+    section.render();
+    snapshots.push(moveCurrentMainContentIntoBlock(section.title));
+  });
+
+  mc.innerHTML = '';
+  const stack = document.createElement('div');
+  stack.className = 'presentation-stack';
+  snapshots.forEach(s => stack.appendChild(s));
+  mc.appendChild(stack);
+
+  Object.values(charts).forEach(chart => {
+    chart.resize();
+    chart.update('none');
+  });
+}
+
 // ─── OVERVIEW ────────────────────────────────────────
+function buildFuelTrendSeries(fuelKey) {
+  const rates = getGlobalRates();
+  const labels = [];
+  const revenue = [];
+  const profit = [];
+  const demand = [];
+  const isLpg = fuelKey === 'LP_Gas';
+  const demandAxis = isLpg ? 'Cylinders' : 'Liters';
+
+  const dates = getAvailableDates();
+  if (dates.length > 1) {
+    dates.forEach(date => {
+      const dateResults = computeAllForDate(date, rates);
+      const r = dateResults.find(x => x.key === fuelKey);
+      if (!r) return;
+      labels.push(formatDateLabel(date));
+      revenue.push(r.totalGovtRevCrore);
+      profit.push(r.totalProfitCrore);
+      demand.push(isLpg ? r.demand : r.demand * 1000);
+    });
+  } else {
+    const baseDate = dates[0] || activeFortnight || 'Current';
+    const baseResults = computeAllForDate(baseDate, rates);
+    const base = baseResults.find(x => x.key === fuelKey);
+    const projectionCount = Math.max(1, Math.min(12, parseInt(document.getElementById('rt-remaining').value, 10) || 1));
+    if (base) {
+      labels.push(formatDateLabel(baseDate));
+      revenue.push(base.totalGovtRevCrore);
+      profit.push(base.totalProfitCrore);
+      demand.push(isLpg ? base.demand : base.demand * 1000);
+      for (let i = 1; i <= projectionCount; i += 1) {
+        labels.push(`Proj FN ${i}`);
+        revenue.push(base.totalGovtRevCrore);
+        profit.push(base.totalProfitCrore);
+        demand.push(isLpg ? base.demand : base.demand * 1000);
+      }
+    }
+  }
+
+  return { labels, revenue, profit, demand, demandAxis };
+}
+
 function renderOverview(results, agg) {
   const mc = document.getElementById('main-content');
+  const activeLabel = BASE_DATA[activeFuelTab]?.label || activeFuelTab;
+  const activeResult = results.find(r => r.key === activeFuelTab) || results[0] || null;
+  const activeDateLabel = activeFortnight ? formatDateLabel(activeFortnight) : 'Current';
+  const demandScale = activeResult && activeResult.key === 'LP_Gas' ? 1 : 1000;
+
   mc.innerHTML = `
-    <div class="section-title">Fuel Summary</div>
-    <div class="kpi-grid" id="ov-kpi-grid"></div>
+    <div class="section-title">Executive Summary</div>
+    <div class="exec-grid" id="ov-exec-grid"></div>
+    <div class="section-title">Per-Fuel Mini Summary</div>
+    <div class="mini-fuel-grid" id="ov-mini-grid"></div>
+    <div class="section-title">Policy Formula Legend</div>
+    <div class="formula-legend">
+      <div class="fl-head">
+        <span>Fortnight: ${activeDateLabel}</span>
+        <span>Fuel focus: ${activeLabel}</span>
+      </div>
+      <div class="fl-grid">
+        <div class="fl-item">
+          <div class="fl-label">Cost per Unit</div>
+          <div class="fl-eq">Cost/unit = Total Cost with VAT / Unit Factor</div>
+          <div class="fl-val">${activeResult ? `${fmt(activeResult.totalCostWithVat)} / ${fmt(activeResult.unitFactor)} = ${fmt(activeResult.costPerUnit)} NPR/${activeResult.unitLabel}` : 'No active fuel data'}</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-label">Profit or Loss per Unit</div>
+          <div class="fl-eq">P or L per unit = Retail Price - Cost per Unit</div>
+          <div class="fl-val">${activeResult ? `${fmt(activeResult.retailPrice)} - ${fmt(activeResult.costPerUnit)} = ${fmt(activeResult.profitPerUnit)} NPR/${activeResult.unitLabel}` : 'No active fuel data'}</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-label">Govt Revenue per Unit</div>
+          <div class="fl-eq">Govt Rev/unit = (Specific Taxes + VAT) / Unit Factor</div>
+          <div class="fl-val">${activeResult ? `${fmt(activeResult.govtRevPerUnit)} NPR/${activeResult.unitLabel}` : 'No active fuel data'}</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-label">Fortnight Revenue and P or L</div>
+          <div class="fl-eq">Crore = Value per unit x Demand x Scale / 10,000,000</div>
+          <div class="fl-val">${activeResult ? `Revenue: ${fmt(activeResult.govtRevPerUnit)} x ${fmt(activeResult.demand)} x ${demandScale} / 10000000 = ${fmt(activeResult.totalGovtRevCrore)} Cr | P or L: ${fmt(activeResult.profitPerUnit)} x ${fmt(activeResult.demand)} x ${demandScale} / 10000000 = ${fmt(activeResult.totalProfitCrore)} Cr` : 'No active fuel data'}</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-label">FY Projection</div>
+          <div class="fl-eq">Projected FY = Collected + (Avg Revenue per completed FN x Remaining FN)</div>
+          <div class="fl-val">${fmt(agg.rtCollected)} + (${fmt(agg.avgFortnightRevenue)} x ${fmt(agg.rtRemaining)}) = ${fmt(agg.projectedTotal)} Cr</div>
+        </div>
+        <div class="fl-item">
+          <div class="fl-label">Revenue Gap</div>
+          <div class="fl-eq">Gap = Annual Target - Projected FY</div>
+          <div class="fl-val">${fmt(agg.rtAnnual)} - ${fmt(agg.projectedTotal)} = ${fmt(agg.revenueGap)} Cr</div>
+        </div>
+      </div>
+      <div class="fl-note">Average uses ${fmt(agg.completedFortnights)} completed fortnight(s). If history is limited, trend lines extend the current fortnight scenario for planning continuity.</div>
+    </div>
     <div class="section-title">Charts</div>
     <div class="charts-2col">
-      <div class="chart-card"><h3>Cost vs Retail Price <span class="sub">(NPR per unit)</span></h3><canvas id="ch-costvretail"></canvas></div>
-      <div class="chart-card"><h3>Profit / Loss per Unit <span class="sub">(NPR)</span></h3><canvas id="ch-pl"></canvas></div>
-      <div class="chart-card"><h3>Fortnightly P/L <span class="sub">(Crore NPR)</span></h3><canvas id="ch-total-pl"></canvas></div>
-      <div class="chart-card"><h3>Govt Revenue <span class="sub">(Crore NPR, fortnight)</span></h3><canvas id="ch-govt-rev"></canvas></div>
+      <div class="chart-card"><h3>Cost vs Retail Price <span class="sub">(NPR per liter / cylinder)</span></h3><canvas id="ch-costvretail" class="overview-lg"></canvas></div>
+      <div class="chart-card"><h3>Fortnightly P/L <span class="sub">(Crore NPR)</span></h3><canvas id="ch-total-pl" class="overview-lg"></canvas></div>
+      <div class="chart-card"><h3>Govt Revenue <span class="sub">(Crore NPR, fortnight)</span></h3><canvas id="ch-govt-rev" class="overview-lg"></canvas></div>
     </div>
   `;
 
-  // KPI cards
-  const grid = document.getElementById('ov-kpi-grid');
+  // Executive summary cards
+  const execGrid = document.getElementById('ov-exec-grid');
+  const totalPlSign = agg.totalPL >= 0 ? '+' : '';
+
+  execGrid.innerHTML = `
+    <div class="kpi-card">
+      <div class="kc-label">Total Fortnight Profit or Loss</div>
+      <div class="kc-val ${agg.totalPL >= 0 ? 'k-pos' : 'k-neg'}">${totalPlSign}${fmt(agg.totalPL)} Cr</div>
+      <div class="kc-sub">All fuels combined</div>
+      <span class="kc-badge ${agg.totalPL >= 0 ? 'badge-green' : 'badge-red'}">${agg.totalPL >= 0 ? 'Profit' : 'Loss'}</span>
+    </div>
+  `;
+
+  // Per-fuel mini summary cards
+  const miniGrid = document.getElementById('ov-mini-grid');
   results.forEach(r => {
     const sign = r.profitPerUnit >= 0 ? '+' : '';
     const plClass = r.profitPerUnit >= 0 ? 'k-pos' : 'k-neg';
-    const fplClass = r.totalProfitCrore >= 0 ? 'badge-green' : 'badge-red';
-    grid.innerHTML += `
-      <div class="kpi-card" style="border-left: 3px solid ${r.color}">
-        <div class="kc-label"><span class="dot" style="background:${r.color}"></span>${r.label}</div>
-        <div class="kc-val ${plClass}">${sign}${fmt(r.profitPerUnit)}</div>
-        <div class="kc-sub">NPR/${r.unitLabel} · Retail: ${fmt(r.retailPrice)}</div>
-        <div class="kc-sub">Cost: ${fmt(r.costPerUnit)} NPR/${r.unitLabel}</div>
-        <span class="kc-badge ${fplClass}">${sign}${fmt(r.totalProfitCrore)} Cr fortnight</span>
+    const demandDisplay = toDisplayDemand(r.key, r.demand);
+    const demandUnit = getDemandDisplayUnit(r.key);
+    const plBadgeClass = r.totalProfitCrore >= 0 ? 'badge-green' : 'badge-red';
+    miniGrid.innerHTML += `
+      <div class="mini-card" style="border-left: 3px solid ${r.color}">
+        <div class="mini-head">
+          <div class="kc-label"><span class="dot" style="background:${r.color}"></span>${r.label}</div>
+          <div class="mini-pill ${plClass}">${sign}${fmt(r.profitPerUnit)} NPR/${r.unitLabel}</div>
+        </div>
+        <div class="mini-line"><span>Cost</span><b>${fmt(r.costPerUnit)} NPR/${r.unitLabel}</b></div>
+        <div class="mini-line"><span>Retail</span><b>${fmt(r.retailPrice)} NPR/${r.unitLabel}</b></div>
+        <div class="mini-line"><span>Demand</span><b>${fmtD(demandDisplay)} ${demandUnit}</b></div>
+        <div class="mini-foot">
+          <span class="kc-badge ${plBadgeClass}">P/L ${sign}${fmt(r.totalProfitCrore)} Cr</span>
+          <span class="kc-badge badge-blue">Govt ${fmt(r.totalGovtRevCrore)} Cr</span>
+        </div>
       </div>`;
   });
 
@@ -900,25 +2231,10 @@ function renderOverview(results, agg) {
         { label: 'Retail Price', data: results.map(r => r.retailPrice), backgroundColor: results.map(r => r.color + 'bb') }
       ]
     },
-    options: chartOpts('NPR/unit')
+    options: chartOpts('NPR per liter / cylinder')
   });
 
-  // Chart 2: P/L per unit
-  destroyChart('ch-pl');
-  charts['ch-pl'] = new Chart(document.getElementById('ch-pl'), {
-    type: 'bar',
-    data: {
-      labels: results.map(r => r.label),
-      datasets: [{
-        label: 'Profit/Loss',
-        data: results.map(r => r.profitPerUnit),
-        backgroundColor: results.map(r => r.profitPerUnit >= 0 ? 'rgba(22,163,74,0.7)' : 'rgba(220,38,38,0.7)')
-      }]
-    },
-    options: chartOpts('NPR')
-  });
-
-  // Chart 3: Total P/L crore
+  // Chart 2: Total P/L crore
   destroyChart('ch-total-pl');
   charts['ch-total-pl'] = new Chart(document.getElementById('ch-total-pl'), {
     type: 'bar',
@@ -933,7 +2249,7 @@ function renderOverview(results, agg) {
     options: chartOpts('Crore NPR')
   });
 
-  // Chart 4: Govt revenue
+  // Chart 3: Govt revenue
   destroyChart('ch-govt-rev');
   charts['ch-govt-rev'] = new Chart(document.getElementById('ch-govt-rev'), {
     type: 'bar',
@@ -947,6 +2263,7 @@ function renderOverview(results, agg) {
     },
     options: chartOpts('Crore NPR')
   });
+
 }
 
 // ─── PRICE BUILD-UP ───────────────────────────────────
@@ -958,7 +2275,7 @@ function renderPriceBuild(results) {
   mc.innerHTML = `
     <div class="section-title">Price Build-Up — Stacked Components</div>
     <div class="chart-card" style="margin-bottom:16px">
-      <h3>Cost Stack per Unit <span class="sub">(NPR/unit)</span></h3>
+      <h3>Cost Stack per Unit <span class="sub">(NPR per liter / cylinder)</span></h3>
       <canvas id="ch-stack" class="tall"></canvas>
     </div>
     <div class="section-title">Detailed Breakdown Table</div>
@@ -984,9 +2301,9 @@ function renderPriceBuild(results) {
       ]
     },
     options: {
-      ...chartOpts('NPR/unit'),
-      plugins: { ...chartOpts('NPR/unit').plugins, legend: { ...chartOpts('NPR/unit').plugins.legend, display: true } },
-      scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis(), title: { display: true, text: 'NPR/unit', color: '#8892a4' } } }
+      ...chartOpts('NPR per liter / cylinder'),
+      plugins: { ...chartOpts('NPR per liter / cylinder').plugins, legend: { ...chartOpts('NPR per liter / cylinder').plugins.legend, display: true } },
+      scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis(), title: { display: true, text: 'NPR per liter / cylinder', color: '#5f7086' } } }
     }
   });
 
@@ -1006,9 +2323,9 @@ function renderPriceBuild(results) {
   }
 
   html += sectionRow('Import Cost');
-  html += row('Ex-Depot (IRs)', r => r.exDepotIrs);
-  html += row('Ex-Depot (NPR/unit)', r => r.exDepotNpr / r.unitFactor);
-  html += sectionRow('Specific Taxes (per KL / per cyl)');
+  html += row('Ex-Depot (IRs per liter/cylinder)', r => r.exDepotIrs / r.unitFactor);
+  html += row('Ex-Depot (NPR per liter/cylinder)', r => r.exDepotNpr / r.unitFactor);
+  html += sectionRow('Specific Taxes (per liter / per cylinder)');
   TAX_FIELDS.forEach(t => {
     html += row(TAX_LABELS[t], r => r.taxes[t] / r.unitFactor);
   });
@@ -1025,9 +2342,9 @@ function renderPriceBuild(results) {
   html += sectionRow('Summary');
   html += row('Landed Cost', r => r.landedCost / r.unitFactor);
   html += row('Total Cost (without VAT)', r => r.totalCostWithoutVat / r.unitFactor);
-  html += `<tr class="total-row"><td>Total Cost per Unit</td>${results.map(r => `<td class="${r.costPerUnit > r.retailPrice ? 'neg' : 'pos'}">${fmt(r.costPerUnit)}</td>`).join('')}<td>NPR/unit</td></tr>`;
-  html += `<tr class="total-row"><td>Retail Price</td>${results.map(r => `<td>${fmt(r.retailPrice)}</td>`).join('')}<td>NPR/unit</td></tr>`;
-  html += `<tr class="total-row"><td>Profit/Loss per Unit</td>${results.map(r => `<td class="${r.profitPerUnit >= 0 ? 'pos' : 'neg'}">${r.profitPerUnit >= 0 ? '+' : ''}${fmt(r.profitPerUnit)}</td>`).join('')}<td>NPR/unit</td></tr>`;
+  html += `<tr class="total-row"><td>Total Cost per Unit</td>${results.map(r => `<td class="${r.costPerUnit > r.retailPrice ? 'neg' : 'pos'}">${fmt(r.costPerUnit)}</td>`).join('')}<td>NPR per liter/cylinder</td></tr>`;
+  html += `<tr class="total-row"><td>Retail Price</td>${results.map(r => `<td>${fmt(r.retailPrice)}</td>`).join('')}<td>NPR per liter/cylinder</td></tr>`;
+  html += `<tr class="total-row"><td>Profit/Loss per Unit</td>${results.map(r => `<td class="${r.profitPerUnit >= 0 ? 'pos' : 'neg'}">${r.profitPerUnit >= 0 ? '+' : ''}${fmt(r.profitPerUnit)}</td>`).join('')}<td>NPR per liter/cylinder</td></tr>`;
   html += `<tr class="total-row"><td>Fortnight P/L (Crore)</td>${results.map(r => `<td class="${r.totalProfitCrore >= 0 ? 'pos' : 'neg'}">${r.totalProfitCrore >= 0 ? '+' : ''}${fmt(r.totalProfitCrore)}</td>`).join('')}<td>Cr NPR</td></tr>`;
 
   html += '</tbody>';
@@ -1041,7 +2358,7 @@ function renderTaxAnalysis(results) {
     <div class="section-title">Tax Composition</div>
     <div class="charts-2col" style="margin-bottom:16px">
       <div class="chart-card">
-        <h3>Tax Component Stack <span class="sub">(NPR/unit)</span></h3>
+        <h3>Tax Component Stack <span class="sub">(NPR per liter / cylinder)</span></h3>
         <canvas id="ch-tax-stack" class="tall"></canvas>
       </div>
       <div class="chart-card">
@@ -1072,12 +2389,12 @@ function renderTaxAnalysis(results) {
       })).concat([{
         label: 'VAT',
         data: results.map(r => r.vat / r.unitFactor),
-        backgroundColor: '#8892a4cc'
+        backgroundColor: '#94a3b8cc'
       }])
     },
     options: {
-      ...chartOpts('NPR/unit'),
-      plugins: { ...chartOpts('NPR/unit').plugins, legend: { display: true, labels: { color: '#8892a4', font: { size: 10 } } } },
+      ...chartOpts('NPR per liter / cylinder'),
+      plugins: { ...chartOpts('NPR per liter / cylinder').plugins, legend: { display: true, labels: { color: '#5f7086', font: { size: 10 } } } },
       scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis() } }
     }
   });
@@ -1109,7 +2426,7 @@ function renderTaxAnalysis(results) {
     },
     options: {
       ...chartOpts('%'),
-      plugins: { ...chartOpts('%').plugins, legend: { display: true, labels: { color: '#8892a4', font: { size: 10 } } } },
+      plugins: { ...chartOpts('%').plugins, legend: { display: true, labels: { color: '#5f7086', font: { size: 10 } } } },
       scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: false, ...darkAxis() } }
     }
   });
@@ -1149,12 +2466,10 @@ function renderTaxAnalysis(results) {
 // ─── REVENUE TARGET ───────────────────────────────────
 function renderRevTarget(results, agg) {
   const mc = document.getElementById('main-content');
-  const { rtAnnual, rtCollected, rtRemaining, totalGovt, govtAnnual } = agg;
-  const projectedFromNow = totalGovt * rtRemaining;
-  const projectedTotal = rtCollected + projectedFromNow;
+  const { rtAnnual, rtCollected, rtRemaining, totalGovt, avgFortnightRevenue, completedFortnights, projectedFromNow, projectedTotal } = agg;
   const gap = rtAnnual - projectedTotal;
-  const pctCollected = (rtCollected / rtAnnual * 100).toFixed(1);
-  const projPct = (projectedTotal / rtAnnual * 100).toFixed(1);
+  const pctCollected = rtAnnual > 0 ? (rtCollected / rtAnnual * 100).toFixed(1) : '0.0';
+  const projPct = rtAnnual > 0 ? (projectedTotal / rtAnnual * 100).toFixed(1) : '0.0';
   const status = gap <= 0 ? 'On Track' : gap < rtAnnual * 0.1 ? 'At Risk' : 'Shortfall';
   const statusClass = gap <= 0 ? 'badge-green' : gap < rtAnnual * 0.1 ? 'badge-yellow' : 'badge-red';
   const nocNetPL = results.reduce((s, r) => s + r.totalProfitCrore, 0);
@@ -1164,10 +2479,12 @@ function renderRevTarget(results, agg) {
     <div class="kpi-grid" style="margin-bottom:16px">
       <div class="kpi-card"><div class="kc-label">Annual Target</div><div class="kc-val k-info">${fmtC(rtAnnual)}</div><div class="kc-sub">Crore NPR</div></div>
       <div class="kpi-card"><div class="kc-label">Collected So Far</div><div class="kc-val k-pos">${fmtC(rtCollected)}</div><div class="kc-sub">${pctCollected}% of target</div></div>
-      <div class="kpi-card"><div class="kc-label">Current Fortnight Rate</div><div class="kc-val k-info">${fmt(totalGovt)}</div><div class="kc-sub">Crore NPR</div></div>
+      <div class="kpi-card"><div class="kc-label">Completed Fortnights</div><div class="kc-val k-info">${fmtD(completedFortnights)}</div><div class="kc-sub">dataset-backed count</div></div>
+      <div class="kpi-card"><div class="kc-label">Avg Revenue/Completed Fortnight</div><div class="kc-val k-info">${fmt(avgFortnightRevenue)}</div><div class="kc-sub">Crore NPR after customization</div></div>
       <div class="kpi-card"><div class="kc-label">Projected Total</div><div class="kc-val ${gap <= 0 ? 'k-pos' : 'k-neg'}">${fmtC(projectedTotal)}</div><div class="kc-sub">${projPct}% of target</div><span class="kc-badge ${statusClass}">${status}</span></div>
       <div class="kpi-card"><div class="kc-label">Revenue Gap</div><div class="kc-val ${gap > 0 ? 'k-neg' : 'k-pos'}">${gap > 0 ? '+' : ''}${fmt(Math.abs(gap))}</div><div class="kc-sub">Crore NPR ${gap > 0 ? 'shortfall' : 'surplus'}</div></div>
-      <div class="kpi-card"><div class="kc-label">NOC Net P/L</div><div class="kc-val ${nocNetPL >= 0 ? 'k-pos' : 'k-neg'}">${nocNetPL >= 0 ? '+' : ''}${fmt(nocNetPL)}</div><div class="kc-sub">Crore NPR/fortnight</div></div>
+      <div class="kpi-card"><div class="kc-label">Selected Fortnight Govt Revenue</div><div class="kc-val k-info">${fmt(totalGovt)}</div><div class="kc-sub">Crore NPR</div></div>
+      <div class="kpi-card"><div class="kc-label">Selected Fortnight NOC Net P/L</div><div class="kc-val ${nocNetPL >= 0 ? 'k-pos' : 'k-neg'}">${nocNetPL >= 0 ? '+' : ''}${fmt(nocNetPL)}</div><div class="kc-sub">Crore NPR</div></div>
     </div>
 
     <div class="charts-2col" style="margin-bottom:16px">
@@ -1222,7 +2539,7 @@ function renderRevTarget(results, agg) {
     { label: 'Collected', val: rtCollected, color: '#16a34a' },
     { label: 'Projected Remaining', val: projectedFromNow, color: '#3b82f6' },
     { label: 'Gap/Surplus', val: Math.abs(gap), color: gap > 0 ? '#dc2626' : '#16a34a' },
-    { label: 'Annual Target', val: rtAnnual, color: '#8892a4' }
+    { label: 'Annual Target', val: rtAnnual, color: '#64748b' }
   ];
   leg.innerHTML = items.map(i => `
     <div class="dl-item">
@@ -1231,7 +2548,8 @@ function renderRevTarget(results, agg) {
     </div>`).join('');
 
   // Fortnight projection bar
-  const ftnLabels = Array.from({length: rtRemaining}, (_, i) => `FN ${i+1}`);
+  const remainingInt = Math.max(0, Math.round(rtRemaining));
+  const ftnLabels = Array.from({length: remainingInt}, (_, i) => `FN ${i+1}`);
   destroyChart('ch-ftn-proj');
   charts['ch-ftn-proj'] = new Chart(document.getElementById('ch-ftn-proj'), {
     type: 'bar',
@@ -1239,14 +2557,14 @@ function renderRevTarget(results, agg) {
       labels: ftnLabels,
       datasets: results.map(r => ({
         label: r.label,
-        data: Array(rtRemaining).fill(r.totalGovtRevCrore),
+        data: Array(remainingInt).fill(r.totalGovtRevCrore),
         backgroundColor: r.color + 'bb',
         stack: 'ftn'
       }))
     },
     options: {
       ...chartOpts('Crore NPR'),
-      plugins: { ...chartOpts('Crore NPR').plugins, legend: { display: true, labels: { color: '#8892a4', font: { size: 10 } } } },
+      plugins: { ...chartOpts('Crore NPR').plugins, legend: { display: true, labels: { color: '#5f7086', font: { size: 10 } } } },
       scales: { x: { stacked: true, ...darkAxis() }, y: { stacked: true, ...darkAxis() } }
     }
   });
@@ -1255,10 +2573,10 @@ function renderRevTarget(results, agg) {
   const tbl = document.getElementById('rt-table');
   let html = `<thead><tr>
     <th>Fuel</th>
-    <th>Govt Rev/Unit</th>
+    <th>Govt Rev (NPR per liter/cylinder)</th>
     <th>Demand</th>
     <th>Fortnight Rev (Cr)</th>
-    <th>7-FN Total (Cr)</th>
+    <th>${fmtD(remainingInt)}-FN Total (Cr)</th>
     <th>Annual Rate (Cr)</th>
     <th>% of Total Rev</th>
   </tr></thead><tbody>`;
@@ -1267,12 +2585,14 @@ function renderRevTarget(results, agg) {
   results.forEach(r => {
     const annualRate = r.totalGovtRevCrore * 26;
     const pct = totalGovtRev > 0 ? (r.totalGovtRevCrore / totalGovtRev * 100).toFixed(1) + '%' : '—';
+    const demandDisplay = toDisplayDemand(r.key, r.demand);
+    const demandUnit = getDemandDisplayUnit(r.key);
     html += `<tr>
       <td><span class="dot" style="background:${r.color}"></span>${r.label}</td>
       <td>${fmt(r.govtRevPerUnit)}</td>
-      <td>${fmtD(r.demand)} ${r.demandUnit}</td>
+      <td>${fmtD(demandDisplay)} ${demandUnit}</td>
       <td>${fmt(r.totalGovtRevCrore)}</td>
-      <td>${fmt(r.totalGovtRevCrore * rtRemaining)}</td>
+      <td>${fmt(r.totalGovtRevCrore * remainingInt)}</td>
       <td>${fmt(annualRate)}</td>
       <td>${pct}</td>
     </tr>`;
@@ -1282,7 +2602,7 @@ function renderRevTarget(results, agg) {
     <td>TOTAL</td>
     <td>—</td><td>—</td>
     <td>${fmt(totalGovtRev)}</td>
-    <td>${fmt(totalGovtRev * rtRemaining)}</td>
+    <td>${fmt(totalGovtRev * remainingInt)}</td>
     <td>${fmt(totalGovtRev * 26)}</td>
     <td>100%</td>
   </tr>`;
@@ -1433,23 +2753,19 @@ function updateKpiStrip(results, agg) {
   const totalPL = agg.totalPL;
   const totalGovt = agg.totalGovt;
   const biggestLoss = agg.biggestLoss;
-  const annualProj = totalPL * 26;
-  const nocNet = totalPL + totalGovt;
-
-  const rtAnnual = parseFloat(document.getElementById('rt-annual').value) || DEFAULTS.annualTarget;
-  const rtCollected = parseFloat(document.getElementById('rt-collected').value) || DEFAULTS.collected;
-  const rtRemaining = parseFloat(document.getElementById('rt-remaining').value) || DEFAULTS.remaining;
-  const revGap = rtAnnual - rtCollected - (totalGovt * rtRemaining);
+  const annualProj = agg.annualProj;
+  const nocNet = agg.netFlow;
+  const revGap = agg.revenueGap;
 
   document.getElementById('ks-total-pl').textContent = (totalPL >= 0 ? '+' : '') + fmt(totalPL) + ' Cr';
   document.getElementById('ks-total-pl').className = 'k-val ' + (totalPL >= 0 ? 'k-pos' : 'k-neg');
 
   document.getElementById('ks-govt-rev').textContent = fmt(totalGovt) + ' Cr';
   document.getElementById('ks-biggest-loss').textContent = biggestLoss.label + ' (' + fmt(biggestLoss.totalProfitCrore) + ' Cr)';
-  document.getElementById('ks-annual-proj').textContent = (annualProj >= 0 ? '+' : '') + fmt(annualProj) + ' Cr';
-  document.getElementById('ks-annual-proj').className = 'k-val ' + (annualProj >= 0 ? 'k-pos' : 'k-neg');
+  document.getElementById('ks-annual-proj').textContent = fmt(annualProj) + ' Cr';
+  document.getElementById('ks-annual-proj').className = 'k-val k-info';
 
-  document.getElementById('ks-rev-gap').textContent = (revGap > 0 ? '' : '−') + fmtC(Math.abs(revGap)) + ' Cr';
+  document.getElementById('ks-rev-gap').textContent = (revGap > 0 ? '+' : '−') + fmtC(Math.abs(revGap)) + ' Cr';
   document.getElementById('ks-rev-gap').className = 'k-val ' + (revGap <= 0 ? 'k-pos' : 'k-warn');
 
   document.getElementById('ks-net-flow').textContent = (nocNet >= 0 ? '+' : '') + fmt(nocNet) + ' Cr';
@@ -1461,29 +2777,50 @@ function updateKpiStrip(results, agg) {
 // ══════════════════════════════════════════════════════
 function darkAxis() {
   return {
-    grid: { color: 'rgba(30,50,82,0.6)' },
-    ticks: { color: '#8892a4', font: { size: 11 } },
-    border: { color: '#1e3252' }
+    grid: { color: 'rgba(100,116,139,0.22)' },
+    ticks: { color: '#5f7086', font: { size: 11 } },
+    border: { color: '#cbd5e1' }
   };
 }
 
 function chartOpts(yLabel) {
   return {
     responsive: true,
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
+    devicePixelRatio: Math.max(1, window.devicePixelRatio || 1),
+    interaction: {
+      mode: 'index',
+      intersect: false,
+      axis: 'x'
+    },
+    hover: {
+      mode: 'index',
+      intersect: false,
+      axis: 'x'
+    },
     plugins: {
       legend: { display: false },
       tooltip: {
-        backgroundColor: '#0f1929',
-        borderColor: '#1e3252',
+        mode: 'index',
+        intersect: false,
+        backgroundColor: '#ffffff',
+        borderColor: '#cbd5e1',
         borderWidth: 1,
-        titleColor: '#e1e7f0',
-        bodyColor: '#8892a4'
+        titleColor: '#13243b',
+        bodyColor: '#5f7086',
+        callbacks: {
+          label: ctx => {
+            const rawVal = (ctx.parsed && typeof ctx.parsed.y === 'number') ? ctx.parsed.y : ctx.parsed;
+            const val = Number(rawVal) || 0;
+            const ds = ctx.dataset && ctx.dataset.label ? `${ctx.dataset.label}: ` : '';
+            return `${ds}${fmt(val)} ${yLabel}`;
+          }
+        }
       }
     },
     scales: {
       x: darkAxis(),
-      y: { ...darkAxis(), title: { display: true, text: yLabel, color: '#8892a4', font: { size: 10 } } }
+      y: { ...darkAxis(), title: { display: true, text: yLabel, color: '#5f7086', font: { size: 10 } } }
     }
   };
 }
@@ -1511,10 +2848,20 @@ function fmtD(n) { return nf0.format(Number(n) || 0); }
 // ══════════════════════════════════════════════════════
 function toggleAcc(id) {
   const el = document.getElementById(`acc-${id}`);
-  if (el) el.classList.toggle('open');
+  if (!el) return;
+
+  const panelRoot = el.closest('[id^="panel-"]');
+  if (panelRoot) {
+    panelRoot.querySelectorAll('.accordion.open').forEach(acc => {
+      if (acc !== el) acc.classList.remove('open');
+    });
+  }
+
+  el.classList.toggle('open');
+  el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 
-function setFuelTab(key) {
+function setFuelTab(key, skipRefresh = false) {
   activeFuelTab = key;
   document.querySelectorAll('.fuel-tab').forEach(b => {
     b.classList.toggle('active', b.dataset.fuel === key);
@@ -1523,21 +2870,48 @@ function setFuelTab(key) {
     const p = document.getElementById(`panel-${k}`);
     if (p) p.style.display = k === key ? 'block' : 'none';
   });
+  const fuelSel = document.getElementById('sel-fuel');
+  if (fuelSel && fuelSel.value !== key) fuelSel.value = key;
+  if (!skipRefresh) {
+    const main = document.getElementById('main');
+    if (main) main.classList.remove('show-main-content');
+    activeMainTab = '';
+    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+    fullUpdate();
+  }
 }
 
 function setMainTab(tab) {
+  const main = document.getElementById('main');
+
   activeMainTab = tab;
+  if (main) main.classList.add('show-main-content');
   document.querySelectorAll('.main-tab').forEach(b => {
     b.classList.toggle('active', b.dataset.tab === tab);
   });
   destroyAllCharts();
   fullUpdate();
+
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    mainContent.scrollTop = 0;
+  }
 }
 
 function onFieldChange(key, field, val) {
   const parsed = parseFloat(val);
   if (Number.isFinite(parsed) && parsed >= 0) {
-    STATE[key][field] = parsed;
+    let internalValue = parsed;
+    if (PER_UNIT_EDIT_FIELDS.has(field)) {
+      internalValue = fromDisplayPerUnit(key, parsed);
+    } else if (field === 'demand') {
+      internalValue = fromDisplayDemand(key, parsed);
+    }
+
+    STATE[key][field] = internalValue;
+    if (activeFortnight && stateByDate[activeFortnight]) {
+      stateByDate[activeFortnight][key][field] = internalValue;
+    }
     fullUpdate();
   }
 }
@@ -1555,13 +2929,17 @@ function recalcVat(key) {
     newVat = d.retailPrice * f * vatRate / (1 + vatRate);
   }
   STATE[key].vat = parseFloat(newVat.toFixed(2));
+  if (activeFortnight && stateByDate[activeFortnight]) {
+    stateByDate[activeFortnight][key].vat = STATE[key].vat;
+  }
   const inp = document.getElementById(`inp-${key}-vat`);
-  if (inp) inp.value = STATE[key].vat;
+  if (inp) inp.value = toDisplayPerUnit(key, STATE[key].vat).toFixed(key === 'LP_Gas' ? 2 : 4);
   fullUpdate();
-  showToast(`VAT recalculated for ${d.label}: NPR ${fmt(newVat / f)}/unit`);
+  showToast(`VAT recalculated for ${d.label}: NPR ${fmt(newVat / f)}/${d.unitLabel}`);
 }
 
 function resetAll() {
+  initDateStates();
   initState();
   document.getElementById('hdr-irs').value = DEFAULTS.irsRate;
   document.getElementById('hdr-usd').value = DEFAULTS.usdRate;
@@ -1570,6 +2948,7 @@ function resetAll() {
   document.getElementById('rt-collected').value = DEFAULTS.collected;
   document.getElementById('rt-remaining').value = DEFAULTS.remaining;
   buildFuelPanels();
+  syncSelectors();
   fullUpdate();
   showToast('All parameters reset to baseline');
 }
@@ -1581,7 +2960,10 @@ function saveScenario() {
 
 function computeBaseline() {
   const origState = STATE;
-  STATE = cloneBase();
+  const baseForDate = (activeFortnight && DATA_MODEL.byDate[activeFortnight])
+    ? DATA_MODEL.byDate[activeFortnight]
+    : BASE_DATA;
+  STATE = cloneStateMap(baseForDate);
   const origIrs = document.getElementById('hdr-irs').value;
   const origUsd = document.getElementById('hdr-usd').value;
   const origVat = document.getElementById('hdr-vat').value;
@@ -1597,9 +2979,51 @@ function computeBaseline() {
 }
 
 function togglePresentation() {
-  document.body.classList.toggle('presentation-mode');
+  const body = document.body;
+  const main = document.getElementById('main');
+  const isEntering = !body.classList.contains('presentation-mode');
+
+  if (isEntering) {
+    prePresentationState = {
+      showMainContent: !!(main && main.classList.contains('show-main-content')),
+      activeMainTab
+    };
+
+    body.classList.add('presentation-mode');
+
+    if (main) {
+      main.classList.add('show-main-content');
+    }
+
+    activeMainTab = 'presentation';
+    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+    destroyAllCharts();
+    fullUpdate();
+  } else {
+    body.classList.remove('presentation-mode');
+
+    if (main) {
+      if (prePresentationState.showMainContent) {
+        activeMainTab = prePresentationState.activeMainTab || activeMainTab || 'overview';
+        main.classList.add('show-main-content');
+        document.querySelectorAll('.main-tab').forEach(b => {
+          b.classList.toggle('active', b.dataset.tab === activeMainTab);
+        });
+        destroyAllCharts();
+        fullUpdate();
+      } else {
+        main.classList.remove('show-main-content');
+        activeMainTab = '';
+        document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+      }
+    }
+
+    destroyAllCharts();
+    fullUpdate();
+  }
+
   const btn = document.getElementById('pres-btn');
-  btn.textContent = document.body.classList.contains('presentation-mode') ? 'Exit Present.' : 'Presentation';
+  btn.textContent = body.classList.contains('presentation-mode') ? 'Exit Present.' : 'Presentation';
   adjustBodyMargin();
 }
 
@@ -1615,14 +3039,22 @@ function showToast(msg) {
 // ══════════════════════════════════════════════════════
 function exportCSV() {
   const results = computeAll();
-  const headers = ['Fuel','ExDepotIrs','ExDepotNpr','SpecificTaxBulk','VAT','NocExpenses','Transport','Dealer','TotalCostKL','CostPerUnit','RetailPrice','ProfitPerUnit','Demand','DemandUnit','TotalProfitCrore','GovtRevPerUnit','TotalGovtRevCrore'];
+  const headers = ['Fuel','ExDepotIrsPerUnit','ExDepotNprPerUnit','SpecificTaxPerUnit','VATPerUnit','NocExpensesPerUnit','TransportPerUnit','DealerPerUnit','TotalCostPerUnit','CostPerUnit','RetailPricePerUnit','ProfitPerUnit','DemandPerFortnight','DemandUnit','TotalProfitCrore','GovtRevPerUnit','TotalGovtRevCrore'];
   const rows = results.map(r => [
-    r.label, r.exDepotIrs.toFixed(2), r.exDepotNpr.toFixed(2),
-    r.specificTaxBulk.toFixed(2), r.vat.toFixed(2), r.nocExpenses.toFixed(2),
-    r.transport.toFixed(2), r.dealer.toFixed(2),
-    r.totalCostWithVat.toFixed(2), r.costPerUnit.toFixed(2),
-    r.retailPrice.toFixed(2), r.profitPerUnit.toFixed(2),
-    r.demand, r.demandUnit,
+    r.label,
+    toDisplayPerUnit(r.key, r.exDepotIrs).toFixed(4),
+    toDisplayPerUnit(r.key, r.exDepotNpr).toFixed(4),
+    toDisplayPerUnit(r.key, r.specificTaxBulk).toFixed(4),
+    toDisplayPerUnit(r.key, r.vat).toFixed(4),
+    toDisplayPerUnit(r.key, r.nocExpenses).toFixed(4),
+    toDisplayPerUnit(r.key, r.transport).toFixed(4),
+    toDisplayPerUnit(r.key, r.dealer).toFixed(4),
+    r.costPerUnit.toFixed(4),
+    r.costPerUnit.toFixed(4),
+    r.retailPrice.toFixed(4),
+    r.profitPerUnit.toFixed(4),
+    Math.round(toDisplayDemand(r.key, r.demand)),
+    getDemandDisplayUnit(r.key),
     r.totalProfitCrore.toFixed(4), r.govtRevPerUnit.toFixed(4),
     r.totalGovtRevCrore.toFixed(4)
   ]);
@@ -1658,9 +3090,19 @@ function adjustBodyMargin() {
 // ══════════════════════════════════════════════════════
 // 11. INIT
 // ══════════════════════════════════════════════════════
-function init() {
+async function init() {
+  await loadDataModel();
+  populateSelectors();
+  initDateStates();
   initState();
+  applyImpliedIrsRate(activeFortnight, true);
+  updateDatasetStatus();
   buildFuelPanels();
+  syncSelectors();
+
+  const main = document.getElementById('main');
+  if (main) main.classList.remove('show-main-content');
+  document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
 
   // Wire header inputs
   ['hdr-irs','hdr-usd','hdr-vat'].forEach(id => {
@@ -1670,13 +3112,62 @@ function init() {
     document.getElementById(id).addEventListener('input', () => fullUpdate());
   });
 
+  const ftnSel = document.getElementById('sel-fortnight');
+  if (ftnSel) {
+    ftnSel.addEventListener('change', e => setFortnight(e.target.value));
+  }
+
+  const fuelSel = document.getElementById('sel-fuel');
+  if (fuelSel) {
+    fuelSel.addEventListener('change', e => setFuelTab(e.target.value));
+  }
+
   adjustBodyMargin();
   window.addEventListener('resize', adjustBodyMargin);
 
   fullUpdate();
+
+  if (DATA_MODEL.dates.length === 1) {
+    showToast('Only one historical fortnight found. Trend charts include projection points for decision support.');
+  }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  init().catch(err => {
+    console.error(err);
+    showToast('Failed to initialize CSV model. Baseline values loaded.');
+    DATA_MODEL.source = 'Embedded baseline (init fallback)';
+    DATA_MODEL.dates = ['2026-04-03'];
+    DATA_MODEL.byDate = { '2026-04-03': cloneBase() };
+    DATA_MODEL.impliedIrsRate = null;
+    DATA_MODEL.impliedIrsByDate = {};
+    updateDatasetStatus();
+    populateSelectors();
+    initDateStates();
+    initState();
+    buildFuelPanels();
+    syncSelectors();
+
+    ['hdr-irs','hdr-usd','hdr-vat'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => fullUpdate());
+    });
+    ['rt-annual','rt-collected','rt-remaining'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => fullUpdate());
+    });
+    const ftnSel = document.getElementById('sel-fortnight');
+    if (ftnSel) {
+      ftnSel.addEventListener('change', e => setFortnight(e.target.value));
+    }
+    const fuelSel = document.getElementById('sel-fuel');
+    if (fuelSel) {
+      fuelSel.addEventListener('change', e => setFuelTab(e.target.value));
+    }
+
+    adjustBodyMargin();
+    window.addEventListener('resize', adjustBodyMargin);
+    fullUpdate();
+  });
+});
 </script>
 </body>
 </html>
