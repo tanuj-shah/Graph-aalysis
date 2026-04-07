@@ -1,565 +1,335 @@
-{
-  "files": {
-    "source_xlsx": "data.xlsx",
-    "source_csv": "noc_petroleum_pricing_2026-04-03.csv",
-    "output_standardized_csv": "noc_petroleum_pricing_2026-04-03_cleaned_standardized.csv"
-  },
-  "row_counts": {
-    "csv_rows": 222,
-    "standardized_rows": 222
-  },
-  "column_validation": {
-    "expected_columns": [
-      "date",
-      "fuel_type",
-      "variable_group",
-      "variable_name",
-      "unit",
-      "value"
-    ],
-    "column_summary": {
-      "date": {
-        "total_rows": 222,
-        "missing": 0,
-        "missing_pct": 0,
-        "unique_values": 1
-      },
-      "fuel_type": {
-        "total_rows": 222,
-        "missing": 0,
-        "missing_pct": 0,
-        "unique_values": 6
-      },
-      "variable_group": {
-        "total_rows": 222,
-        "missing": 0,
-        "missing_pct": 0,
-        "unique_values": 7
-      },
-      "variable_name": {
-        "total_rows": 222,
-        "missing": 0,
-        "missing_pct": 0,
-        "unique_values": 41
-      },
-      "unit": {
-        "total_rows": 222,
-        "missing": 0,
-        "missing_pct": 0,
-        "unique_values": 11
-      },
-      "value": {
-        "total_rows": 222,
-        "missing": 0,
-        "missing_pct": 0,
-        "unique_values": 155
-      }
-    },
-    "rules": {
-      "date_format_invalid_count": 0,
-      "fuel_type_invalid_count": 0,
-      "numeric_value_invalid_count": 0,
-      "duplicate_primary_key_count": 0
-    },
-    "samples": {
-      "date_format_invalid_rows": [],
-      "fuel_type_invalid_rows": [],
-      "numeric_value_invalid_rows": [],
-      "duplicate_primary_keys": []
-    }
-  },
-  "unit_inconsistencies": {
-    "count": 34,
-    "details": [
-      {
-        "variable_name": "administration_cost",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "border_price_difference",
-        "units": [
-          "NRs_per_liter",
-          "USD_per_liter",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "cargo_vehicle_charge",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "custom_duty",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "custom_service_charge",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "ex_depot_price_increase_irs",
-        "units": [
-          "IRs_per_KL",
-          "IRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "ex_depot_price_increase_nrs_per_liter",
-        "units": [
-          "NRs_per_liter",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "ex_depot_price_new_irs",
-        "units": [
-          "IRs_per_KL",
-          "IRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "ex_depot_price_nrs",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "ex_depot_price_old_irs",
-        "units": [
-          "IRs_per_KL",
-          "IRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "fortnightly_projected_demand",
-        "units": [
-          "KL",
-          "cylinders"
-        ]
-      },
-      {
-        "variable_name": "fuel_throughput_charge",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "green_tax",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "infrastructure_development_tax",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "insurance_premium",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "landed_cost",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "noc_ex_depot_price_without_vat",
-        "units": [
-          "NRs_per_KL",
-          "USD_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "petroleum_dealer_expenses",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "pollution_charge",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "psf_transfer",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "retail_price_per_liter",
-        "units": [
-          "NRs_per_liter",
-          "USD_per_liter"
-        ]
-      },
-      {
-        "variable_name": "road_maintenance_charge",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "rsp_india_border_kolkata",
-        "units": [
-          "IRs_per_liter",
-          "USD_per_liter"
-        ]
-      },
-      {
-        "variable_name": "rsp_india_border_nrs",
-        "units": [
-          "NRs_per_liter",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "rsp_india_border_raxaul",
-        "units": [
-          "IRs_per_liter",
-          "IRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "rsp_nepal_border_birgunj",
-        "units": [
-          "NRs_per_liter",
-          "USD_per_liter",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "technical_loss",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "total_cost_noc_per_liter",
-        "units": [
-          "NRs_per_liter",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "total_cost_noc_with_vat",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "total_cost_noc_without_vat",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "total_government_tax",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "total_noc_expenses",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "transportation",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      },
-      {
-        "variable_name": "vat_13pct",
-        "units": [
-          "NRs_per_KL",
-          "NRs_per_cylinder"
-        ]
-      }
-    ]
-  },
-  "xlsx_vs_csv": {
-    "compared_rows": 222,
-    "missing_in_csv_count": 0,
-    "mismatch_count": 0,
-    "placeholder_converted_to_zero_count": 34,
-    "mismatch_samples": [],
-    "placeholder_converted_to_zero_samples": [
-      {
-        "fuel_type": "Petrol",
-        "variable_name": "cargo_vehicle_charge",
-        "xlsx_row": 13,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Diesel",
-        "variable_name": "cargo_vehicle_charge",
-        "xlsx_row": 13,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "cargo_vehicle_charge",
-        "xlsx_row": 13,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DP",
-        "variable_name": "cargo_vehicle_charge",
-        "xlsx_row": 13,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "cargo_vehicle_charge",
-        "xlsx_row": 13,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "road_maintenance_charge",
-        "xlsx_row": 15,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DP",
-        "variable_name": "road_maintenance_charge",
-        "xlsx_row": 15,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "road_maintenance_charge",
-        "xlsx_row": 15,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "road_maintenance_charge",
-        "xlsx_row": 15,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "pollution_charge",
-        "xlsx_row": 16,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DP",
-        "variable_name": "pollution_charge",
-        "xlsx_row": 16,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "pollution_charge",
-        "xlsx_row": 16,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "pollution_charge",
-        "xlsx_row": 16,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "green_tax",
-        "xlsx_row": 17,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DP",
-        "variable_name": "green_tax",
-        "xlsx_row": 17,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "green_tax",
-        "xlsx_row": 17,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "green_tax",
-        "xlsx_row": 17,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "infrastructure_development_tax",
-        "xlsx_row": 19,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DP",
-        "variable_name": "infrastructure_development_tax",
-        "xlsx_row": 19,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "infrastructure_development_tax",
-        "xlsx_row": 19,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "infrastructure_development_tax",
-        "xlsx_row": 19,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Petrol",
-        "variable_name": "fuel_throughput_charge",
-        "xlsx_row": 21,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Diesel",
-        "variable_name": "fuel_throughput_charge",
-        "xlsx_row": 21,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "fuel_throughput_charge",
-        "xlsx_row": 21,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "fuel_throughput_charge",
-        "xlsx_row": 21,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "technical_loss",
-        "xlsx_row": 25,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "LP_Gas",
-        "variable_name": "transportation",
-        "xlsx_row": 27,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DP",
-        "variable_name": "petroleum_dealer_expenses",
-        "xlsx_row": 30,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "petroleum_dealer_expenses",
-        "xlsx_row": 30,
-        "excel_missing_type": "dash_placeholder",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "rsp_india_border_nrs",
-        "xlsx_row": 47,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "ATF_DF",
-        "variable_name": "rsp_india_border_nrs",
-        "xlsx_row": 47,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "rsp_nepal_border_birgunj",
-        "xlsx_row": 48,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "border_price_difference",
-        "xlsx_row": 49,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      },
-      {
-        "fuel_type": "Kerosene",
-        "variable_name": "rsp_india_border_raxaul",
-        "xlsx_row": 46,
-        "excel_missing_type": "blank",
-        "csv_value": 0
-      }
-    ],
-    "missing_in_csv_samples": []
-  }
+﻿{
+    "files":  {
+                  "source_xlsx":  "data.xlsx",
+                  "source_csv":  "noc_fuel_pricing_dashboard.csv",
+                  "output_standardized_csv":  null
+              },
+    "row_counts":  {
+                       "csv_rows":  206,
+                       "standardized_rows":  null
+                   },
+    "column_validation":  {
+                              "expected_columns":  [
+                                                       "date",
+                                                       "ioc_price_effective_date",
+                                                       "fuel_type",
+                                                       "depot",
+                                                       "category",
+                                                       "variable_name",
+                                                       "display_name",
+                                                       "value",
+                                                       "unit"
+                                                   ],
+                              "column_summary":  {
+                                                     "date":  {
+                                                                  "total_rows":  206,
+                                                                  "missing":  0,
+                                                                  "missing_pct":  0,
+                                                                  "unique_values":  1
+                                                              },
+                                                     "ioc_price_effective_date":  {
+                                                                                      "total_rows":  206,
+                                                                                      "missing":  0,
+                                                                                      "missing_pct":  0,
+                                                                                      "unique_values":  1
+                                                                                  },
+                                                     "fuel_type":  {
+                                                                       "total_rows":  206,
+                                                                       "missing":  0,
+                                                                       "missing_pct":  0,
+                                                                       "unique_values":  7
+                                                                   },
+                                                     "depot":  {
+                                                                   "total_rows":  206,
+                                                                   "missing":  0,
+                                                                   "missing_pct":  0,
+                                                                   "unique_values":  3
+                                                               },
+                                                     "category":  {
+                                                                      "total_rows":  206,
+                                                                      "missing":  0,
+                                                                      "missing_pct":  0,
+                                                                      "unique_values":  9
+                                                                  },
+                                                     "variable_name":  {
+                                                                           "total_rows":  206,
+                                                                           "missing":  0,
+                                                                           "missing_pct":  0,
+                                                                           "unique_values":  36
+                                                                       },
+                                                     "display_name":  {
+                                                                          "total_rows":  206,
+                                                                          "missing":  0,
+                                                                          "missing_pct":  0,
+                                                                          "unique_values":  36
+                                                                      },
+                                                     "value":  {
+                                                                   "total_rows":  206,
+                                                                   "missing":  0,
+                                                                   "missing_pct":  0,
+                                                                   "unique_values":  140
+                                                               },
+                                                     "unit":  {
+                                                                  "total_rows":  206,
+                                                                  "missing":  0,
+                                                                  "missing_pct":  0,
+                                                                  "unique_values":  7
+                                                              }
+                                                 },
+                              "rules":  {
+                                            "date_format_invalid_count":  0,
+                                            "ioc_date_format_invalid_count":  0,
+                                            "fuel_type_invalid_count":  0,
+                                            "numeric_value_invalid_count":  0,
+                                            "duplicate_primary_key_count":  0
+                                        },
+                              "samples":  {
+                                              "date_format_invalid_rows":  [
+
+                                                                           ],
+                                              "ioc_date_format_invalid_rows":  [
+
+                                                                               ],
+                                              "fuel_type_invalid_rows":  [
+
+                                                                         ],
+                                              "numeric_value_invalid_rows":  [
+
+                                                                             ],
+                                              "duplicate_primary_keys":  [
+
+                                                                         ]
+                                          }
+                          },
+    "unit_inconsistencies":  {
+                                 "count":  31,
+                                 "details":  [
+                                                 {
+                                                     "variable_name":  "administration_cost",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "cargo_vehicle_charge",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "custom_duty",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "custom_service_charge",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "dealer_expenses",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "ex_depot_price_ioc_current",
+                                                     "units":  [
+                                                                   "IRs_per_cylinder",
+                                                                   "IRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "ex_depot_price_ioc_prev",
+                                                     "units":  [
+                                                                   "IRs_per_cylinder",
+                                                                   "IRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "ex_depot_price_nrs",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "fortnightly_projected_demand",
+                                                     "units":  [
+                                                                   "cylinders",
+                                                                   "KL"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "fuel_throughput_charge",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "govt_revenue_per_liter",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "green_tax",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "infrastructure_development_tax",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "insurance_premium",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "landed_cost",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "noc_ex_depot_price_wo_vat",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "pollution_charge",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "price_difference_irs",
+                                                     "units":  [
+                                                                   "IRs_per_cylinder",
+                                                                   "IRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "profit_loss_per_liter",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "psf_transfer",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "retail_price_per_liter",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "road_maintenance_charge",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "technical_loss",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "total_cost_per_liter",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "total_cost_with_vat_per_kl",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "total_cost_wo_vat",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "total_government_tax",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "total_noc_expenses",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "transportation_cost",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "vat_13pct",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 },
+                                                 {
+                                                     "variable_name":  "vat_amount",
+                                                     "units":  [
+                                                                   "NRs_per_cylinder",
+                                                                   "NRs_per_liter"
+                                                               ]
+                                                 }
+                                             ]
+                             },
+    "xlsx_vs_csv":  {
+                        "status":  "not_compared",
+                        "reason":  "No standardized CSV found in workspace for xlsx-vs-csv reconciliation."
+                    },
+    "meta":  {
+                 "generated_at":  "2026-04-07T09:55:18+05:45",
+                 "generated_from":  "latest available workspace data",
+                 "report_version":  "2.0"
+             }
 }
